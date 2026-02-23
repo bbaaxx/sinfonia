@@ -10,4 +10,11 @@ describe("createProgram", () => {
     expect(program.description()).toBe("Sinfonia CLI");
     expect(program.version()).toBe("0.0.0");
   });
+
+  it("registers the init command", () => {
+    const program = createProgram();
+
+    const init = program.commands.find((command) => command.name() === "init");
+    expect(init).toBeDefined();
+  });
 });
