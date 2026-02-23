@@ -1,0 +1,31 @@
+{
+  "name": "sinfonia",
+  "version": "0.0.0",
+  "description": "Sinfonia CLI scaffold",
+  "type": "module",
+  "bin": {
+    "sinfonia": "dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "files": [
+    "dist",
+    "agents",
+    "workflows",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "commander": "^13.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.8"
+  }
+}
