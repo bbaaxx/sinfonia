@@ -14,21 +14,22 @@ const KNOWN_SECTIONS = new Set([
 
 const CANONICAL_ORDER = [
   "Identity",
-  "Critical Actions",
-  "Task Protocol",
   "Comm Style",
   "Role Def",
   "Principles",
+  "Critical Actions",
+  "Task Protocol",
   "Activation Sequence",
   "Menu",
+  "Rules",
   "Handoff Instructions",
+  "Custom Instructions",
   "Examples",
   "Notes"
 ];
 
 type Section = {
   title: string;
-  level: number;
   body: string;
 };
 
@@ -73,14 +74,17 @@ const parseSections = (content: string): Section[] => {
   for (const line of lines) {
     const heading = line.match(/^(#{1,6})\s+(.+)$/);
     if (heading) {
+      const [, hashes, rawTitle] = heading;
+      if (hashes.length !== 2) {
+        continue;
+      }
+
       if (current) {
         sections.push(current);
       }
 
-      const [, hashes, rawTitle] = heading;
       current = {
         title: normalizeTitle(rawTitle),
-        level: hashes.length,
         body: ""
       };
       continue;
@@ -152,9 +156,17 @@ export const validatePersonaSections = (
     }
   }
 
-  for (const section of sections) {
-    if (section.level !== 2) {
-      errors.push(issue("SS-06", "ERROR", `Section headings must use H2 (##): ${section.title}`));
+  const body = splitBody(content);
+  for (const line of body.split(/\r?\n/)) {
+    const heading = line.match(/^(#{1,6})\s+(.+)$/);
+    if (!heading) {
+      continue;
+    }
+
+    const [, hashes, rawTitle] = heading;
+    const title = normalizeTitle(rawTitle);
+    if (KNOWN_SECTIONS.has(title) && hashes.length !== 2) {
+      errors.push(issue("SS-06", "ERROR", `Section headings must use H2 (##): ${title}`));
     }
   }
 

@@ -18,4 +18,12 @@ describe("createProgram", () => {
     expect(init).toBeDefined();
     expect(init?.options.some((option) => option.long === "--yes")).toBe(true);
   });
+
+  it("registers validate command with --all option", () => {
+    const program = createProgram();
+
+    const validate = program.commands.find((command) => command.name() === "validate");
+    expect(validate).toBeDefined();
+    expect(validate?.options.some((option) => option.long === "--all")).toBe(true);
+  });
 });

@@ -13,12 +13,6 @@ persona_mode: interactive
 ## Identity
 I am the coordinator.
 
-## Critical Actions
-1. Route
-
-## Task Protocol
-1. Plan
-
 ## Comm Style
 Clear.
 
@@ -27,6 +21,12 @@ Defined.
 
 ## Principles
 1. Keep simple.
+
+## Critical Actions
+1. Route
+
+## Task Protocol
+1. Plan
 
 ## Activation Sequence
 1. Start
@@ -71,8 +71,8 @@ describe("validatePersonaSections", () => {
 
   it("errors on out-of-order sections", () => {
     const wrongOrder = baseContent.replace(
-      "## Critical Actions\n1. Route\n\n## Task Protocol\n1. Plan\n\n",
-      "## Task Protocol\n1. Plan\n\n## Critical Actions\n1. Route\n\n"
+      "## Comm Style\nClear.\n\n## Role Def\nDefined.\n\n",
+      "## Role Def\nDefined.\n\n## Comm Style\nClear.\n\n"
     );
     const result = validatePersonaSections(wrongOrder, "interactive");
     expect(result.errors.some((item) => item.ruleId === "SS-05")).toBe(true);
