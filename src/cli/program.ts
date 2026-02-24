@@ -2,6 +2,7 @@ import { Command } from "commander";
 
 import { runInitCommand } from "./init.js";
 import { runValidateCommand } from "./validate.js";
+import { runRulesCommand } from "./rules.js";
 
 export const createProgram = (): Command => {
   const program = new Command();
@@ -26,6 +27,17 @@ export const createProgram = (): Command => {
     .option("--all", "Validate all markdown files recursively")
     .action(async (pathArg: string, options: { all?: boolean }) => {
       const exitCode = await runValidateCommand(pathArg, { all: Boolean(options.all) });
+      if (exitCode !== 0) {
+        process.exitCode = exitCode;
+      }
+    });
+
+  program
+    .command("rules")
+    .description("List all registered enforcement rules")
+    .option("--json", "Output rules as JSON")
+    .action(async (options: { json?: boolean }) => {
+      const exitCode = await runRulesCommand({ json: Boolean(options.json) });
       if (exitCode !== 0) {
         process.exitCode = exitCode;
       }
