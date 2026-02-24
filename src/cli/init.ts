@@ -2,6 +2,8 @@ import { constants } from "node:fs";
 import { access, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
+import { generateWorkflowStubs } from "./generate-stubs.js";
+
 type PersonaMode = "interactive" | "subagent" | "both";
 
 type FrameworkPersona = {
@@ -180,6 +182,7 @@ export const initProject = async (cwd: string = process.cwd()): Promise<void> =>
   }
 
   await writeIfMissing(join(cwd, ".opencode/plugins/sinfonia-enforcement.ts"), ENFORCEMENT_PLUGIN);
+  await generateWorkflowStubs(cwd);
   await writeOpenCodeConfig(cwd);
 };
 
