@@ -70,3 +70,52 @@ export type UpdateWorkflowIndexPatch = {
   currentStep?: string;
   currentStepIndex?: number;
 };
+
+// ---------------------------------------------------------------------------
+// Step Engine Types (Epic 4.0)
+// ---------------------------------------------------------------------------
+
+/** A single step definition discovered from the workflow steps directory. */
+export type WorkflowStepDef = {
+  /** 1-indexed step number. */
+  index: number;
+  /** Slug derived from the step filename (e.g. "gather-requirements"). */
+  slug: string;
+  /** Absolute path to the step Markdown file. */
+  filePath: string;
+};
+
+/** Parsed workflow definition loaded from a workflow.md definition file. */
+export type WorkflowDef = {
+  /** Workflow name (directory name under .sinfonia/workflows/). */
+  name: string;
+  /** Human-readable description from the workflow.md header. */
+  description: string;
+  /** Total number of steps discovered. */
+  totalSteps: number;
+  /** Ordered list of step definitions. */
+  steps: WorkflowStepDef[];
+};
+
+/** Result of loading a single step file on demand. */
+export type StepLoadResult = {
+  /** 1-indexed step number. */
+  stepIndex: number;
+  /** Step slug. */
+  slug: string;
+  /** Absolute path to the step file. */
+  filePath: string;
+  /** Full Markdown content of the step file. */
+  content: string;
+  /** Total steps in the workflow (for progress display). */
+  totalSteps: number;
+};
+
+/** Runtime state of the step engine for a given workflow session. */
+export type StepEngineState = {
+  workflowName: string;
+  sessionId: string;
+  currentStepIndex: number;
+  totalSteps: number;
+  status: WorkflowStatus;
+};
