@@ -38,10 +38,11 @@ describe("handoff writer", () => {
       {
         sourcePersona: "maestro",
         targetPersona: "coda",
-        type: "delegation",
+        type: "dispatch",
         status: "pending",
         task: "Implement",
         context: "Story details",
+        artifacts: ["spec.md"],
         constraints: ["TDD"]
       },
       sessionId,
@@ -55,11 +56,11 @@ describe("handoff writer", () => {
         targetPersona: "rondo",
         type: "return",
         status: "completed",
-        task: "Review",
-        context: "Review details",
-        result: "All good",
-        evidence: ["tests pass"],
-        nextSteps: ["merge"]
+        artifacts: ["src/file.ts"],
+        summary: "All good",
+        completionAssessment: "done",
+        blockers: ["none"],
+        recommendations: ["merge"]
       },
       sessionId,
       new Date("2026-02-23T23:15:32Z")
@@ -80,11 +81,11 @@ describe("handoff writer", () => {
         targetPersona: "rondo",
         type: "return",
         status: "completed",
-        task: "Review",
-        context: "Context",
-        result: "Implemented",
-        evidence: ["unit tests"],
-        nextSteps: ["approve"]
+        artifacts: ["src/a.ts"],
+        summary: "Implemented",
+        completionAssessment: "ready",
+        blockers: ["none"],
+        recommendations: ["approve"]
       },
       "s-20260223-231530",
       new Date("2026-02-23T23:15:33Z")
@@ -100,9 +101,11 @@ describe("handoff writer", () => {
     expect(content).toContain("status:");
     expect(content).toContain("created_at:");
     expect(content).toContain("word_count:");
-    expect(content).toContain("## Result");
-    expect(content).toContain("## Evidence");
-    expect(content).toContain("## Next Steps");
+    expect(content).toContain("## Artifacts");
+    expect(content).toContain("## Summary");
+    expect(content).toContain("## Completion Assessment");
+    expect(content).toContain("## Blockers");
+    expect(content).toContain("## Recommendations");
   });
 
   it("rejects bodies over 500 words", async () => {
@@ -115,7 +118,7 @@ describe("handoff writer", () => {
         {
           sourcePersona: "maestro",
           targetPersona: "libretto",
-          type: "delegation",
+          type: "dispatch",
           status: "pending",
           task: oversized,
           context: oversized,

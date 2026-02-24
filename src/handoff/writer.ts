@@ -46,13 +46,16 @@ const nextSequence = async (sessionDir: string): Promise<number> => {
 };
 
 const bodyFor = (payload: HandoffPayload): string => {
-  if (payload.type === "delegation") {
+  if (payload.type === "dispatch") {
     return [
+      "## Artifacts",
+      list(payload.artifacts),
+      "",
       "## Task",
-      payload.task,
+      payload.task ?? "",
       "",
       "## Context",
-      payload.context,
+      payload.context ?? "",
       "",
       "## Constraints",
       list(payload.constraints)
@@ -61,11 +64,33 @@ const bodyFor = (payload: HandoffPayload): string => {
 
   if (payload.type === "return") {
     return [
-      "## Result",
-      payload.result ?? "",
+      "## Artifacts",
+      list(payload.artifacts),
       "",
-      "## Evidence",
-      list(payload.evidence),
+      "## Summary",
+      payload.summary ?? payload.result ?? "",
+      "",
+      "## Completion Assessment",
+      payload.completionAssessment ?? "",
+      "",
+      "## Blockers",
+      list(payload.blockers),
+      "",
+      "## Recommendations",
+      list(payload.recommendations ?? payload.nextSteps)
+    ].join("\n");
+  }
+
+  if (payload.type === "revision") {
+    return [
+      "## Artifacts",
+      list(payload.artifacts),
+      "",
+      "## Revision Required",
+      payload.revisionRequired ?? "",
+      "",
+      "## Feedback",
+      payload.feedback ?? "",
       "",
       "## Next Steps",
       list(payload.nextSteps)
@@ -73,14 +98,11 @@ const bodyFor = (payload: HandoffPayload): string => {
   }
 
   return [
-    "## Error",
-    payload.errorSummary ?? "",
+    "## Artifacts",
+    list(payload.artifacts),
     "",
-    "## Impact",
-    payload.impact ?? "",
-    "",
-    "## Recovery",
-    payload.recovery ?? ""
+    "## Message",
+    payload.message ?? ""
   ].join("\n");
 };
 

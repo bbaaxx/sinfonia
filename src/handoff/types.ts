@@ -1,4 +1,4 @@
-export type HandoffType = "delegation" | "return" | "error";
+export type HandoffType = "dispatch" | "return" | "revision" | "direct";
 
 export type HandoffStatus = "pending" | "completed" | "blocked";
 
@@ -7,15 +7,20 @@ export type HandoffPayload = {
   targetPersona: string;
   type: HandoffType;
   status: HandoffStatus;
-  task: string;
-  context: string;
+  artifacts?: string[];
+  task?: string;
+  context?: string;
   constraints?: string[];
+  summary?: string;
+  completionAssessment?: string;
+  blockers?: string[];
+  recommendations?: string[];
+  revisionRequired?: string;
+  feedback?: string;
+  message?: string;
   result?: string;
   evidence?: string[];
   nextSteps?: string[];
-  errorSummary?: string;
-  impact?: string;
-  recovery?: string;
 };
 
 export type WrittenHandoff = {
@@ -23,4 +28,10 @@ export type WrittenHandoff = {
   sessionId: string;
   sequence: number;
   filePath: string;
+};
+
+export type ParsedHandoffEnvelope = {
+  frontmatter: Record<string, unknown>;
+  sections: Record<string, string>;
+  raw: string;
 };
