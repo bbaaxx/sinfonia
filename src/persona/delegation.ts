@@ -1,4 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+
+import { updateWorkflowIndex, workflowIndexPath } from "../workflow/index-manager.js";
 
 export type DispatchEnvelope = {
   sessionId: string;
@@ -47,4 +50,27 @@ export const updateWorkflowCurrentStep = async (
     : `${personaLine}\n${withStep}`;
 
   await writeFile(workflowPath, withPersona, "utf8");
+};
+
+/**
+ * Record an active delegation in the workflow index.
+ * NON-BLOCKING: if WorkflowIndexManager fails, logs a warning and returns normally.
+ * Delegation must succeed even if state tracking fails.
+ */
+export const trackDelegation = async (
+  sessionId: string,
+  targetPersona: string,
+  envelopePath: string
+): Promise<void> => {
+  try {
+    const indexPath = workflowIndexPath(join(process.cwd(), ".sinfonia"), sessionId);
+    await updateWorkflowIndex(indexPath, {
+      currentStep: `delegating-to-${targetPersona}`
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn(
+      `[sinfonia] trackDelegation: failed to update workflow index for session ${sessionId} → ${targetPersona} (envelope: ${envelopePath}): ${message}`
+    );
+  }
 };

@@ -2,9 +2,13 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { formatDelegationContext, updateWorkflowCurrentStep } from "../../src/persona/delegation.js";
+import {
+  formatDelegationContext,
+  trackDelegation,
+  updateWorkflowCurrentStep
+} from "../../src/persona/delegation.js";
 import { generatePersonaArtifacts } from "../../src/persona/loader.js";
 
 const tempDirs: string[] = [];
@@ -60,5 +64,52 @@ describe("delegation helpers", () => {
     expect(config.agents["sinfonia-maestro"].routing).toBe("@sinfonia-maestro");
     expect(config.agents["sinfonia-libretto"].routing).toBe("@sinfonia-libretto");
     expect(config.agents["sinfonia-coda"].routing).toBe("@sinfonia-coda");
+  });
+
+  it("formatDelegationContext with minimal envelope uses graceful defaults", () => {
+    const result = formatDelegationContext({
+      sessionId: "s-minimal",
+      sequence: 1,
+      sourcePersona: "maestro",
+      targetPersona: "coda",
+      task: "Do the thing",
+      context: "",
+      constraints: []
+    });
+
+    expect(result).toBeTruthy();
+    expect(result).toContain("Do the thing");
+    expect(result).toContain("s-minimal");
+  });
+
+  it("trackDelegation resolves without throwing when WorkflowIndexManager fails", async () => {
+    // trackDelegation must be non-blocking — even if the index write fails, it should not throw
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    // Use a session ID that will cause the index path to be in a non-existent directory
+    // so WorkflowIndexManager will fail to write
+    await expect(
+      trackDelegation("nonexistent-session-xyz", "coda", "/fake/envelope.md")
+    ).resolves.toBeUndefined();
+
+    // Should have logged a warning
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("trackDelegation"));
+
+    warnSpy.mockRestore();
+  });
+
+  it("trackDelegation logs warning with session and persona info on failure", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    await trackDelegation("session-abc", "rondo", "/path/to/envelope.md");
+
+    // Warning should mention the session and target persona
+    const warnCall = warnSpy.mock.calls[0]?.[0] as string | undefined;
+    if (warnCall) {
+      expect(warnCall).toContain("session-abc");
+      expect(warnCall).toContain("rondo");
+    }
+
+    warnSpy.mockRestore();
   });
 });

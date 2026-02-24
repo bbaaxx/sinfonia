@@ -114,6 +114,25 @@ describe("persona loader and artifact generation", () => {
     );
   });
 
+  it("all 6 real framework persona files load successfully with 0 validation errors", async () => {
+    const cwd = await makeTempDir();
+    // The real framework agents directory relative to this test file
+    const frameworkDir = join(new URL(import.meta.url).pathname, "../../../agents");
+
+    for (const profile of PERSONA_PROFILES) {
+      const loaded = await loadPersona({
+        cwd,
+        personaId: profile.id,
+        frameworkAgentsDir: frameworkDir
+      });
+      expect(loaded).toBeDefined();
+      expect(loaded.id).toBe(profile.id);
+      expect(loaded.sourceType).toBe("framework");
+      expect(loaded.frontmatter).toBeDefined();
+      expect(loaded.body).toBeTruthy();
+    }
+  });
+
   it("generates stubs and opencode config entries for all personas", async () => {
     const cwd = await makeTempDir();
     const frameworkDir = join(cwd, "framework");

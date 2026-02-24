@@ -1,78 +1,32 @@
-import { access, mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import { constants } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 
 import { validatePersonaPaths } from "../validators/persona/validator.js";
 
-type PersonaMode = "primary" | "subagent";
+// Re-export all types from types.ts for backward compatibility
+export type {
+  GeneratePersonaArtifactsOptions,
+  LoadedPersona,
+  LoadPersonaOptions,
+  OpencodeAgentEntry,
+  PersonaConfig,
+  PersonaMode,
+  PersonaPermissions,
+  PersonaProfile,
+  PersonaSections,
+  StubGeneratorOptions
+} from "./types.js";
 
-export type PersonaProfile = {
-  id: string;
-  mode: PersonaMode;
-  permissions: string[];
-  description: string;
-};
+// Re-export stub-generator public API for backward compatibility
+export {
+  generateAllArtifacts as generatePersonaArtifacts,
+  generateOpencodeEntry,
+  generateStub,
+  PERSONA_PROFILES
+} from "./stub-generator.js";
 
-export const PERSONA_PROFILES: PersonaProfile[] = [
-  {
-    id: "maestro",
-    mode: "primary",
-    permissions: ["read", "write", "edit", "bash"],
-    description: "Primary orchestration persona"
-  },
-  {
-    id: "libretto",
-    mode: "subagent",
-    permissions: ["read", "write"],
-    description: "Product planning and requirements persona"
-  },
-  {
-    id: "amadeus",
-    mode: "subagent",
-    permissions: ["read", "write"],
-    description: "Technical architecture persona"
-  },
-  {
-    id: "coda",
-    mode: "subagent",
-    permissions: ["write", "edit", "bash"],
-    description: "Implementation delivery persona"
-  },
-  {
-    id: "rondo",
-    mode: "subagent",
-    permissions: ["read", "bash"],
-    description: "Review and quality persona"
-  },
-  {
-    id: "metronome",
-    mode: "subagent",
-    permissions: ["read"],
-    description: "Context and memory management persona"
-  }
-];
-
-export type LoadedPersona = {
-  id: string;
-  sourcePath: string;
-  sourceType: "override" | "framework";
-  frontmatter: Record<string, unknown>;
-  body: string;
-  sidecarMemoryPath?: string;
-};
-
-export type LoadPersonaOptions = {
-  cwd: string;
-  personaId: string;
-  frameworkAgentsDir?: string;
-  sidecarMemoryEnabled?: boolean;
-};
-
-export type GeneratePersonaArtifactsOptions = {
-  cwd: string;
-  frameworkAgentsDir?: string;
-  sidecarMemoryEnabled?: boolean;
-};
+import type { LoadedPersona, LoadPersonaOptions } from "./types.js";
 
 const parseScalar = (rawValue: string): unknown => {
   const value = rawValue.trim();
@@ -144,10 +98,6 @@ const fileExists = async (filePath: string): Promise<boolean> => {
   }
 };
 
-const ensureParentDir = async (filePath: string): Promise<void> => {
-  await mkdir(dirname(filePath), { recursive: true });
-};
-
 const frameworkDirFromModule = (): string => {
   const here = dirname(new URL(import.meta.url).pathname);
   return resolve(here, "../../agents");
@@ -193,99 +143,6 @@ export const loadPersona = async (options: LoadPersonaOptions): Promise<LoadedPe
     body: parsed.body,
     ...(sidecarMemoryPath ? { sidecarMemoryPath } : {})
   };
-};
-
-const toStub = (personaId: string): string => `---
-name: sinfonia-${personaId}
-description: Thin persona stub for ${personaId}
-prompt:
-  file: .sinfonia/agents/${personaId}.md
----
-
-Route operations through the ${personaId} persona prompt file.
-`;
-
-const mergeOpencodeConfig = (
-  current: Record<string, unknown>,
-  personas: LoadedPersona[]
-): Record<string, unknown> => {
-  const agentsRecord =
-    current.agents && typeof current.agents === "object" && !Array.isArray(current.agents)
-      ? (current.agents as Record<string, unknown>)
-      : {};
-
-  const nextAgents: Record<string, unknown> = { ...agentsRecord };
-  for (const profile of PERSONA_PROFILES) {
-    nextAgents[`sinfonia-${profile.id}`] = {
-      mode: profile.mode,
-      permissions: profile.permissions,
-      description: profile.description,
-      routing: `@sinfonia-${profile.id}`,
-      prompt: {
-        file: `.sinfonia/agents/${profile.id}.md`
-      }
-    };
-  }
-
-  return {
-    ...current,
-    agents: nextAgents,
-    sinfonia: {
-      personas: personas.map((persona) => ({
-        id: persona.id,
-        source: persona.sourceType,
-        file: `.sinfonia/agents/${persona.id}.md`
-      }))
-    }
-  };
-};
-
-const readJsonObject = async (filePath: string): Promise<Record<string, unknown>> => {
-  if (!(await fileExists(filePath))) {
-    return {};
-  }
-  const data = await readFile(filePath, "utf8");
-  const parsed = JSON.parse(data) as unknown;
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-    throw new Error("opencode.json must contain an object");
-  }
-  return parsed as Record<string, unknown>;
-};
-
-export const generatePersonaArtifacts = async (
-  options: GeneratePersonaArtifactsOptions
-): Promise<LoadedPersona[]> => {
-  const personas: LoadedPersona[] = [];
-
-  for (const profile of PERSONA_PROFILES) {
-    const loaded = await loadPersona({
-      cwd: options.cwd,
-      personaId: profile.id,
-      ...(options.frameworkAgentsDir ? { frameworkAgentsDir: options.frameworkAgentsDir } : {}),
-      ...(options.sidecarMemoryEnabled !== undefined
-        ? { sidecarMemoryEnabled: options.sidecarMemoryEnabled }
-        : {})
-    });
-    personas.push(loaded);
-
-    const targetPersonaPath = join(options.cwd, ".sinfonia/agents", `${profile.id}.md`);
-    if (!(await fileExists(targetPersonaPath))) {
-      await ensureParentDir(targetPersonaPath);
-      const source = await readFile(loaded.sourcePath, "utf8");
-      await writeFile(targetPersonaPath, source, "utf8");
-    }
-
-    const stubPath = join(options.cwd, ".opencode/agent", `sinfonia-${profile.id}.md`);
-    await ensureParentDir(stubPath);
-    await writeFile(stubPath, toStub(profile.id), "utf8");
-  }
-
-  const opencodePath = join(options.cwd, "opencode.json");
-  const currentConfig = await readJsonObject(opencodePath);
-  const merged = mergeOpencodeConfig(currentConfig, personas);
-  await writeFile(opencodePath, `${JSON.stringify(merged, null, 2)}\n`, "utf8");
-
-  return personas;
 };
 
 export const personaFilename = (path: string): string => basename(path);
