@@ -16,5 +16,6 @@ describe("createProgram", () => {
 
     const init = program.commands.find((command) => command.name() === "init");
     expect(init).toBeDefined();
+    expect(init?.options.some((option) => option.long === "--yes")).toBe(true);
   });
 });

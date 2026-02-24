@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { FRAMEWORK_PERSONAS, INTERACTIVE_PERSONAS, initProject } from "../../src/cli/init.js";
+import { FRAMEWORK_PERSONAS, INTERACTIVE_PERSONAS, initProject, runInitCommand } from "../../src/cli/init.js";
 
 const exists = async (path: string): Promise<boolean> => {
   try {
@@ -101,5 +101,34 @@ describe("initProject", () => {
     } finally {
       await chmod(locked, 0o700);
     }
+  });
+
+  it("resumes existing init in --yes mode without overwriting config", async () => {
+    const cwd = await makeTempDir();
+
+    await initProject(cwd);
+    await writeFile(join(cwd, ".sinfonia/config.yaml"), "custom: true\n", "utf8");
+
+    await runInitCommand({ cwd, yes: true });
+
+    await expect(readFile(join(cwd, ".sinfonia/config.yaml"), "utf8")).resolves.toBe("custom: true\n");
+  });
+
+  it("supports re-init flow and overwrites config when selected", async () => {
+    const cwd = await makeTempDir();
+
+    await initProject(cwd);
+
+    const answers = ["re-init", "My App", "Dana", "expert"];
+    await runInitCommand({
+      cwd,
+      prompt: async () => answers.shift() ?? ""
+    });
+
+    const config = await readFile(join(cwd, ".sinfonia/config.yaml"), "utf8");
+    expect(config).toContain('project_name: "My App"');
+    expect(config).toContain('user_name: "Dana"');
+    expect(config).toContain("skill_level: expert");
+    expect(config).toContain("enforcement_strictness: low");
   });
 });

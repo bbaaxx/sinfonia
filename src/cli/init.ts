@@ -3,6 +3,12 @@ import { access, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 import { generateWorkflowStubs } from "./generate-stubs.js";
+import {
+  createConsolePrompt,
+  type PromptFn,
+  runInitWizard,
+  type WizardConfig
+} from "./wizard.js";
 
 type PersonaMode = "interactive" | "subagent" | "both";
 
@@ -10,6 +16,17 @@ type FrameworkPersona = {
   id: string;
   title: string;
   mode: PersonaMode;
+};
+
+type InitProjectOptions = {
+  config?: WizardConfig;
+  overwriteConfig?: boolean;
+};
+
+export type RunInitCommandOptions = {
+  cwd?: string;
+  yes?: boolean;
+  prompt?: PromptFn;
 };
 
 export const FRAMEWORK_PERSONAS: FrameworkPersona[] = [
@@ -25,8 +42,21 @@ export const INTERACTIVE_PERSONAS = FRAMEWORK_PERSONAS.filter(
   ({ mode }) => mode === "interactive" || mode === "both"
 ).map(({ id }) => id);
 
-const DEFAULT_CONFIG = `version: "0.1"
+const DEFAULT_CONFIG: WizardConfig = {
+  projectName: "",
+  userName: "",
+  skillLevel: "intermediate",
+  enforcementStrictness: "medium"
+};
+
+const quoteYaml = (value: string): string => value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+
+const toConfigYaml = (config: WizardConfig): string => `version: "0.1"
 default_orchestrator: maestro
+project_name: "${quoteYaml(config.projectName)}"
+user_name: "${quoteYaml(config.userName)}"
+skill_level: ${config.skillLevel}
+enforcement_strictness: ${config.enforcementStrictness}
 `;
 
 const toPersonaMarkdown = (persona: FrameworkPersona): string => `---
@@ -164,14 +194,35 @@ const ensureSinfoniaRootIsDirectory = async (cwd: string): Promise<void> => {
   }
 };
 
-export const initProject = async (cwd: string = process.cwd()): Promise<void> => {
+const hasExistingInit = async (cwd: string): Promise<boolean> => {
+  try {
+    const details = await stat(join(cwd, ".sinfonia/config.yaml"));
+    return details.isFile();
+  } catch (error: unknown) {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+      return false;
+    }
+    throw error;
+  }
+};
+
+export const initProject = async (
+  cwd: string = process.cwd(),
+  options: InitProjectOptions = {}
+): Promise<void> => {
   await ensureSinfoniaRootIsDirectory(cwd);
 
   await ensureDirectory(join(cwd, ".sinfonia/agents"));
   await ensureDirectory(join(cwd, ".sinfonia/handoffs"));
   await ensureDirectory(join(cwd, ".sinfonia/memory"));
 
-  await writeIfMissing(join(cwd, ".sinfonia/config.yaml"), DEFAULT_CONFIG);
+  const configPath = join(cwd, ".sinfonia/config.yaml");
+  const configYaml = toConfigYaml(options.config ?? DEFAULT_CONFIG);
+  if (options.overwriteConfig) {
+    await writeFile(configPath, configYaml, "utf8");
+  } else {
+    await writeIfMissing(configPath, configYaml);
+  }
 
   for (const persona of FRAMEWORK_PERSONAS) {
     await writeIfMissing(join(cwd, ".sinfonia/agents", `${persona.id}.md`), toPersonaMarkdown(persona));
@@ -186,6 +237,43 @@ export const initProject = async (cwd: string = process.cwd()): Promise<void> =>
   await writeOpenCodeConfig(cwd);
 };
 
-export const runInitCommand = async (): Promise<void> => {
-  await initProject(process.cwd());
+export const runInitCommand = async (options: RunInitCommandOptions = {}): Promise<void> => {
+  const cwd = options.cwd ?? process.cwd();
+  const yes = Boolean(options.yes);
+  const previous = await hasExistingInit(cwd);
+
+  let closePrompt: (() => void) | undefined;
+  let prompt = options.prompt;
+
+  if (!yes && !prompt) {
+    const consolePrompt = createConsolePrompt();
+    prompt = consolePrompt.prompt;
+    closePrompt = consolePrompt.close;
+  }
+
+  try {
+    const wizard = await runInitWizard({
+      yes,
+      hasPreviousInit: previous,
+      ...(prompt ? { prompt } : {})
+    });
+
+    if (wizard.action === "cancel") {
+      return;
+    }
+
+    if (wizard.action === "resume") {
+      await initProject(cwd);
+      return;
+    }
+
+    await initProject(cwd, {
+      config: wizard.config,
+      overwriteConfig: previous
+    });
+  } finally {
+    if (closePrompt) {
+      closePrompt();
+    }
+  }
 };

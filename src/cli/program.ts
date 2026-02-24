@@ -13,8 +13,9 @@ export const createProgram = (): Command => {
   program
     .command("init")
     .description("Initialize Sinfonia project structure")
-    .action(async () => {
-      await runInitCommand();
+    .option("-y, --yes", "Run non-interactively with defaults")
+    .action(async (options: { yes?: boolean }) => {
+      await runInitCommand({ yes: Boolean(options.yes) });
     });
 
   return program;
