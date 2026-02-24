@@ -3,6 +3,7 @@ import { access, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 import { generateWorkflowStubs } from "./generate-stubs.js";
+import { generatePersonaArtifacts } from "../persona/loader.js";
 import {
   createConsolePrompt,
   type PromptFn,
@@ -57,27 +58,6 @@ project_name: "${quoteYaml(config.projectName)}"
 user_name: "${quoteYaml(config.userName)}"
 skill_level: ${config.skillLevel}
 enforcement_strictness: ${config.enforcementStrictness}
-`;
-
-const toPersonaMarkdown = (persona: FrameworkPersona): string => `---
-id: ${persona.id}
-title: ${persona.title}
-mode: ${persona.mode}
----
-
-# ${persona.title}
-
-Framework persona scaffold for ${persona.id}.
-`;
-
-const toStubMarkdown = (personaId: string): string => `---
-name: sinfonia-${personaId}
-description: Sinfonia ${personaId} opencode stub
----
-
-# sinfonia-${personaId}
-
-Delegates into the .sinfonia persona file.
 `;
 
 const ENFORCEMENT_PLUGIN = `export const pluginName = "sinfonia-enforcement";
@@ -224,17 +204,9 @@ export const initProject = async (
     await writeIfMissing(configPath, configYaml);
   }
 
-  for (const persona of FRAMEWORK_PERSONAS) {
-    await writeIfMissing(join(cwd, ".sinfonia/agents", `${persona.id}.md`), toPersonaMarkdown(persona));
-  }
-
-  for (const personaId of INTERACTIVE_PERSONAS) {
-    await writeIfMissing(join(cwd, ".opencode/agent", `sinfonia-${personaId}.md`), toStubMarkdown(personaId));
-  }
-
   await writeIfMissing(join(cwd, ".opencode/plugins/sinfonia-enforcement.ts"), ENFORCEMENT_PLUGIN);
+  await generatePersonaArtifacts({ cwd });
   await generateWorkflowStubs(cwd);
-  await writeOpenCodeConfig(cwd);
 };
 
 export const runInitCommand = async (options: RunInitCommandOptions = {}): Promise<void> => {

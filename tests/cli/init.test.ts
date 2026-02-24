@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { FRAMEWORK_PERSONAS, INTERACTIVE_PERSONAS, initProject, runInitCommand } from "../../src/cli/init.js";
+import { FRAMEWORK_PERSONAS, initProject, runInitCommand } from "../../src/cli/init.js";
 
 const exists = async (path: string): Promise<boolean> => {
   try {
@@ -45,19 +45,11 @@ describe("initProject", () => {
 
     for (const persona of FRAMEWORK_PERSONAS) {
       await expect(readFile(join(cwd, ".sinfonia/agents", `${persona.id}.md`), "utf8")).resolves.toContain(
-        `id: ${persona.id}`
+        `persona_id: ${persona.id}`
       );
-    }
-
-    for (const personaId of INTERACTIVE_PERSONAS) {
-      await expect(readFile(join(cwd, ".opencode/agent", `sinfonia-${personaId}.md`), "utf8")).resolves.toContain(
-        `sinfonia-${personaId}`
+      await expect(readFile(join(cwd, ".opencode/agent", `sinfonia-${persona.id}.md`), "utf8")).resolves.toContain(
+        `.sinfonia/agents/${persona.id}.md`
       );
-    }
-
-    const subagentOnly = FRAMEWORK_PERSONAS.filter(({ id }) => !INTERACTIVE_PERSONAS.includes(id));
-    for (const persona of subagentOnly) {
-      await expect(exists(join(cwd, ".opencode/agent", `sinfonia-${persona.id}.md`))).resolves.toBe(false);
     }
 
     await expect(readFile(join(cwd, ".opencode/plugins/sinfonia-enforcement.ts"), "utf8")).resolves.toContain(
@@ -76,7 +68,9 @@ describe("initProject", () => {
     await initProject(cwd);
 
     await expect(readFile(join(cwd, ".sinfonia/config.yaml"), "utf8")).resolves.toBe("custom: true\n");
-    await expect(readFile(join(cwd, ".opencode/agent/sinfonia-maestro.md"), "utf8")).resolves.toBe("custom-stub\n");
+    await expect(readFile(join(cwd, ".opencode/agent/sinfonia-maestro.md"), "utf8")).resolves.not.toBe(
+      "custom-stub\n"
+    );
   });
 
   it("fails when .sinfonia exists as a file", async () => {
