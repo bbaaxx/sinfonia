@@ -323,3 +323,49 @@ export const updateWorkflowIndex = async (
   await writeWorkflowIndexAtomically(filePath, content);
   return parseWorkflowIndex(content);
 };
+
+export const addDecision = async (
+  cwd: string,
+  sessionId: string,
+  decision: WorkflowDecision
+): Promise<void> => {
+  const filePath = workflowIndexPath(cwd, sessionId);
+  const current = await readWorkflowIndex(filePath);
+  const nextFrontmatter: WorkflowFrontmatter = {
+    ...current.frontmatter,
+    updatedAt: nowIso()
+  };
+  const body = renderBody(
+    current.goal,
+    current.steps,
+    current.artifacts,
+    [...current.decisions, decision],
+    current.sessions,
+    current.context
+  );
+  const content = `${toFrontmatter(nextFrontmatter)}${body}\n`;
+  await writeWorkflowIndexAtomically(filePath, content);
+};
+
+export const addArtifact = async (
+  cwd: string,
+  sessionId: string,
+  artifact: WorkflowArtifact
+): Promise<void> => {
+  const filePath = workflowIndexPath(cwd, sessionId);
+  const current = await readWorkflowIndex(filePath);
+  const nextFrontmatter: WorkflowFrontmatter = {
+    ...current.frontmatter,
+    updatedAt: nowIso()
+  };
+  const body = renderBody(
+    current.goal,
+    current.steps,
+    [...current.artifacts, artifact],
+    current.decisions,
+    current.sessions,
+    current.context
+  );
+  const content = `${toFrontmatter(nextFrontmatter)}${body}\n`;
+  await writeWorkflowIndexAtomically(filePath, content);
+};

@@ -1,11 +1,22 @@
-import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { applyApprovalDecision, canProgressPipeline } from "../../src/handoff/approval.js";
 import { writeHandoffEnvelope } from "../../src/handoff/writer.js";
+
+// Mock WorkflowIndexManager so approval.ts uses the mock, not the real filesystem writer
+vi.mock("../../src/workflow/index-manager.js", () => ({
+  addDecision: vi.fn().mockResolvedValue(undefined),
+  addArtifact: vi.fn().mockResolvedValue(undefined),
+  workflowIndexPath: vi.fn((cwd: string, sessionId: string) =>
+    join(cwd, ".sinfonia/handoffs", sessionId, "workflow.md")
+  )
+}));
+
+import { addDecision } from "../../src/workflow/index-manager.js";
 
 const tempDirs: string[] = [];
 
@@ -16,16 +27,15 @@ const makeTempDir = async (): Promise<string> => {
 };
 
 afterEach(async () => {
+  vi.clearAllMocks();
   await Promise.all(tempDirs.splice(0, tempDirs.length).map((path) => rm(path, { recursive: true, force: true })));
 });
 
 describe("approval gate", () => {
-  it("approves envelope and records workflow decision", async () => {
+  it("approves envelope and calls addDecision with correct arguments", async () => {
     const cwd = await makeTempDir();
     const sessionId = "s-20260223-231530";
-    const workflowPath = join(cwd, ".sinfonia/handoffs", sessionId, "workflow.md");
     await mkdir(join(cwd, ".sinfonia/handoffs", sessionId), { recursive: true });
-    await writeFile(workflowPath, "# Workflow\n\n## Decisions\n", "utf8");
 
     const envelope = await writeHandoffEnvelope(
       cwd,
@@ -47,26 +57,35 @@ describe("approval gate", () => {
     await applyApprovalDecision({
       cwd,
       envelopePath: envelope.filePath,
-      workflowPath,
+      workflowPath: join(cwd, ".sinfonia/handoffs", sessionId, "workflow.md"),
       decision: "approve",
       reviewer: "maestro",
       note: "Looks good"
     });
 
     const envelopeAfter = await readFile(envelope.filePath, "utf8");
-    const workflowAfter = await readFile(workflowPath, "utf8");
     expect(envelopeAfter).toContain("approval: approve");
-    expect(workflowAfter).toContain("| Decision | Reviewer | Note |");
-    expect(workflowAfter).toContain("| approve | maestro | Looks good |");
+    expect(envelopeAfter).toContain("approved_by: maestro");
+
+    expect(addDecision).toHaveBeenCalledOnce();
+    expect(addDecision).toHaveBeenCalledWith(
+      cwd,
+      sessionId,
+      expect.objectContaining({
+        handoffId: envelope.handoffId,
+        decision: "approve",
+        reviewer: "maestro",
+        note: "Looks good"
+      })
+    );
+
     await expect(canProgressPipeline(envelope.filePath)).resolves.toBe(true);
   });
 
-  it("creates revision handoff on reject", async () => {
+  it("creates revision handoff on reject and calls addDecision with reject decision", async () => {
     const cwd = await makeTempDir();
     const sessionId = "s-20260223-231530";
-    const workflowPath = join(cwd, ".sinfonia/handoffs", sessionId, "workflow.md");
     await mkdir(join(cwd, ".sinfonia/handoffs", sessionId), { recursive: true });
-    await writeFile(workflowPath, "# Workflow\n", "utf8");
 
     const envelope = await writeHandoffEnvelope(
       cwd,
@@ -88,18 +107,30 @@ describe("approval gate", () => {
     const result = await applyApprovalDecision({
       cwd,
       envelopePath: envelope.filePath,
-      workflowPath,
+      workflowPath: join(cwd, ".sinfonia/handoffs", sessionId, "workflow.md"),
       decision: "reject",
       reviewer: "maestro",
       note: "Add missing edge-case tests"
     });
 
     expect(result.revisionPath).toBeDefined();
-    await expect(access(result.revisionPath ?? "")).resolves.toBeUndefined();
     const revision = await readFile(result.revisionPath ?? "", "utf8");
     expect(revision).toContain("handoff_type: revision");
     expect(revision).toContain("## Revision Required");
     expect(revision).toContain("Add missing edge-case tests");
+
+    expect(addDecision).toHaveBeenCalledOnce();
+    expect(addDecision).toHaveBeenCalledWith(
+      cwd,
+      sessionId,
+      expect.objectContaining({
+        handoffId: envelope.handoffId,
+        decision: "reject",
+        reviewer: "maestro",
+        note: "Add missing edge-case tests"
+      })
+    );
+
     await expect(canProgressPipeline(envelope.filePath)).resolves.toBe(false);
   });
 

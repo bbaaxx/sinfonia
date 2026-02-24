@@ -2,9 +2,20 @@ import { access, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createSessionId, handoffPathFor, writeHandoffEnvelope } from "../../src/handoff/writer.js";
+
+// Mock WorkflowIndexManager so writer.ts uses the mock, not the real filesystem
+vi.mock("../../src/workflow/index-manager.js", () => ({
+  addArtifact: vi.fn().mockResolvedValue(undefined),
+  addDecision: vi.fn().mockResolvedValue(undefined),
+  workflowIndexPath: vi.fn((cwd: string, sessionId: string) =>
+    join(cwd, ".sinfonia/handoffs", sessionId, "workflow.md")
+  )
+}));
+
+import { addArtifact } from "../../src/workflow/index-manager.js";
 
 const tempDirs: string[] = [];
 
@@ -15,6 +26,7 @@ const makeTempDir = async (): Promise<string> => {
 };
 
 afterEach(async () => {
+  vi.clearAllMocks();
   await Promise.all(tempDirs.splice(0, tempDirs.length).map((path) => rm(path, { recursive: true, force: true })));
 });
 
@@ -128,5 +140,64 @@ describe("handoff writer", () => {
         new Date("2026-02-23T23:15:34Z")
       )
     ).rejects.toThrow("<= 500 words");
+  });
+
+  it("calls addArtifact after each successful envelope write", async () => {
+    const cwd = await makeTempDir();
+    const sessionId = "s-20260223-231530";
+
+    const written = await writeHandoffEnvelope(
+      cwd,
+      {
+        sourcePersona: "maestro",
+        targetPersona: "coda",
+        type: "dispatch",
+        status: "pending",
+        task: "Implement feature",
+        context: "Story details",
+        artifacts: ["spec.md"],
+        constraints: ["TDD"]
+      },
+      sessionId,
+      new Date("2026-02-23T23:15:35Z")
+    );
+
+    expect(addArtifact).toHaveBeenCalledOnce();
+    expect(addArtifact).toHaveBeenCalledWith(
+      cwd,
+      sessionId,
+      expect.objectContaining({
+        name: written.handoffId,
+        type: "dispatch",
+        status: "pending"
+      })
+    );
+  });
+
+  it("envelope creation succeeds even when addArtifact throws", async () => {
+    const cwd = await makeTempDir();
+    vi.mocked(addArtifact).mockRejectedValueOnce(new Error("workflow index unavailable"));
+
+    const written = await writeHandoffEnvelope(
+      cwd,
+      {
+        sourcePersona: "coda",
+        targetPersona: "rondo",
+        type: "return",
+        status: "completed",
+        artifacts: ["src/b.ts"],
+        summary: "Done",
+        completionAssessment: "ready",
+        blockers: ["none"],
+        recommendations: ["approve"]
+      },
+      "s-20260223-231530",
+      new Date("2026-02-23T23:15:36Z")
+    );
+
+    // Envelope must still be created successfully
+    expect(written.handoffId).toBeDefined();
+    expect(written.filePath).toBeDefined();
+    await expect(access(written.filePath)).resolves.toBeUndefined();
   });
 });

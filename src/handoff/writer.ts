@@ -1,6 +1,7 @@
 import { mkdir, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
+import { addArtifact } from "../workflow/index-manager.js";
 import type { HandoffPayload, WrittenHandoff } from "./types.js";
 
 const toTimestamp = (date: Date): string =>
@@ -138,6 +139,18 @@ export const writeHandoffEnvelope = async (
   ].join("\n");
 
   await writeFile(filePath, `${frontmatter}${body}\n`, "utf8");
+
+  try {
+    await addArtifact(cwd, sessionId, {
+      name: handoffId,
+      type: payload.type,
+      status: payload.status,
+      updatedAt: createdAt.toISOString(),
+      notes: `${payload.sourcePersona} → ${payload.targetPersona}`
+    });
+  } catch (err) {
+    console.warn(`[writer] workflow index artifact registration failed for ${handoffId}:`, err);
+  }
 
   return {
     handoffId,

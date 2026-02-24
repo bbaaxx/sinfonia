@@ -1,6 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
+import { addDecision } from "../workflow/index-manager.js";
 import { writeHandoffEnvelope } from "./writer.js";
 
 export type ApprovalDecision = "approve" | "reject";
@@ -47,46 +48,6 @@ const frontmatterToString = (fields: EnvelopeFields): string =>
     ""
   ].join("\n");
 
-const appendDecisionRow = async (
-  workflowPath: string,
-  handoffId: string,
-  decision: ApprovalDecision,
-  reviewer: string,
-  note: string,
-  timestamp: string
-): Promise<void> => {
-  const row = `| ${timestamp} | ${handoffId} | ${decision} | ${reviewer} | ${note} |`;
-  const tableHeader = "| Timestamp | Handoff ID | Decision | Reviewer | Note |";
-  const tableDivider = "| --- | --- | --- | --- | --- |";
-
-  let workflow = "";
-  try {
-    workflow = await readFile(workflowPath, "utf8");
-  } catch {
-    workflow = "# Workflow\n";
-  }
-
-  if (!workflow.includes("## Decisions")) {
-    workflow = `${workflow.trimEnd()}\n\n## Decisions\n${tableHeader}\n${tableDivider}\n${row}\n`;
-    await writeFile(workflowPath, workflow, "utf8");
-    return;
-  }
-
-  const marker = "## Decisions";
-  const markerIndex = workflow.indexOf(marker);
-  const before = workflow.slice(0, markerIndex + marker.length);
-  const after = workflow.slice(markerIndex + marker.length);
-
-  if (!after.includes(tableHeader)) {
-    const next = `${before}\n${tableHeader}\n${tableDivider}\n${row}${after}`;
-    await writeFile(workflowPath, next, "utf8");
-    return;
-  }
-
-  const next = workflow.replace(tableDivider, `${tableDivider}\n${row}`);
-  await writeFile(workflowPath, next, "utf8");
-};
-
 export const applyApprovalDecision = async (
   options: ApplyApprovalOptions
 ): Promise<{ revisionPath?: string }> => {
@@ -94,6 +55,7 @@ export const applyApprovalDecision = async (
   const envelopeRaw = await readFile(options.envelopePath, "utf8");
   const parsed = parseEnvelope(envelopeRaw);
   const handoffId = parsed.frontmatter.handoff_id ?? "unknown";
+  const sessionId = parsed.frontmatter.session_id ?? "";
 
   parsed.frontmatter.approval = options.decision;
   parsed.frontmatter.approved_by = options.reviewer;
@@ -102,17 +64,19 @@ export const applyApprovalDecision = async (
   const updatedEnvelope = `${frontmatterToString(parsed.frontmatter)}${parsed.body}`;
   await writeFile(options.envelopePath, updatedEnvelope, "utf8");
 
-  await appendDecisionRow(
-    options.workflowPath,
-    handoffId,
-    options.decision,
-    options.reviewer,
-    options.note ?? "",
-    now
-  );
+  try {
+    await addDecision(options.cwd, sessionId, {
+      timestamp: now,
+      handoffId,
+      decision: options.decision,
+      reviewer: options.reviewer,
+      note: options.note ?? ""
+    });
+  } catch (err) {
+    console.warn(`[approval] workflow index decision recording failed for ${handoffId}:`, err);
+  }
 
   if (options.decision === "reject") {
-    const sessionId = parsed.frontmatter.session_id;
     const source = parsed.frontmatter.source_persona;
     const target = parsed.frontmatter.target_persona;
     if (!sessionId || !source || !target) {
