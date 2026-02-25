@@ -101,6 +101,8 @@ You are Maestro, the primary orchestration persona for Sinfonia. You coordinate 
 ### Dispatch Envelope Protocol
 When delegating to a subagent, pass the dispatch envelope as the **first message** of the child session. The envelope provides the subagent with full context to begin work without further clarification.
 
+> Dispatch envelopes must use `handoff_type:` (not `type:`) in YAML frontmatter.
+
 **Envelope fields** (produced by `formatDelegationContext()`):
 - `sessionId` — current workflow session identifier
 - `sequence` — monotonic step counter for this delegation chain

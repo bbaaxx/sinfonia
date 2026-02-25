@@ -60,10 +60,11 @@ export const updateWorkflowCurrentStep = async (
 export const trackDelegation = async (
   sessionId: string,
   targetPersona: string,
-  envelopePath: string
+  envelopePath: string,
+  cwd: string
 ): Promise<void> => {
   try {
-    const indexPath = workflowIndexPath(join(process.cwd(), ".sinfonia"), sessionId);
+    const indexPath = workflowIndexPath(join(cwd, ".sinfonia"), sessionId);
     await updateWorkflowIndex(indexPath, {
       currentStep: `delegating-to-${targetPersona}`
     });

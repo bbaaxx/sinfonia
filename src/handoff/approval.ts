@@ -2,6 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 import { addDecision } from "../workflow/index-manager.js";
+import { validateHandoffEnvelope } from "./validator.js";
 import { writeHandoffEnvelope } from "./writer.js";
 
 export type ApprovalDecision = "approve" | "reject";
@@ -48,9 +49,23 @@ const frontmatterToString = (fields: EnvelopeFields): string =>
     ""
   ].join("\n");
 
+export type ApplyApprovalResult =
+  | { status: "invalid"; errors: { ruleId: string; severity: "ERROR" | "WARN"; message: string }[] }
+  | { status: "ok"; revisionPath?: string };
+
 export const applyApprovalDecision = async (
   options: ApplyApprovalOptions
-): Promise<{ revisionPath?: string }> => {
+): Promise<ApplyApprovalResult> => {
+  // Pre-flight: validate envelope structure before presenting to approval gate
+  const validation = await validateHandoffEnvelope(options.envelopePath);
+  if (validation.errors.length > 0) {
+    console.warn(
+      `[approval] envelope validation failed for ${options.envelopePath}:`,
+      validation.errors.map((e) => `${e.ruleId}: ${e.message}`).join(", ")
+    );
+    return { status: "invalid", errors: validation.errors };
+  }
+
   const now = new Date().toISOString();
   const envelopeRaw = await readFile(options.envelopePath, "utf8");
   const parsed = parseEnvelope(envelopeRaw);
@@ -99,10 +114,10 @@ export const applyApprovalDecision = async (
       new Date(now)
     );
 
-    return { revisionPath: revision.filePath };
+    return { status: "ok", revisionPath: revision.filePath };
   }
 
-  return {};
+  return { status: "ok" };
 };
 
 export const canProgressPipeline = async (envelopePath: string): Promise<boolean> => {

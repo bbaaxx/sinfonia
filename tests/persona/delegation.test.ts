@@ -89,7 +89,7 @@ describe("delegation helpers", () => {
     // Use a session ID that will cause the index path to be in a non-existent directory
     // so WorkflowIndexManager will fail to write
     await expect(
-      trackDelegation("nonexistent-session-xyz", "coda", "/fake/envelope.md")
+      trackDelegation("nonexistent-session-xyz", "coda", "/fake/envelope.md", "/nonexistent/cwd")
     ).resolves.toBeUndefined();
 
     // Should have logged a warning
@@ -101,7 +101,7 @@ describe("delegation helpers", () => {
   it("trackDelegation logs warning with session and persona info on failure", async () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
-    await trackDelegation("session-abc", "rondo", "/path/to/envelope.md");
+    await trackDelegation("session-abc", "rondo", "/path/to/envelope.md", "/nonexistent/cwd");
 
     // Warning should mention the session and target persona
     const warnCall = warnSpy.mock.calls[0]?.[0] as string | undefined;
@@ -109,6 +109,38 @@ describe("delegation helpers", () => {
       expect(warnCall).toContain("session-abc");
       expect(warnCall).toContain("rondo");
     }
+
+    warnSpy.mockRestore();
+  });
+
+  it("trackDelegation uses the passed cwd, not process.cwd()", async () => {
+    const cwd = await makeTempDir();
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    // Pass a cwd that differs from process.cwd() — the index path should be under cwd
+    await trackDelegation("session-cwd-test", "amadeus", "/fake/envelope.md", cwd);
+
+    // The warning (if any) should reference the passed cwd path, not process.cwd()
+    const warnCalls = warnSpy.mock.calls.map((c) => String(c[0]));
+    for (const call of warnCalls) {
+      // If the warning mentions a path, it must not be process.cwd()
+      if (call.includes("/.sinfonia")) {
+        expect(call).toContain(cwd);
+        expect(call).not.toContain(process.cwd() + "/.sinfonia");
+      }
+    }
+
+    warnSpy.mockRestore();
+  });
+
+  it("trackDelegation resolves without throwing when cwd differs from process.cwd()", async () => {
+    const cwd = await makeTempDir();
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    // A different cwd from process.cwd() — must still be non-blocking
+    await expect(
+      trackDelegation("session-diff-cwd", "libretto", "/fake/envelope.md", cwd)
+    ).resolves.toBeUndefined();
 
     warnSpy.mockRestore();
   });
