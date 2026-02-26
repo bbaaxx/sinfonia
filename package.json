@@ -10,8 +10,10 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
     "test": "vitest run",
-    "prepublishOnly": "npm run build && npm test"
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test"
   },
   "files": [
     "dist/",

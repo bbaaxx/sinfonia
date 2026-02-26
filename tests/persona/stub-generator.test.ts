@@ -62,7 +62,7 @@ describe("PERSONA_PROFILES", () => {
 describe("generateStub", () => {
   it("produces self-contained opencode agent with inline persona body", () => {
     const persona = makeLoadedPersona("maestro");
-    const stub = generateStub({ persona, opencodeDir: "/fake/opencode" });
+    const stub = generateStub({ persona });
 
     expect(stub).toContain("---");
     expect(stub).toContain("name: sinfonia-maestro");
@@ -77,7 +77,7 @@ describe("generateStub", () => {
   it("uses correct mode from PERSONA_PROFILES for each persona", () => {
     for (const profile of PERSONA_PROFILES) {
       const persona = makeLoadedPersona(profile.id);
-      const stub = generateStub({ persona, opencodeDir: "/fake" });
+      const stub = generateStub({ persona });
       expect(stub).toContain(`name: sinfonia-${profile.id}`);
       expect(stub).toContain(`mode: ${profile.mode}`);
       expect(stub).toContain(`Test persona ${profile.id}.`);
@@ -86,7 +86,7 @@ describe("generateStub", () => {
 
   it("throws when persona has no matching PERSONA_PROFILES entry", () => {
     const unknownPersona = makeLoadedPersona("unknown");
-    expect(() => generateStub({ persona: unknownPersona, opencodeDir: "/fake" })).toThrow(
+    expect(() => generateStub({ persona: unknownPersona })).toThrow(
       /No PERSONA_PROFILES entry found/
     );
   });

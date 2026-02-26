@@ -1,8 +1,5 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { constants } from "node:fs";
-import { access } from "node:fs/promises";
-import { dirname, join } from "node:path";
-
+import { readFile, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 
 import type {
   GeneratePersonaArtifactsOptions,
@@ -12,6 +9,7 @@ import type {
 } from "./types.js";
 
 import { loadPersona } from "./loader.js";
+import { ensureParentDir, fileExists } from "./fs-utils.js";
 
 /** All 6 Sinfonia persona profiles with their opencode mode and permission grants. */
 export const PERSONA_PROFILES: PersonaProfile[] = [
@@ -59,23 +57,6 @@ export const PERSONA_PROFILES: PersonaProfile[] = [
   }
 ];
 
-// ─── Internal helpers ────────────────────────────────────────────────────────
-
-const fileExists = async (filePath: string): Promise<boolean> => {
-  try {
-    await access(filePath, constants.F_OK);
-    return true;
-  } catch {
-    return false;
-  }
-};
-
-const ensureParentDir = async (filePath: string): Promise<void> => {
-  await mkdir(dirname(filePath), { recursive: true });
-};
-
-
-
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
@@ -95,7 +76,7 @@ export const generateStub = (options: StubGeneratorOptions): string => {
 
   return `---
 name: sinfonia-${persona.id}
-description: "${description}"
+description: "${description.replace(/"/g, '\\"')}"
 mode: ${mode}
 customized: false
 ---
@@ -151,7 +132,7 @@ export const generateAllArtifacts = async (
     if (await isCustomized(stubPath)) continue;
 
     await ensureParentDir(stubPath);
-    await writeFile(stubPath, generateStub({ persona: loaded, opencodeDir: options.cwd }), "utf8");
+    await writeFile(stubPath, generateStub({ persona: loaded }), "utf8");
   }
 
   return personas;

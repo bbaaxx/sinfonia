@@ -132,3 +132,4 @@ When the user gives you a story to work on:
 
 ### Non-Blocking Delegation Rule
 State tracking calls (`trackDelegation`) must never block the delegation itself. If workflow index writes fail, log a warning and proceed. The subagent must receive its context regardless of state tracking success.
+

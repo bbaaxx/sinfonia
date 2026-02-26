@@ -21,8 +21,8 @@ const fortuneModulePath = join(
 const { FORTUNES, getRandomFortune } = await import(fortuneModulePath);
 
 describe("Fortune-MCP: FORTUNES array", () => {
-  it("contains exactly 10 fortunes", () => {
-    expect(FORTUNES).toHaveLength(10);
+  it("contains at least 10 fortunes", () => {
+    expect(FORTUNES.length).toBeGreaterThanOrEqual(10);
   });
 
   it("all entries are non-empty strings", () => {

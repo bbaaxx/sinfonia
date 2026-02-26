@@ -1,8 +1,8 @@
-import { access, readFile } from "node:fs/promises";
-import { constants } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 
 import { validatePersonaPaths } from "../validators/persona/validator.js";
+import { fileExists } from "./fs-utils.js";
 
 // Re-export all types from types.ts for backward compatibility
 export type {
@@ -86,15 +86,6 @@ const parseFrontmatter = (content: string): { frontmatter: Record<string, unknow
   }
 
   return { frontmatter, body };
-};
-
-const fileExists = async (filePath: string): Promise<boolean> => {
-  try {
-    await access(filePath, constants.F_OK);
-    return true;
-  } catch {
-    return false;
-  }
 };
 
 const frameworkDirFromModule = (): string => {

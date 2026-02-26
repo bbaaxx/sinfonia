@@ -64,7 +64,6 @@ export type GeneratePersonaArtifactsOptions = {
 /** Options passed to generateStub() for a single persona. */
 export type StubGeneratorOptions = {
   persona: LoadedPersona;
-  opencodeDir: string;
 };
 
 /** A single agent entry written into opencode.json under the `agents` key. */

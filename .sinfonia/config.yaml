@@ -1,6 +1,6 @@
 version: "0.1"
 default_orchestrator: maestro
-project_name: ""
+project_name: "sinfonia"
 user_name: ""
-skill_level: intermediate
-enforcement_strictness: medium
+skill_level: expert
+enforcement_strictness: low

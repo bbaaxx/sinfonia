@@ -51,14 +51,5 @@
       },
       "description": "Sinfonia QA agent. Invoke for test planning and quality assurance. Reads a dispatch envelope referencing implementation and spec artifacts, produces a test plan with coverage matrix, and writes a return envelope with test results and a pass/fail verdict."
     }
-  },
-  "mcp": {
-    "fortunemcp": {
-      "type": "local",
-      "command": [
-        "node",
-        "src/mcp/fortune-demo/fortune-mcp.js"
-      ]
-    }
   }
 }
