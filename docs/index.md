@@ -40,6 +40,10 @@ This index is the score for the Sinfonia docs set: start here to find concept gu
   - [Release Checklist](operations/release-checklist.md)
 - Decisions (ADR)
   - [ADR Index](adr/README.md)
+  - [ADR-0001: Framework Scope and Local-First Boundary](adr/ADR-0001-framework-scope-and-local-first.md)
+  - [ADR-0002: Workflow Index as Canonical Session State](adr/ADR-0002-workflow-index-as-canonical-state.md)
+  - [ADR-0003: Typed Handoff Envelope Contract](adr/ADR-0003-typed-handoff-envelope-contract.md)
+  - [ADR-0004: Runtime Enforcement Rule Model](adr/ADR-0004-runtime-enforcement-rule-model.md)
   - [ADR Template](adr/ADR-0001-template.md)
 
 ## Source Evidence

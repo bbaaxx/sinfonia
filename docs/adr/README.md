@@ -12,6 +12,10 @@ Track major technical decisions and their consequences.
 
 ## Records
 
+- [ADR-0001: Framework Scope and Local-First Boundary](ADR-0001-framework-scope-and-local-first.md)
+- [ADR-0002: Workflow Index as Canonical Session State](ADR-0002-workflow-index-as-canonical-state.md)
+- [ADR-0003: Typed Handoff Envelope Contract](ADR-0003-typed-handoff-envelope-contract.md)
+- [ADR-0004: Runtime Enforcement Rule Model](ADR-0004-runtime-enforcement-rule-model.md)
 - [ADR-0001 Template](ADR-0001-template.md)
 
 ## Usage
