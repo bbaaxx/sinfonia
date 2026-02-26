@@ -1,6 +1,11 @@
+import { createRequire } from "node:module";
 import { constants } from "node:fs";
 import { access, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+
+const require = createRequire(import.meta.url);
+const pkg = require("../../package.json") as { version?: string };
+const FRAMEWORK_VERSION = pkg.version ?? "0.0.0";
 
 import { generateWorkflowStubs } from "./generate-stubs.js";
 import { generatePersonaArtifacts } from "../persona/loader.js";
@@ -23,11 +28,13 @@ type FrameworkPersona = {
 type InitProjectOptions = {
   config?: WizardConfig;
   overwriteConfig?: boolean;
+  force?: boolean;
 };
 
 export type RunInitCommandOptions = {
   cwd?: string;
   yes?: boolean;
+  force?: boolean;
   prompt?: PromptFn;
 };
 
@@ -54,6 +61,7 @@ const DEFAULT_CONFIG: WizardConfig = {
 const quoteYaml = (value: string): string => value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 
 const toConfigYaml = (config: WizardConfig): string => `version: "0.1"
+sinfonia_version: "${FRAMEWORK_VERSION}"
 default_orchestrator: maestro
 project_name: "${quoteYaml(config.projectName)}"
 user_name: "${quoteYaml(config.userName)}"
@@ -61,14 +69,71 @@ skill_level: ${config.skillLevel}
 enforcement_strictness: ${config.enforcementStrictness}
 `;
 
-const ENFORCEMENT_PLUGIN = `export const pluginName = "sinfonia-enforcement";
+const ENFORCEMENT_PLUGIN = `/**
+ * Sinfonia Enforcement Plugin
+ *
+ * Registers enforcement rules that intercept agent tool calls, session events,
+ * and shell environment injection to enforce project quality standards.
+ *
+ * Rules:
+ *   ENF-001  TDD Enforcer          — blocks writes without a corresponding test change
+ *   ENF-002  Secret Protection     — blocks reads/writes to sensitive credential files
+ *   ENF-003  Compaction Preservation — injects workflow state into compaction context
+ *   ENF-004  Spec Stop Guard       — warns when workflow has incomplete steps at idle
+ *   ENF-005  Shell Env Injection   — injects SINFONIA_* env vars into every shell call
+ *   ENF-007  Session-End Completeness — warns on session idle if steps are incomplete
+ */
 
-export const pluginDescription = "sinfonia enforcement plugin";
+import type { Plugin } from "@opencode/plugin";
 
-export default {
-  name: pluginName,
-  description: pluginDescription
+import { loadSinfoniaConfig } from "../../src/enforcement/utils.js";
+import { createTddEnforcerHandler } from "../../src/enforcement/rules/enf-001-tdd.js";
+import { createSecretProtectionHandler } from "../../src/enforcement/rules/enf-002-secrets.js";
+import { createCompactionHandler } from "../../src/enforcement/rules/enf-003-compaction.js";
+import { createSpecStopGuardHandler } from "../../src/enforcement/rules/enf-004-spec-stop.js";
+import { createShellEnvHandler } from "../../src/enforcement/rules/enf-005-shell-env.js";
+import { createCompletenessWarningHandler } from "../../src/enforcement/rules/enf-007-completeness.js";
+
+const SinfoniaEnforcement: Plugin = async ({ project, directory }) => {
+  const cwd = directory ?? project ?? process.cwd();
+
+  // Load config non-blocking — enforcement degrades gracefully if config missing
+  const config = await loadSinfoniaConfig(cwd).catch(() => null);
+
+  return {
+    "tool.execute.before": async (params) => {
+      // ENF-001: TDD Enforcer
+      const tddResult = await createTddEnforcerHandler(cwd)(params).catch(() => null);
+      if (tddResult?.block) return tddResult;
+
+      // ENF-002: Secret Protection
+      const secretResult = await createSecretProtectionHandler(cwd)(params).catch(() => null);
+      if (secretResult?.block) return secretResult;
+
+      return undefined;
+    },
+
+    "experimental.session.compacting": async (params) => {
+      // ENF-003: Compaction State Preservation
+      return createCompactionHandler(cwd)(params).catch(() => undefined);
+    },
+
+    "session.idle": async (params) => {
+      // ENF-004: Spec Stop Guard
+      await createSpecStopGuardHandler(cwd)(params).catch(() => undefined);
+
+      // ENF-007: Session-End Completeness Warning
+      await createCompletenessWarningHandler(cwd)(params).catch(() => undefined);
+    },
+
+    "shell.env": async () => {
+      // ENF-005: Shell Env Injection
+      return createShellEnvHandler(cwd)().catch(() => ({}));
+    },
+  };
 };
+
+export default SinfoniaEnforcement;
 `;
 
 const ensureDirectory = async (path: string): Promise<void> => {
@@ -164,6 +229,32 @@ const writeOpenCodeConfig = async (cwd: string): Promise<void> => {
   await writeFile(path, nextText, "utf8");
 };
 
+const readInstalledVersion = async (cwd: string): Promise<string | null> => {
+  try {
+    const content = await readFile(join(cwd, ".sinfonia/config.yaml"), "utf8");
+    const match = content.match(/^sinfonia_version:\s*"?([^"\n]+)"?\s*$/m);
+    return match ? match[1] : null;
+  } catch {
+    return null;
+  }
+};
+
+const updateConfigVersion = async (cwd: string): Promise<void> => {
+  const configPath = join(cwd, ".sinfonia/config.yaml");
+  try {
+    let content = await readFile(configPath, "utf8");
+    if (/^sinfonia_version:/m.test(content)) {
+      content = content.replace(/^sinfonia_version:.*$/m, `sinfonia_version: "${FRAMEWORK_VERSION}"`);
+    } else {
+      // Insert after the version line
+      content = content.replace(/^(version:.*\n)/m, `$1sinfonia_version: "${FRAMEWORK_VERSION}"\n`);
+    }
+    await writeFile(configPath, content, "utf8");
+  } catch {
+    // Config doesn't exist yet — will be created by initProject
+  }
+};
+
 const ensureSinfoniaRootIsDirectory = async (cwd: string): Promise<void> => {
   const path = join(cwd, ".sinfonia");
 
@@ -196,6 +287,8 @@ export const initProject = async (
   cwd: string = process.cwd(),
   options: InitProjectOptions = {}
 ): Promise<void> => {
+  const force = options.force ?? false;
+
   await ensureSinfoniaRootIsDirectory(cwd);
 
   await ensureDirectory(join(cwd, ".sinfonia/agents"));
@@ -208,18 +301,43 @@ export const initProject = async (
     await writeFile(configPath, configYaml, "utf8");
   } else {
     await writeIfMissing(configPath, configYaml);
+    // Stamp framework version in existing config without overwriting user preferences
+    await updateConfigVersion(cwd);
   }
 
-  await writeIfMissing(join(cwd, ".opencode/plugins/sinfonia-enforcement.ts"), ENFORCEMENT_PLUGIN);
+  const enforcementPluginPath = join(cwd, ".opencode/plugins/sinfonia-enforcement.ts");
+  if (force) {
+    await ensureParentDirectory(enforcementPluginPath);
+    await writeFile(enforcementPluginPath, ENFORCEMENT_PLUGIN, "utf8");
+  } else {
+    await writeIfMissing(enforcementPluginPath, ENFORCEMENT_PLUGIN);
+  }
+
   await writeOpenCodeConfig(cwd);
-  await generatePersonaArtifacts({ cwd });
-  await generateWorkflowStubs(cwd);
+  await generatePersonaArtifacts({ cwd, force });
+  await generateWorkflowStubs(cwd, force);
 };
 
 export const runInitCommand = async (options: RunInitCommandOptions = {}): Promise<void> => {
   const cwd = options.cwd ?? process.cwd();
   const yes = Boolean(options.yes);
+  const force = Boolean(options.force);
   const previous = await hasExistingInit(cwd);
+
+  // Version check when re-initializing
+  if (previous) {
+    const installedVersion = await readInstalledVersion(cwd);
+    if (installedVersion && installedVersion !== FRAMEWORK_VERSION) {
+      if (force) {
+        console.error(`\x1b[36m↻ Force-refreshing all generated files (framework ${installedVersion} → ${FRAMEWORK_VERSION})\x1b[0m`);
+      } else {
+        console.error(`\x1b[33mℹ Framework version changed: ${installedVersion} → ${FRAMEWORK_VERSION}`);
+        console.error(`  Run 'sinfonia init --force' to update all generated files.\x1b[0m`);
+      }
+    } else if (force) {
+      console.error(`\x1b[36m↻ Force-refreshing all generated files\x1b[0m`);
+    }
+  }
 
   let closePrompt: (() => void) | undefined;
   let prompt = options.prompt;
@@ -242,13 +360,14 @@ export const runInitCommand = async (options: RunInitCommandOptions = {}): Promi
     }
 
     if (wizard.action === "resume") {
-      await initProject(cwd);
+      await initProject(cwd, { force });
       return;
     }
 
     await initProject(cwd, {
       config: wizard.config,
-      overwriteConfig: previous
+      overwriteConfig: previous,
+      force
     });
   } finally {
     if (closePrompt) {

@@ -74,13 +74,21 @@ Workflow support skill for workflow \`${workflow.workflowId}\`.
 5. Return a concise result summary and next actions.
 `;
 
-export const generateWorkflowStubs = async (cwd: string): Promise<void> => {
+export const generateWorkflowStubs = async (cwd: string, force = false): Promise<void> => {
   for (const workflow of WORKFLOW_STUBS) {
+    // Commands are always regenerated (no user customization expected)
     const commandPath = join(cwd, ".opencode/command", `${workflow.commandName}.md`);
     await ensureParentDirectory(commandPath);
     await writeFile(commandPath, toCommandStub(workflow), "utf8");
 
     const skillPath = join(cwd, ".opencode/skills", workflow.skillName, "SKILL.md");
-    await writeIfMissing(skillPath, toSkill(workflow));
+    if (force) {
+      // Force: overwrite skills even if they exist
+      await ensureParentDirectory(skillPath);
+      await writeFile(skillPath, toSkill(workflow), "utf8");
+    } else {
+      // Normal: skip skills that already exist (preserve user customizations)
+      await writeIfMissing(skillPath, toSkill(workflow));
+    }
   }
 };

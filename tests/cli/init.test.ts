@@ -1,10 +1,16 @@
 import { access, chmod, mkdtemp, mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createRequire } from "node:module";
 
 import { afterEach, describe, expect, it } from "vitest";
 
 import { FRAMEWORK_PERSONAS, initProject, runInitCommand } from "../../src/cli/init.js";
+import { WORKFLOW_STUBS } from "../../src/cli/generate-stubs.js";
+
+const require = createRequire(import.meta.url);
+const pkg = require("../../package.json") as { version?: string };
+const FRAMEWORK_VERSION = pkg.version ?? "0.0.0";
 
 const exists = async (path: string): Promise<boolean> => {
   try {
@@ -52,9 +58,11 @@ describe("initProject", () => {
       );
     }
 
-    await expect(readFile(join(cwd, ".opencode/plugins/sinfonia-enforcement.ts"), "utf8")).resolves.toContain(
-      "sinfonia enforcement"
-    );
+    const pluginContent = await readFile(join(cwd, ".opencode/plugins/sinfonia-enforcement.ts"), "utf8");
+    expect(pluginContent).toContain("import type { Plugin }");
+    expect(pluginContent).toContain("SinfoniaEnforcement");
+    expect(pluginContent).toContain("tool.execute.before");
+    expect(pluginContent).toContain("createTddEnforcerHandler");
     await expect(readFile(join(cwd, "opencode.json"), "utf8")).resolves.toContain("sinfonia");
   });
 
@@ -124,5 +132,140 @@ describe("initProject", () => {
     expect(config).toContain('user_name: "Dana"');
     expect(config).toContain("skill_level: expert");
     expect(config).toContain("enforcement_strictness: low");
+  });
+
+  it("stamps sinfonia_version in config on init", async () => {
+    const cwd = await makeTempDir();
+
+    await initProject(cwd);
+
+    const config = await readFile(join(cwd, ".sinfonia/config.yaml"), "utf8");
+    expect(config).toContain(`sinfonia_version: "${FRAMEWORK_VERSION}"`);
+  });
+
+  it("updates sinfonia_version on re-init without overwriting other config values", async () => {
+    const cwd = await makeTempDir();
+
+    await initProject(cwd, {
+      config: { projectName: "My App", userName: "Dana", skillLevel: "expert", enforcementStrictness: "low" }
+    });
+
+    // Simulate a previous install by replacing the version stamp
+    const configPath = join(cwd, ".sinfonia/config.yaml");
+    let content = await readFile(configPath, "utf8");
+    content = content.replace(/^sinfonia_version:.*$/m, 'sinfonia_version: "old"');
+    await writeFile(configPath, content, "utf8");
+
+    // Re-init without overwriting config
+    await initProject(cwd);
+
+    const updated = await readFile(configPath, "utf8");
+    expect(updated).toContain(`sinfonia_version: "${FRAMEWORK_VERSION}"`);
+    expect(updated).toContain('project_name: "My App"');
+    expect(updated).toContain('user_name: "Dana"');
+    expect(updated).toContain("skill_level: expert");
+  });
+});
+
+describe("initProject --force", () => {
+  it("overwrites skills that normally skip", async () => {
+    const cwd = await makeTempDir();
+
+    await initProject(cwd);
+
+    const workflow = WORKFLOW_STUBS[0];
+    const skillPath = join(cwd, ".opencode/skills", workflow.skillName, "SKILL.md");
+    await writeFile(skillPath, "custom-skill\n", "utf8");
+
+    // Normal re-init: should NOT overwrite
+    await initProject(cwd);
+    await expect(readFile(skillPath, "utf8")).resolves.toBe("custom-skill\n");
+
+    // Force re-init: should overwrite
+    await initProject(cwd, { force: true });
+    const refreshed = await readFile(skillPath, "utf8");
+    expect(refreshed).not.toBe("custom-skill\n");
+    expect(refreshed).toContain(`# ${workflow.skillName}`);
+  });
+
+  it("overwrites enforcement plugin with --force", async () => {
+    const cwd = await makeTempDir();
+
+    await initProject(cwd);
+
+    const pluginPath = join(cwd, ".opencode/plugins/sinfonia-enforcement.ts");
+    await writeFile(pluginPath, "custom-plugin\n", "utf8");
+
+    await initProject(cwd, { force: true });
+
+    const content = await readFile(pluginPath, "utf8");
+    expect(content).not.toBe("custom-plugin\n");
+    expect(content).toContain("import type { Plugin }");
+    expect(content).toContain("SinfoniaEnforcement");
+    expect(content).toContain("tool.execute.before");
+    expect(content).toContain("createTddEnforcerHandler");
+  });
+
+  it("overwrites .sinfonia/agents/ personas with --force", async () => {
+    const cwd = await makeTempDir();
+
+    await initProject(cwd);
+
+    const personaPath = join(cwd, ".sinfonia/agents/maestro.md");
+    await writeFile(personaPath, "custom-persona\n", "utf8");
+
+    await initProject(cwd, { force: true });
+
+    const content = await readFile(personaPath, "utf8");
+    expect(content).not.toBe("custom-persona\n");
+    expect(content).toContain("persona_id: maestro");
+  });
+
+  it("ignores customized: true on agent files with --force", async () => {
+    const cwd = await makeTempDir();
+
+    await initProject(cwd);
+
+    const agentPath = join(cwd, ".opencode/agent/sinfonia-maestro.md");
+    const customContent = `---\nname: sinfonia-maestro\ncustomized: true\n---\n\ncustom-body\n`;
+    await writeFile(agentPath, customContent, "utf8");
+
+    await initProject(cwd, { force: true });
+
+    const content = await readFile(agentPath, "utf8");
+    expect(content).not.toContain("custom-body");
+    expect(content).toContain("customized: false");
+  });
+
+  it("does NOT overwrite config.yaml user preferences with --force", async () => {
+    const cwd = await makeTempDir();
+
+    await initProject(cwd, {
+      config: { projectName: "My App", userName: "Alex", skillLevel: "expert", enforcementStrictness: "high" }
+    });
+
+    await initProject(cwd, { force: true });
+
+    const config = await readFile(join(cwd, ".sinfonia/config.yaml"), "utf8");
+    expect(config).toContain('project_name: "My App"');
+    expect(config).toContain('user_name: "Alex"');
+    expect(config).toContain("skill_level: expert");
+    expect(config).toContain("enforcement_strictness: high");
+  });
+
+  it("works non-interactively with -y --force", async () => {
+    const cwd = await makeTempDir();
+
+    await initProject(cwd);
+
+    const workflow = WORKFLOW_STUBS[0];
+    const skillPath = join(cwd, ".opencode/skills", workflow.skillName, "SKILL.md");
+    await writeFile(skillPath, "custom-skill\n", "utf8");
+
+    await runInitCommand({ cwd, yes: true, force: true });
+
+    const refreshed = await readFile(skillPath, "utf8");
+    expect(refreshed).not.toBe("custom-skill\n");
+    expect(refreshed).toContain(`# ${workflow.skillName}`);
   });
 });

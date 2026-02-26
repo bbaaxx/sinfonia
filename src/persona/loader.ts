@@ -98,11 +98,15 @@ export const loadPersona = async (options: LoadPersonaOptions): Promise<LoadedPe
   const frameworkDir = options.frameworkAgentsDir ?? frameworkDirFromModule();
   const fallbackPath = join(frameworkDir, `${options.personaId}.md`);
 
-  let sourcePath = overridePath;
-  let sourceType: "override" | "framework" = "override";
-  if (!(await fileExists(overridePath))) {
+  let sourcePath: string;
+  let sourceType: "override" | "framework";
+
+  if (options.forceFramework || !(await fileExists(overridePath))) {
     sourcePath = fallbackPath;
     sourceType = "framework";
+  } else {
+    sourcePath = overridePath;
+    sourceType = "override";
   }
 
   if (!(await fileExists(sourcePath))) {

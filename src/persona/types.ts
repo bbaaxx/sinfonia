@@ -52,6 +52,8 @@ export type LoadPersonaOptions = {
   personaId: string;
   frameworkAgentsDir?: string;
   sidecarMemoryEnabled?: boolean;
+  /** When true, always load from the framework source (ignore .sinfonia/agents/ override). */
+  forceFramework?: boolean;
 };
 
 /** Options for generating all persona artifacts (stubs + opencode.json). */
@@ -59,6 +61,7 @@ export type GeneratePersonaArtifactsOptions = {
   cwd: string;
   frameworkAgentsDir?: string;
   sidecarMemoryEnabled?: boolean;
+  force?: boolean;
 };
 
 /** Options passed to generateStub() for a single persona. */

@@ -101,35 +101,40 @@ const isCustomized = async (filePath: string): Promise<boolean> => {
  * - Copies framework persona files to `.sinfonia/agents/` (idempotent — skips if exists)
  * - Writes `.opencode/agent/sinfonia-{id}.md` with full inline persona content
  *   (skips files marked `customized: true` to preserve user edits)
+ * - When `force` is true: overwrites all files, ignoring `customized: true`
  * Note: opencode.json is written by init.ts, not here.
  */
 export const generateAllArtifacts = async (
   options: GeneratePersonaArtifactsOptions
 ): Promise<LoadedPersona[]> => {
+  const force = options.force ?? false;
   const personas: LoadedPersona[] = [];
 
   for (const profile of PERSONA_PROFILES) {
+    // When force is active, load from the framework source to get canonical content.
+    // This bypasses any existing (potentially invalid) .sinfonia/agents/ override.
     const loaded = await loadPersona({
       cwd: options.cwd,
       personaId: profile.id,
       ...(options.frameworkAgentsDir ? { frameworkAgentsDir: options.frameworkAgentsDir } : {}),
       ...(options.sidecarMemoryEnabled !== undefined
         ? { sidecarMemoryEnabled: options.sidecarMemoryEnabled }
-        : {})
+        : {}),
+      ...(force ? { forceFramework: true } : {})
     });
     personas.push(loaded);
 
-    // Idempotent: only copy persona file if not already present (preserve user customisations)
+    // Copy persona to .sinfonia/agents/ — force: always overwrite from framework; normal: skip if exists
     const targetPersonaPath = join(options.cwd, ".sinfonia/agents", `${profile.id}.md`);
-    if (!(await fileExists(targetPersonaPath))) {
+    if (force || !(await fileExists(targetPersonaPath))) {
       await ensureParentDir(targetPersonaPath);
       const source = await readFile(loaded.sourcePath, "utf8");
       await writeFile(targetPersonaPath, source, "utf8");
     }
 
-    // Write inline agent file — skip if user has marked it customized
+    // Write inline agent file — force: always overwrite; normal: skip if customized
     const stubPath = join(options.cwd, ".opencode/agent", `sinfonia-${profile.id}.md`);
-    if (await isCustomized(stubPath)) continue;
+    if (!force && (await isCustomized(stubPath))) continue;
 
     await ensureParentDir(stubPath);
     await writeFile(stubPath, generateStub({ persona: loaded }), "utf8");

@@ -21,8 +21,9 @@ export const createProgram = (): Command => {
     .command("init")
     .description("Initialize Sinfonia project structure")
     .option("-y, --yes", "Run non-interactively with defaults")
-    .action(async (options: { yes?: boolean }) => {
-      await runInitCommand({ yes: Boolean(options.yes) });
+    .option("-f, --force", "Force-refresh all generated files (useful after framework upgrades)")
+    .action(async (options: { yes?: boolean; force?: boolean }) => {
+      await runInitCommand({ yes: Boolean(options.yes), force: Boolean(options.force) });
     });
 
   program
