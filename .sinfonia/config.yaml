@@ -1,0 +1,6 @@
+version: "0.1"
+default_orchestrator: maestro
+project_name: ""
+user_name: ""
+skill_level: intermediate
+enforcement_strictness: medium

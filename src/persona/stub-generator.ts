@@ -20,42 +20,42 @@ export const PERSONA_PROFILES: PersonaProfile[] = [
     mode: "primary",
     permissions: ["read", "write", "edit", "bash"],
     description:
-      "Primary orchestration persona — coordinates all other personas, manages workflow state, routes tasks via @sinfonia-* delegation"
+      "Sinfonia orchestrator. Coordinates multi-agent development workflows: receives user stories, writes dispatch envelopes, spawns subagents (Coda, Rondo, Libretto, Amadeus), collects return envelopes, and manages approval gates. Always the user's primary point of contact."
   },
   {
     id: "libretto",
     mode: "subagent",
     permissions: ["read", "write"],
     description:
-      "Product planning persona — authors PRDs, requirements documents, and user stories; delegate requirements and product definition work here"
+      "Sinfonia requirements agent. Invoke for PRD creation and requirements analysis. Reads a dispatch envelope with project context, produces a structured PRD following the Sinfonia template, and writes a return envelope with the PRD artifact path and a completeness assessment."
   },
   {
     id: "amadeus",
     mode: "subagent",
     permissions: ["read", "write"],
     description:
-      "Architecture and design persona — produces technical specs, system design documents, and implementation plans; delegate architecture decisions here"
+      "Sinfonia specification agent. Invoke for technical specification authoring. Reads a dispatch envelope referencing a PRD, produces a detailed technical spec with schema definitions, validation rules, and data flow descriptions, and writes a return envelope with the spec artifact path."
   },
   {
     id: "coda",
     mode: "subagent",
     permissions: ["write", "edit", "bash"],
     description:
-      "Implementation persona — writes, edits, and executes code; delegate all development and coding tasks here"
+      "Sinfonia implementation agent. Invoke for all code writing, editing, and execution tasks. Reads a dispatch envelope from .sinfonia/handoffs/, implements the specified task with TDD discipline, and writes a return envelope with completion status and artifact list."
   },
   {
     id: "rondo",
     mode: "subagent",
     permissions: ["read", "bash"],
     description:
-      "Review and QA persona — performs code review, runs tests, and validates quality; delegate review and testing tasks here"
+      "Sinfonia code review agent. Invoke for all code review tasks. Reads a dispatch envelope referencing implementation artifacts, performs a structured review against quality criteria, and writes a return envelope with findings, severity ratings, and an approve/revise verdict."
   },
   {
     id: "metronome",
     mode: "subagent",
     permissions: ["read"],
     description:
-      "Context and memory management persona — handles compaction, context recovery, and workflow state summarisation; delegate context management here"
+      "Sinfonia QA agent. Invoke for test planning and quality assurance. Reads a dispatch envelope referencing implementation and spec artifacts, produces a test plan with coverage matrix, and writes a return envelope with test results and a pass/fail verdict."
   }
 ];
 
@@ -79,27 +79,47 @@ const ensureParentDir = async (filePath: string): Promise<void> => {
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
- * Generate the content of a thin opencode agent stub for a persona.
- * The stub delegates to the persona's source file via `prompt: {file: ...}`.
- * Returns the stub Markdown string — does NOT write to disk.
+ * Generate a self-contained opencode agent file for a persona.
+ * The full persona body is inlined — no external file indirection.
+ * Returns the agent Markdown string — does NOT write to disk.
  */
 export const generateStub = (options: StubGeneratorOptions): string => {
   const { persona } = options;
+  const profile = PERSONA_PROFILES.find((p) => p.id === persona.id);
+  if (!profile) {
+    throw new Error(`No PERSONA_PROFILES entry found for persona "${persona.id}"`);
+  }
+
+  const description = profile.description;
+  const mode = profile.mode;
+
   return `---
 name: sinfonia-${persona.id}
-description: Thin persona stub for ${persona.id}
-prompt:
-  file: .sinfonia/agents/${persona.id}.md
+description: "${description}"
+mode: ${mode}
+customized: false
 ---
 
-Route operations through the ${persona.id} persona prompt file.
+${persona.body}
 `;
 };
+
+const isCustomized = async (filePath: string): Promise<boolean> => {
+  if (!(await fileExists(filePath))) return false;
+
+  const content = await readFile(filePath, "utf8");
+  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!match) return false;
+
+  return /^customized:\s*true\s*$/m.test(match[1]);
+};
+
 
 /**
  * Generate all persona artifacts for a project:
  * - Copies framework persona files to `.sinfonia/agents/` (idempotent — skips if exists)
- * - Writes `.opencode/agent/sinfonia-{id}.md` stubs (always regenerated)
+ * - Writes `.opencode/agent/sinfonia-{id}.md` with full inline persona content
+ *   (skips files marked `customized: true` to preserve user edits)
  * Note: opencode.json is written by init.ts, not here.
  */
 export const generateAllArtifacts = async (
@@ -126,8 +146,10 @@ export const generateAllArtifacts = async (
       await writeFile(targetPersonaPath, source, "utf8");
     }
 
-    // Always regenerate stubs (stubs are thin wrappers, not user-customisable)
+    // Write inline agent file — skip if user has marked it customized
     const stubPath = join(options.cwd, ".opencode/agent", `sinfonia-${profile.id}.md`);
+    if (await isCustomized(stubPath)) continue;
+
     await ensureParentDir(stubPath);
     await writeFile(stubPath, generateStub({ persona: loaded, opencodeDir: options.cwd }), "utf8");
   }

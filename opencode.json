@@ -9,7 +9,7 @@
         "edit": true,
         "bash": true
       },
-      "description": "Primary orchestration persona — coordinates all other personas, manages workflow state, routes tasks via @sinfonia-* delegation"
+      "description": "Sinfonia orchestrator. Coordinates multi-agent development workflows: receives user stories, writes dispatch envelopes, spawns subagents (Coda, Rondo, Libretto, Amadeus), collects return envelopes, and manages approval gates. Always the user's primary point of contact."
     },
     "sinfonia-libretto": {
       "mode": "subagent",
@@ -17,7 +17,7 @@
         "read": true,
         "write": true
       },
-      "description": "Product planning persona — authors PRDs, requirements documents, and user stories; delegate requirements and product definition work here"
+      "description": "Sinfonia requirements agent. Invoke for PRD creation and requirements analysis. Reads a dispatch envelope with project context, produces a structured PRD following the Sinfonia template, and writes a return envelope with the PRD artifact path and a completeness assessment."
     },
     "sinfonia-amadeus": {
       "mode": "subagent",
@@ -25,7 +25,7 @@
         "read": true,
         "write": true
       },
-      "description": "Architecture and design persona — produces technical specs, system design documents, and implementation plans; delegate architecture decisions here"
+      "description": "Sinfonia specification agent. Invoke for technical specification authoring. Reads a dispatch envelope referencing a PRD, produces a detailed technical spec with schema definitions, validation rules, and data flow descriptions, and writes a return envelope with the spec artifact path."
     },
     "sinfonia-coda": {
       "mode": "subagent",
@@ -34,7 +34,7 @@
         "edit": true,
         "bash": true
       },
-      "description": "Implementation persona — writes, edits, and executes code; delegate all development and coding tasks here"
+      "description": "Sinfonia implementation agent. Invoke for all code writing, editing, and execution tasks. Reads a dispatch envelope from .sinfonia/handoffs/, implements the specified task with TDD discipline, and writes a return envelope with completion status and artifact list."
     },
     "sinfonia-rondo": {
       "mode": "subagent",
@@ -42,14 +42,23 @@
         "read": true,
         "bash": true
       },
-      "description": "Review and QA persona — performs code review, runs tests, and validates quality; delegate review and testing tasks here"
+      "description": "Sinfonia code review agent. Invoke for all code review tasks. Reads a dispatch envelope referencing implementation artifacts, performs a structured review against quality criteria, and writes a return envelope with findings, severity ratings, and an approve/revise verdict."
     },
     "sinfonia-metronome": {
       "mode": "subagent",
       "tools": {
         "read": true
       },
-      "description": "Context and memory management persona — handles compaction, context recovery, and workflow state summarisation; delegate context management here"
+      "description": "Sinfonia QA agent. Invoke for test planning and quality assurance. Reads a dispatch envelope referencing implementation and spec artifacts, produces a test plan with coverage matrix, and writes a return envelope with test results and a pass/fail verdict."
+    }
+  },
+  "mcp": {
+    "fortunemcp": {
+      "type": "local",
+      "command": [
+        "node",
+        "src/mcp/fortune-demo/fortune-mcp.js"
+      ]
     }
   }
 }

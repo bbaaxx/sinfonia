@@ -48,7 +48,7 @@ describe("initProject", () => {
         `persona_id: ${persona.id}`
       );
       await expect(readFile(join(cwd, ".opencode/agent", `sinfonia-${persona.id}.md`), "utf8")).resolves.toContain(
-        `.sinfonia/agents/${persona.id}.md`
+        `name: sinfonia-${persona.id}`
       );
     }
 

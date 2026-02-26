@@ -73,5 +73,5 @@ export type OpencodeAgentEntry = {
   permissions: PersonaPermissions;
   description: string;
   routing: string;
-  prompt: { file: string };
+  customized?: boolean;
 };

@@ -1,4 +1,4 @@
-import { access, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -60,23 +60,35 @@ describe("PERSONA_PROFILES", () => {
 });
 
 describe("generateStub", () => {
-  it("produces valid opencode agent Markdown structure", () => {
+  it("produces self-contained opencode agent with inline persona body", () => {
     const persona = makeLoadedPersona("maestro");
     const stub = generateStub({ persona, opencodeDir: "/fake/opencode" });
 
     expect(stub).toContain("---");
     expect(stub).toContain("name: sinfonia-maestro");
-    expect(stub).toContain("prompt:");
-    expect(stub).toContain("file: .sinfonia/agents/maestro.md");
+    expect(stub).toContain("mode: primary");
+    expect(stub).toContain("customized: false");
+    expect(stub).toContain("## Identity");
+    expect(stub).toContain("Test persona maestro.");
+    expect(stub).not.toContain("prompt:");
+    expect(stub).not.toContain("file: agents/");
   });
 
-  it("references the correct persona ID in the stub", () => {
+  it("uses correct mode from PERSONA_PROFILES for each persona", () => {
     for (const profile of PERSONA_PROFILES) {
       const persona = makeLoadedPersona(profile.id);
       const stub = generateStub({ persona, opencodeDir: "/fake" });
-      expect(stub).toContain(`sinfonia-${profile.id}`);
-      expect(stub).toContain(`.sinfonia/agents/${profile.id}.md`);
+      expect(stub).toContain(`name: sinfonia-${profile.id}`);
+      expect(stub).toContain(`mode: ${profile.mode}`);
+      expect(stub).toContain(`Test persona ${profile.id}.`);
     }
+  });
+
+  it("throws when persona has no matching PERSONA_PROFILES entry", () => {
+    const unknownPersona = makeLoadedPersona("unknown");
+    expect(() => generateStub({ persona: unknownPersona, opencodeDir: "/fake" })).toThrow(
+      /No PERSONA_PROFILES entry found/
+    );
   });
 });
 
@@ -143,10 +155,9 @@ ${
     : ""
 }`;
 
-  it("generates stub files for all 6 personas", async () => {
+  it("generates inline agent files for all 6 personas", async () => {
     const cwd = await makeTempDir();
     const frameworkDir = join(cwd, "framework");
-    const { mkdir } = await import("node:fs/promises");
     await mkdir(frameworkDir, { recursive: true });
 
     for (const profile of PERSONA_PROFILES) {
@@ -156,16 +167,22 @@ ${
     await generateAllArtifacts({ cwd, frameworkAgentsDir: frameworkDir });
 
     for (const profile of PERSONA_PROFILES) {
-      await expect(
-        access(join(cwd, ".opencode/agent", `sinfonia-${profile.id}.md`))
-      ).resolves.toBeUndefined();
+      const filePath = join(cwd, ".opencode/agent", `sinfonia-${profile.id}.md`);
+      await expect(access(filePath)).resolves.toBeUndefined();
+
+      const content = await readFile(filePath, "utf8");
+      expect(content).toContain(`name: sinfonia-${profile.id}`);
+      expect(content).toContain(`mode: ${profile.mode}`);
+      expect(content).toContain("customized: false");
+      expect(content).toContain("## Identity");
+      expect(content).not.toContain("prompt:");
+      expect(content).not.toContain("file: agents/");
     }
   });
 
   it("is idempotent — does not overwrite existing persona source files", async () => {
     const cwd = await makeTempDir();
     const frameworkDir = join(cwd, "framework");
-    const { mkdir } = await import("node:fs/promises");
     await mkdir(frameworkDir, { recursive: true });
     await mkdir(join(cwd, ".sinfonia/agents"), { recursive: true });
 
@@ -186,10 +203,50 @@ ${
     expect(afterContent).toContain("name: custom-maestro");
   });
 
+  it("preserves agent files marked customized: true", async () => {
+    const cwd = await makeTempDir();
+    const frameworkDir = join(cwd, "framework");
+    await mkdir(frameworkDir, { recursive: true });
+    await mkdir(join(cwd, ".opencode/agent"), { recursive: true });
+
+    for (const profile of PERSONA_PROFILES) {
+      await writeFile(join(frameworkDir, `${profile.id}.md`), validPersonaMd(profile.id), "utf8");
+    }
+
+    // Pre-write a customized agent file for coda
+    const customAgentContent = `---
+name: sinfonia-coda
+description: "My custom coda"
+mode: subagent
+customized: true
+---
+
+## Custom Identity
+This is my custom coda agent.
+`;
+    await writeFile(
+      join(cwd, ".opencode/agent/sinfonia-coda.md"),
+      customAgentContent,
+      "utf8"
+    );
+
+    await generateAllArtifacts({ cwd, frameworkAgentsDir: frameworkDir });
+
+    // Customized file must be preserved
+    const codaContent = await readFile(join(cwd, ".opencode/agent/sinfonia-coda.md"), "utf8");
+    expect(codaContent).toContain("customized: true");
+    expect(codaContent).toContain("## Custom Identity");
+    expect(codaContent).toContain("This is my custom coda agent.");
+
+    // Non-customized files should still be generated normally
+    const maestroContent = await readFile(join(cwd, ".opencode/agent/sinfonia-maestro.md"), "utf8");
+    expect(maestroContent).toContain("customized: false");
+    expect(maestroContent).toContain("## Identity");
+  });
+
   it("does not write opencode.json (init.ts owns that responsibility)", async () => {
     const cwd = await makeTempDir();
     const frameworkDir = join(cwd, "framework");
-    const { mkdir, access: fsAccess } = await import("node:fs/promises");
     await mkdir(frameworkDir, { recursive: true });
 
     for (const profile of PERSONA_PROFILES) {
@@ -199,6 +256,6 @@ ${
     await generateAllArtifacts({ cwd, frameworkAgentsDir: frameworkDir });
 
     // opencode.json must NOT be written by generateAllArtifacts
-    await expect(fsAccess(join(cwd, "opencode.json"))).rejects.toThrow();
+    await expect(access(join(cwd, "opencode.json"))).rejects.toThrow();
   });
 });
