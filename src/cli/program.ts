@@ -1,8 +1,13 @@
+import { createRequire } from "node:module";
+
 import { Command } from "commander";
 
 import { runInitCommand } from "./init.js";
 import { runValidateCommand } from "./validate.js";
 import { runRulesCommand } from "./rules.js";
+
+const require = createRequire(import.meta.url);
+const pkg = require("../../package.json") as { version?: string };
 
 export const createProgram = (): Command => {
   const program = new Command();
@@ -10,7 +15,7 @@ export const createProgram = (): Command => {
   program
     .name("sinfonia")
     .description("Sinfonia CLI")
-    .version("0.0.0");
+    .version(`sinfonia/${pkg.version ?? "unknown"}`, "-V, --version");
 
   program
     .command("init")

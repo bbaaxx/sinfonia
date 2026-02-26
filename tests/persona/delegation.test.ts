@@ -53,17 +53,15 @@ describe("delegation helpers", () => {
     expect(updated).toContain("current_step: implementation");
   });
 
-  it("generates routing-capable opencode config entries", async () => {
+  it("generates opencode agent stubs for all personas", async () => {
     const cwd = await makeTempDir();
     await generatePersonaArtifacts({ cwd });
 
-    const config = JSON.parse(await readFile(join(cwd, "opencode.json"), "utf8")) as {
-      agents: Record<string, { routing: string }>;
-    };
-
-    expect(config.agents["sinfonia-maestro"].routing).toBe("@sinfonia-maestro");
-    expect(config.agents["sinfonia-libretto"].routing).toBe("@sinfonia-libretto");
-    expect(config.agents["sinfonia-coda"].routing).toBe("@sinfonia-coda");
+    // generatePersonaArtifacts writes stubs — opencode.json is written by init.ts
+    const { access: fsAccess } = await import("node:fs/promises");
+    for (const id of ["maestro", "libretto", "coda"]) {
+      await expect(fsAccess(join(cwd, ".opencode/agent", `sinfonia-${id}.md`))).resolves.toBeUndefined();
+    }
   });
 
   it("formatDelegationContext with minimal envelope uses graceful defaults", () => {

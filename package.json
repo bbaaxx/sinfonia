@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "description": "Sinfonia CLI scaffold",
   "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
     "sinfonia": "dist/cli/index.js"
   },
@@ -12,11 +14,27 @@
     "prepublishOnly": "npm run build && npm test"
   },
   "files": [
-    "dist",
-    "agents",
-    "workflows",
+    "dist/",
+    "agents/",
+    "commands/",
+    "skills/",
+    "plugins/",
+    "workflows/",
     "README.md"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bbaaxx/sinfonia"
+  },
+  "keywords": [
+    "opencode",
+    "ai",
+    "agent",
+    "workflow",
+    "orchestration",
+    "mcp"
+  ],
+  "license": "MIT",
   "engines": {
     "node": ">=20"
   },

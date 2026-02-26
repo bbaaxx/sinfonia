@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 
 import { generateWorkflowStubs } from "./generate-stubs.js";
 import { generatePersonaArtifacts } from "../persona/loader.js";
+import { PERSONA_PROFILES } from "../persona/stub-generator.js";
 import {
   createConsolePrompt,
   type PromptFn,
@@ -109,36 +110,41 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 };
 
-const mergeOpenCodeConfig = (current: Record<string, unknown>): Record<string, unknown> => {
-  const currentAgents = isRecord(current.agents) ? current.agents : {};
-  const currentPlugins = Array.isArray(current.plugins)
-    ? current.plugins.filter((value): value is string => typeof value === "string")
-    : [];
-  const currentSinfonia = isRecord(current.sinfonia) ? current.sinfonia : {};
+/** Derive opencode tools object from a persona's permissions array. */
+const permissionsToTools = (
+  permissions: string[]
+): Record<string, boolean> => {
+  const toolNames = ["read", "write", "edit", "bash"] as const;
+  return Object.fromEntries(
+    toolNames
+      .filter((t) => permissions.includes(t))
+      .map((t) => [t, true])
+  );
+};
 
-  const agents: Record<string, unknown> = { ...currentAgents };
-  for (const personaId of INTERACTIVE_PERSONAS) {
-    const key = `sinfonia-${personaId}`;
-    if (!(key in agents)) {
-      agents[key] = `.opencode/agent/sinfonia-${personaId}.md`;
+const mergeOpenCodeConfig = (current: Record<string, unknown>): Record<string, unknown> => {
+  // Read existing `agent` entries (singular key — correct opencode schema)
+  const currentAgent = isRecord(current.agent) ? current.agent : {};
+
+  const agent: Record<string, unknown> = {};
+  for (const profile of PERSONA_PROFILES) {
+    const key = `sinfonia-${profile.id}`;
+    const existing = currentAgent[key];
+    // Preserve existing entry if it already has the correct shape
+    if (isRecord(existing) && "mode" in existing && "tools" in existing) {
+      agent[key] = existing;
+    } else {
+      agent[key] = {
+        mode: profile.mode === "primary" ? "primary" : "subagent",
+        tools: permissionsToTools(profile.permissions),
+        description: profile.description
+      };
     }
   }
 
-  const plugins = Array.from(
-    new Set([...currentPlugins, ".opencode/plugins/sinfonia-enforcement.ts"])
-  );
-
-  const sinfonia = {
-    version: "0.1",
-    orchestrator: "maestro",
-    ...currentSinfonia
-  };
-
   return {
-    ...current,
-    agents,
-    plugins,
-    sinfonia
+    $schema: "https://opencode.ai/config.json",
+    agent
   };
 };
 
@@ -205,6 +211,7 @@ export const initProject = async (
   }
 
   await writeIfMissing(join(cwd, ".opencode/plugins/sinfonia-enforcement.ts"), ENFORCEMENT_PLUGIN);
+  await writeOpenCodeConfig(cwd);
   await generatePersonaArtifacts({ cwd });
   await generateWorkflowStubs(cwd);
 };

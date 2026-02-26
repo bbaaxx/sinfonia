@@ -1,6 +1,8 @@
 ---
 name: sinfonia-maestro
-description: Primary Sinfonia orchestrator persona stub.
+description: Thin persona stub for maestro
+prompt:
+  file: .sinfonia/agents/maestro.md
 ---
 
-Load persona prompt from `./agents/maestro.md` and operate as the primary orchestration agent.
+Route operations through the maestro persona prompt file.

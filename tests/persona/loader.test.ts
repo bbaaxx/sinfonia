@@ -153,13 +153,8 @@ describe("persona loader and artifact generation", () => {
       await expect(access(join(cwd, ".opencode/agent", `sinfonia-${profile.id}.md`))).resolves.toBeUndefined();
     }
 
-    const config = JSON.parse(await readFile(join(cwd, "opencode.json"), "utf8")) as {
-      agents: Record<string, { mode: string; permissions: string[] }>;
-    };
-    expect(Object.keys(config.agents).filter((key) => key.startsWith("sinfonia-")).length).toBe(6);
-    expect(config.agents["sinfonia-maestro"].mode).toBe("primary");
-    expect(config.agents["sinfonia-coda"].permissions).toContain("bash");
-    expect(config.agents["sinfonia-rondo"].permissions).toEqual(["read", "bash"]);
-    expect(config.agents["sinfonia-metronome"].permissions).toEqual(["read"]);
+    // opencode.json is written by init.ts, not generatePersonaArtifacts
+    const { access: fsAccess } = await import("node:fs/promises");
+    await expect(fsAccess(join(cwd, "opencode.json"))).rejects.toThrow();
   });
 });

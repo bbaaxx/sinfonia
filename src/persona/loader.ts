@@ -21,7 +21,6 @@ export type {
 // Re-export stub-generator public API for backward compatibility
 export {
   generateAllArtifacts as generatePersonaArtifacts,
-  generateOpencodeEntry,
   generateStub,
   PERSONA_PROFILES
 } from "./stub-generator.js";

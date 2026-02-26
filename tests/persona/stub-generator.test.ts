@@ -7,7 +7,6 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   PERSONA_PROFILES,
   generateAllArtifacts,
-  generateOpencodeEntry,
   generateStub
 } from "../../src/persona/stub-generator.js";
 import type { LoadedPersona } from "../../src/persona/types.js";
@@ -77,65 +76,6 @@ describe("generateStub", () => {
       const stub = generateStub({ persona, opencodeDir: "/fake" });
       expect(stub).toContain(`sinfonia-${profile.id}`);
       expect(stub).toContain(`.sinfonia/agents/${profile.id}.md`);
-    }
-  });
-});
-
-describe("generateOpencodeEntry", () => {
-  it("produces correct config for all 6 personas", () => {
-    for (const profile of PERSONA_PROFILES) {
-      const entry = generateOpencodeEntry(profile, `/fake/agents/${profile.id}.md`);
-      expect(entry.mode).toBe(profile.mode);
-      expect(entry.description).toBeTruthy();
-      expect(entry.routing).toBe(`@sinfonia-${profile.id}`);
-      expect(entry.prompt.file).toBe(`.sinfonia/agents/${profile.id}.md`);
-    }
-  });
-
-  it("maestro entry has mode primary", () => {
-    const maestro = PERSONA_PROFILES.find((p) => p.id === "maestro")!;
-    const entry = generateOpencodeEntry(maestro, "/fake/agents/maestro.md");
-    expect(entry.mode).toBe("primary");
-  });
-
-  it("metronome entry has read-only permissions", () => {
-    const metronome = PERSONA_PROFILES.find((p) => p.id === "metronome")!;
-    const entry = generateOpencodeEntry(metronome, "/fake/agents/metronome.md");
-    expect(entry.permissions).toEqual(["read"]);
-  });
-
-  it("coda entry has write/edit/bash permissions", () => {
-    const coda = PERSONA_PROFILES.find((p) => p.id === "coda")!;
-    const entry = generateOpencodeEntry(coda, "/fake/agents/coda.md");
-    expect(entry.permissions).toContain("write");
-    expect(entry.permissions).toContain("edit");
-    expect(entry.permissions).toContain("bash");
-  });
-
-  it("rondo entry has read and bash permissions only", () => {
-    const rondo = PERSONA_PROFILES.find((p) => p.id === "rondo")!;
-    const entry = generateOpencodeEntry(rondo, "/fake/agents/rondo.md");
-    expect(entry.permissions).toContain("read");
-    expect(entry.permissions).toContain("bash");
-    expect(entry.permissions).not.toContain("write");
-    expect(entry.permissions).not.toContain("edit");
-  });
-
-  it("descriptions are routing-capable (contain role keywords)", () => {
-    const checks: Record<string, string[]> = {
-      libretto: ["requirements", "PRD", "product", "planning"],
-      amadeus: ["architecture", "design", "spec", "technical"],
-      coda: ["implementation", "code", "develop", "coding"],
-      rondo: ["review", "QA", "test", "quality"],
-      metronome: ["compaction", "context", "recovery", "memory"]
-    };
-
-    for (const [id, keywords] of Object.entries(checks)) {
-      const profile = PERSONA_PROFILES.find((p) => p.id === id)!;
-      const entry = generateOpencodeEntry(profile, `/fake/${id}.md`);
-      const descLower = entry.description.toLowerCase();
-      const hasKeyword = keywords.some((kw) => descLower.includes(kw.toLowerCase()));
-      expect(hasKeyword, `${id} description should contain one of: ${keywords.join(", ")}`).toBe(true);
     }
   });
 });
@@ -246,10 +186,10 @@ ${
     expect(afterContent).toContain("name: custom-maestro");
   });
 
-  it("writes opencode.json with all 6 agent entries", async () => {
+  it("does not write opencode.json (init.ts owns that responsibility)", async () => {
     const cwd = await makeTempDir();
     const frameworkDir = join(cwd, "framework");
-    const { mkdir } = await import("node:fs/promises");
+    const { mkdir, access: fsAccess } = await import("node:fs/promises");
     await mkdir(frameworkDir, { recursive: true });
 
     for (const profile of PERSONA_PROFILES) {
@@ -258,13 +198,7 @@ ${
 
     await generateAllArtifacts({ cwd, frameworkAgentsDir: frameworkDir });
 
-    const config = JSON.parse(await readFile(join(cwd, "opencode.json"), "utf8")) as {
-      agents: Record<string, { mode: string; permissions: string[] }>;
-    };
-
-    const sinfoniaKeys = Object.keys(config.agents).filter((k) => k.startsWith("sinfonia-"));
-    expect(sinfoniaKeys).toHaveLength(6);
-    expect(config.agents["sinfonia-maestro"].mode).toBe("primary");
-    expect(config.agents["sinfonia-metronome"].permissions).toEqual(["read"]);
+    // opencode.json must NOT be written by generateAllArtifacts
+    await expect(fsAccess(join(cwd, "opencode.json"))).rejects.toThrow();
   });
 });

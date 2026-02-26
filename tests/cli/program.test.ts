@@ -1,6 +1,10 @@
+import { createRequire } from "node:module";
 import { describe, expect, it } from "vitest";
 
 import { createProgram } from "../../src/cli/program.js";
+
+const require = createRequire(import.meta.url);
+const pkg = require("../../package.json") as { version: string };
 
 describe("createProgram", () => {
   it("configures the command metadata", () => {
@@ -8,7 +12,7 @@ describe("createProgram", () => {
 
     expect(program.name()).toBe("sinfonia");
     expect(program.description()).toBe("Sinfonia CLI");
-    expect(program.version()).toBe("0.0.0");
+    expect(program.version()).toBe(`sinfonia/${pkg.version}`);
   });
 
   it("registers the init command", () => {

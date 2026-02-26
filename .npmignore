@@ -1,0 +1,12 @@
+src/
+tests/
+.tmp/
+.sinfonia/
+_bmad/
+_bmad-output/
+*.md
+!README.md
+.opencode/
+opencode.json
+DEV-*.md
+specs/

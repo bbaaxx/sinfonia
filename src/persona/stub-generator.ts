@@ -3,10 +3,10 @@ import { constants } from "node:fs";
 import { access } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
+
 import type {
   GeneratePersonaArtifactsOptions,
   LoadedPersona,
-  OpencodeAgentEntry,
   PersonaProfile,
   StubGeneratorOptions
 } from "./types.js";
@@ -74,47 +74,7 @@ const ensureParentDir = async (filePath: string): Promise<void> => {
   await mkdir(dirname(filePath), { recursive: true });
 };
 
-const readJsonObject = async (filePath: string): Promise<Record<string, unknown>> => {
-  if (!(await fileExists(filePath))) {
-    return {};
-  }
-  const data = await readFile(filePath, "utf8");
-  const parsed = JSON.parse(data) as unknown;
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-    throw new Error("opencode.json must contain an object");
-  }
-  return parsed as Record<string, unknown>;
-};
 
-const mergeOpencodeConfig = async (
-  configPath: string,
-  newEntries: Record<string, OpencodeAgentEntry>,
-  personas: LoadedPersona[]
-): Promise<void> => {
-  const current = await readJsonObject(configPath);
-
-  const agentsRecord =
-    current.agents && typeof current.agents === "object" && !Array.isArray(current.agents)
-      ? (current.agents as Record<string, unknown>)
-      : {};
-
-  const merged = {
-    ...current,
-    agents: {
-      ...agentsRecord,
-      ...newEntries
-    },
-    sinfonia: {
-      personas: personas.map((persona) => ({
-        id: persona.id,
-        source: persona.sourceType,
-        file: `.sinfonia/agents/${persona.id}.md`
-      }))
-    }
-  };
-
-  await writeFile(configPath, `${JSON.stringify(merged, null, 2)}\n`, "utf8");
-};
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
@@ -137,33 +97,15 @@ Route operations through the ${persona.id} persona prompt file.
 };
 
 /**
- * Generate a single opencode.json agent config entry for a persona profile.
- * The description is intentionally verbose to support Maestro's auto-routing.
- */
-export const generateOpencodeEntry = (
-  profile: PersonaProfile,
-  _personaFilePath: string
-): OpencodeAgentEntry => ({
-  mode: profile.mode,
-  permissions: profile.permissions,
-  description: profile.description,
-  routing: `@sinfonia-${profile.id}`,
-  prompt: {
-    file: `.sinfonia/agents/${profile.id}.md`
-  }
-});
-
-/**
  * Generate all persona artifacts for a project:
  * - Copies framework persona files to `.sinfonia/agents/` (idempotent — skips if exists)
  * - Writes `.opencode/agent/sinfonia-{id}.md` stubs (always regenerated)
- * - Merges opencode.json with agent entries (always updated)
+ * Note: opencode.json is written by init.ts, not here.
  */
 export const generateAllArtifacts = async (
   options: GeneratePersonaArtifactsOptions
 ): Promise<LoadedPersona[]> => {
   const personas: LoadedPersona[] = [];
-  const opencodeEntries: Record<string, OpencodeAgentEntry> = {};
 
   for (const profile of PERSONA_PROFILES) {
     const loaded = await loadPersona({
@@ -188,12 +130,7 @@ export const generateAllArtifacts = async (
     const stubPath = join(options.cwd, ".opencode/agent", `sinfonia-${profile.id}.md`);
     await ensureParentDir(stubPath);
     await writeFile(stubPath, generateStub({ persona: loaded, opencodeDir: options.cwd }), "utf8");
-
-    opencodeEntries[`sinfonia-${profile.id}`] = generateOpencodeEntry(profile, loaded.sourcePath);
   }
-
-  const opencodePath = join(options.cwd, "opencode.json");
-  await mergeOpencodeConfig(opencodePath, opencodeEntries, personas);
 
   return personas;
 };
