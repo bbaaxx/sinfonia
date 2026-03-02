@@ -1,7 +1,7 @@
 # Sinfonia
 
 <p align="center">
-  <img src="assets/logo.png" alt="Sinfonia logo" width="140" />
+  <img src="assets/logo.png" alt="Sinfonia logo" width="400" />
 </p>
 
 <p align="center">
