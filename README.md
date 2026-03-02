@@ -138,14 +138,6 @@ flowchart LR
   G --> I[Update workflow.md]
 ```
 
-<p align="center">
-  <img src="docs/assets/workflow-diagram-placeholder.png" alt="Workflow lifecycle placeholder" width="860" />
-</p>
-
-<p align="center">
-  <em>Replace with a final architecture/lifecycle graphic.</em>
-</p>
-
 ## Execution Walkthrough
 
 Example flow: implement a story with review gates.
@@ -285,7 +277,3 @@ Contributions are welcome. For the best review experience:
 4. Run `npm run build` and `npm test` before opening review.
 
 ---
-
-Design note: some image assets are still placeholders and intentionally easy to replace:
-
-- `docs/assets/workflow-diagram-placeholder.png`
