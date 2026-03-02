@@ -11,49 +11,49 @@ import type {
 import { loadPersona } from "./loader.js";
 import { ensureParentDir, fileExists } from "./fs-utils.js";
 
-/** All 6 Sinfonia persona profiles with their opencode mode and permission grants. */
+/** All 6 Sinfonica persona profiles with their opencode mode and permission grants. */
 export const PERSONA_PROFILES: PersonaProfile[] = [
   {
     id: "maestro",
     mode: "primary",
     permissions: ["read", "write", "edit", "bash"],
     description:
-      "Sinfonia orchestrator. Coordinates multi-agent development workflows: receives user stories, writes dispatch envelopes, spawns subagents (Coda, Rondo, Libretto, Amadeus), collects return envelopes, and manages approval gates. Always the user's primary point of contact."
+      "Sinfonica orchestrator. Coordinates multi-agent development workflows: receives user stories, writes dispatch envelopes, spawns subagents (Coda, Rondo, Libretto, Amadeus), collects return envelopes, and manages approval gates. Always the user's primary point of contact."
   },
   {
     id: "libretto",
     mode: "subagent",
     permissions: ["read", "write"],
     description:
-      "Sinfonia requirements agent. Invoke for PRD creation and requirements analysis. Reads a dispatch envelope with project context, produces a structured PRD following the Sinfonia template, and writes a return envelope with the PRD artifact path and a completeness assessment."
+      "Sinfonica requirements agent. Invoke for PRD creation and requirements analysis. Reads a dispatch envelope with project context, produces a structured PRD following the Sinfonica template, and writes a return envelope with the PRD artifact path and a completeness assessment."
   },
   {
     id: "amadeus",
     mode: "subagent",
     permissions: ["read", "write"],
     description:
-      "Sinfonia specification agent. Invoke for technical specification authoring. Reads a dispatch envelope referencing a PRD, produces a detailed technical spec with schema definitions, validation rules, and data flow descriptions, and writes a return envelope with the spec artifact path."
+      "Sinfonica specification agent. Invoke for technical specification authoring. Reads a dispatch envelope referencing a PRD, produces a detailed technical spec with schema definitions, validation rules, and data flow descriptions, and writes a return envelope with the spec artifact path."
   },
   {
     id: "coda",
     mode: "subagent",
     permissions: ["write", "edit", "bash"],
     description:
-      "Sinfonia implementation agent. Invoke for all code writing, editing, and execution tasks. Reads a dispatch envelope from .sinfonia/handoffs/, implements the specified task with TDD discipline, and writes a return envelope with completion status and artifact list."
+      "Sinfonica implementation agent. Invoke for all code writing, editing, and execution tasks. Reads a dispatch envelope from .sinfonica/handoffs/, implements the specified task with TDD discipline, and writes a return envelope with completion status and artifact list."
   },
   {
     id: "rondo",
     mode: "subagent",
     permissions: ["read", "bash"],
     description:
-      "Sinfonia code review agent. Invoke for all code review tasks. Reads a dispatch envelope referencing implementation artifacts, performs a structured review against quality criteria, and writes a return envelope with findings, severity ratings, and an approve/revise verdict."
+      "Sinfonica code review agent. Invoke for all code review tasks. Reads a dispatch envelope referencing implementation artifacts, performs a structured review against quality criteria, and writes a return envelope with findings, severity ratings, and an approve/revise verdict."
   },
   {
     id: "metronome",
     mode: "subagent",
     permissions: ["read"],
     description:
-      "Sinfonia QA agent. Invoke for test planning and quality assurance. Reads a dispatch envelope referencing implementation and spec artifacts, produces a test plan with coverage matrix, and writes a return envelope with test results and a pass/fail verdict."
+      "Sinfonica QA agent. Invoke for test planning and quality assurance. Reads a dispatch envelope referencing implementation and spec artifacts, produces a test plan with coverage matrix, and writes a return envelope with test results and a pass/fail verdict."
   }
 ];
 
@@ -75,7 +75,7 @@ export const generateStub = (options: StubGeneratorOptions): string => {
   const mode = profile.mode;
 
   return `---
-name: sinfonia-${persona.id}
+name: sinfonica-${persona.id}
 description: "${description.replace(/"/g, '\\"')}"
 mode: ${mode}
 customized: false
@@ -98,8 +98,8 @@ const isCustomized = async (filePath: string): Promise<boolean> => {
 
 /**
  * Generate all persona artifacts for a project:
- * - Copies framework persona files to `.sinfonia/agents/` (idempotent — skips if exists)
- * - Writes `.opencode/agent/sinfonia-{id}.md` with full inline persona content
+ * - Copies framework persona files to `.sinfonica/agents/` (idempotent — skips if exists)
+ * - Writes `.opencode/agent/sinfonica-{id}.md` with full inline persona content
  *   (skips files marked `customized: true` to preserve user edits)
  * - When `force` is true: overwrites all files, ignoring `customized: true`
  * Note: opencode.json is written by init.ts, not here.
@@ -112,7 +112,7 @@ export const generateAllArtifacts = async (
 
   for (const profile of PERSONA_PROFILES) {
     // When force is active, load from the framework source to get canonical content.
-    // This bypasses any existing (potentially invalid) .sinfonia/agents/ override.
+    // This bypasses any existing (potentially invalid) .sinfonica/agents/ override.
     const loaded = await loadPersona({
       cwd: options.cwd,
       personaId: profile.id,
@@ -124,8 +124,8 @@ export const generateAllArtifacts = async (
     });
     personas.push(loaded);
 
-    // Copy persona to .sinfonia/agents/ — force: always overwrite from framework; normal: skip if exists
-    const targetPersonaPath = join(options.cwd, ".sinfonia/agents", `${profile.id}.md`);
+    // Copy persona to .sinfonica/agents/ — force: always overwrite from framework; normal: skip if exists
+    const targetPersonaPath = join(options.cwd, ".sinfonica/agents", `${profile.id}.md`);
     if (force || !(await fileExists(targetPersonaPath))) {
       await ensureParentDir(targetPersonaPath);
       const source = await readFile(loaded.sourcePath, "utf8");
@@ -133,7 +133,7 @@ export const generateAllArtifacts = async (
     }
 
     // Write inline agent file — force: always overwrite; normal: skip if customized
-    const stubPath = join(options.cwd, ".opencode/agent", `sinfonia-${profile.id}.md`);
+    const stubPath = join(options.cwd, ".opencode/agent", `sinfonica-${profile.id}.md`);
     if (!force && (await isCustomized(stubPath))) continue;
 
     await ensureParentDir(stubPath);

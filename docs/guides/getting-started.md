@@ -8,7 +8,7 @@ Back to index: [Documentation Index](../index.md)
 
 ## Purpose
 
-Help first-time users initialize Sinfonia in a repository and verify the setup end to end.
+Help first-time users initialize Sinfonica in a repository and verify the setup end to end.
 
 ## Audience
 
@@ -20,11 +20,11 @@ New users and contributors.
 
 - Node.js 20+
 - npm available in your shell
-- A repository where you want Sinfonia orchestration assets
+- A repository where you want Sinfonica orchestration assets
 
 ## 1) Install dependencies
 
-From `packages/sinfonia/`:
+From `packages/sinfonica/`:
 
 ```bash
 npm install
@@ -41,21 +41,21 @@ npm run build
 Run in the target project root:
 
 ```bash
-sinfonia init -y
+sinfonica init -y
 ```
 
 What this creates:
 
-- `.sinfonia/` runtime directories and config
-- `.sinfonia/agents/` persona markdown files
-- `.opencode/agent/` wrappers for Sinfonia personas
+- `.sinfonica/` runtime directories and config
+- `.sinfonica/agents/` persona markdown files
+- `.opencode/agent/` wrappers for Sinfonica personas
 - `.opencode/command/` and `.opencode/skills/` workflow stubs
-- `.opencode/plugins/sinfonia-enforcement.ts`
+- `.opencode/plugins/sinfonica-enforcement.ts`
 
 ## 4) Validate persona contracts
 
 ```bash
-sinfonia validate .sinfonia/agents --all
+sinfonica validate .sinfonica/agents --all
 ```
 
 Expected result:
@@ -65,7 +65,7 @@ Expected result:
 ## 5) Inspect active safeguards
 
 ```bash
-sinfonia rules
+sinfonica rules
 ```
 
 Expected result:
@@ -86,15 +86,15 @@ At this point, your repository has the baseline score to run structured multi-ag
 ## Constraints and Non-Goals
 
 - This guide covers initial setup only; it does not define custom workflow authoring.
-- It assumes shell access to the `sinfonia` CLI.
+- It assumes shell access to the `sinfonica` CLI.
 - If your environment does not expose the CLI on PATH, invoke it through your local runtime tooling.
 
 ## References and Evidence
 
-- `packages/sinfonia/README.md`
-- `packages/sinfonia/package.json`
-- `packages/sinfonia/src/cli/init.ts`
-- `packages/sinfonia/src/cli/validate.ts`
-- `packages/sinfonia/src/cli/rules.ts`
-- `packages/sinfonia/tests/cli/init.test.ts`
-- `packages/sinfonia/tests/cli/validate.test.ts`
+- `packages/sinfonica/README.md`
+- `packages/sinfonica/package.json`
+- `packages/sinfonica/src/cli/init.ts`
+- `packages/sinfonica/src/cli/validate.ts`
+- `packages/sinfonica/src/cli/rules.ts`
+- `packages/sinfonica/tests/cli/init.test.ts`
+- `packages/sinfonica/tests/cli/validate.test.ts`

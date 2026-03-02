@@ -8,7 +8,7 @@ Back to index: [Documentation Index](../index.md)
 
 ## Purpose
 
-Provide a concise command reference for the `sinfonia` CLI, including behavior, options, and exit semantics.
+Provide a concise command reference for the `sinfonica` CLI, including behavior, options, and exit semantics.
 
 ## Audience
 
@@ -20,23 +20,23 @@ Developers and operators.
 
 Binary:
 
-- `sinfonia`
+- `sinfonica`
 
 Version string format:
 
-- `sinfonia/<package-version>`
+- `sinfonica/<package-version>`
 
-## `sinfonia init`
+## `sinfonica init`
 
-Initializes Sinfonia scaffolding in the current working directory.
+Initializes Sinfonica scaffolding in the current working directory.
 
 Creates or updates:
 
-- `.sinfonia/` runtime directories and config
-- `.sinfonia/agents/*.md` persona files
-- `.opencode/agent/sinfonia-*.md` agent wrappers
+- `.sinfonica/` runtime directories and config
+- `.sinfonica/agents/*.md` persona files
+- `.opencode/agent/sinfonica-*.md` agent wrappers
 - `.opencode/command/` and `.opencode/skills/` workflow stubs
-- `.opencode/plugins/sinfonia-enforcement.ts`
+- `.opencode/plugins/sinfonica-enforcement.ts`
 - `opencode.json` agent entries
 
 Options:
@@ -49,7 +49,7 @@ Notes:
 - Re-running without `--force` is idempotent for existing user-managed files.
 - `config.yaml` user preferences are preserved on re-init, including with `--force`.
 
-## `sinfonia validate <path>`
+## `sinfonica validate <path>`
 
 Validates persona markdown files.
 
@@ -66,7 +66,7 @@ Exit behavior:
 - returns `0` when no validation errors exist
 - returns `1` when errors are found
 
-## `sinfonia rules`
+## `sinfonica rules`
 
 Lists currently registered enforcement rules.
 
@@ -81,9 +81,9 @@ Exit behavior:
 ## Typical usage sequence
 
 ```bash
-sinfonia init -y
-sinfonia validate .sinfonia/agents --all
-sinfonia rules
+sinfonica init -y
+sinfonica validate .sinfonica/agents --all
+sinfonica rules
 ```
 
 ## Constraints and Non-Goals
@@ -94,13 +94,13 @@ sinfonia rules
 
 ## References and Evidence
 
-- `packages/sinfonia/README.md`
-- `packages/sinfonia/package.json`
-- `packages/sinfonia/src/cli/program.ts`
-- `packages/sinfonia/src/cli/init.ts`
-- `packages/sinfonia/src/cli/validate.ts`
-- `packages/sinfonia/src/cli/rules.ts`
-- `packages/sinfonia/tests/cli/program.test.ts`
-- `packages/sinfonia/tests/cli/init.test.ts`
-- `packages/sinfonia/tests/cli/validate.test.ts`
-- `packages/sinfonia/tests/cli/rules.test.ts`
+- `packages/sinfonica/README.md`
+- `packages/sinfonica/package.json`
+- `packages/sinfonica/src/cli/program.ts`
+- `packages/sinfonica/src/cli/init.ts`
+- `packages/sinfonica/src/cli/validate.ts`
+- `packages/sinfonica/src/cli/rules.ts`
+- `packages/sinfonica/tests/cli/program.test.ts`
+- `packages/sinfonica/tests/cli/init.test.ts`
+- `packages/sinfonica/tests/cli/validate.test.ts`
+- `packages/sinfonica/tests/cli/rules.test.ts`

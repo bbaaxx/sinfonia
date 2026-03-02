@@ -16,7 +16,7 @@ import {
 let testDir: string;
 
 beforeEach(async () => {
-  testDir = join(tmpdir(), `sinfonia-memory-test-${Date.now()}`);
+  testDir = join(tmpdir(), `sinfonica-memory-test-${Date.now()}`);
   await mkdir(testDir, { recursive: true });
 });
 
@@ -24,14 +24,14 @@ afterEach(async () => {
   await rm(testDir, { recursive: true, force: true });
 });
 
-const memoryDir = (base: string) => join(base, '.sinfonia', 'memory');
+const memoryDir = (base: string) => join(base, '.sinfonica', 'memory');
 
 // ---------------------------------------------------------------------------
 // createMemoryFile
 // ---------------------------------------------------------------------------
 
 describe('createMemoryFile', () => {
-  it('creates the memory file at .sinfonia/memory/<persona_id>.md', async () => {
+  it('creates the memory file at .sinfonica/memory/<persona_id>.md', async () => {
     await createMemoryFile('maestro', testDir);
     const filePath = join(memoryDir(testDir), 'maestro.md');
     const content = await readFile(filePath, 'utf-8');
@@ -47,7 +47,7 @@ describe('createMemoryFile', () => {
   it('creates parent directories if they do not exist', async () => {
     const nestedBase = join(testDir, 'nested', 'project');
     await createMemoryFile('tester', nestedBase);
-    const filePath = join(nestedBase, '.sinfonia', 'memory', 'tester.md');
+    const filePath = join(nestedBase, '.sinfonica', 'memory', 'tester.md');
     const content = await readFile(filePath, 'utf-8');
     expect(content).toContain('# Memory: tester');
   });

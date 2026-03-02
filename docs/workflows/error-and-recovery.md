@@ -8,7 +8,7 @@ Back to index: [Documentation Index](../index.md)
 
 ## Purpose
 
-Describe common runtime failure patterns and the supported recovery paths for Sinfonia workflows.
+Describe common runtime failure patterns and the supported recovery paths for Sinfonica workflows.
 
 ## Audience
 
@@ -16,7 +16,7 @@ Users, maintainers, and support engineers.
 
 ## Main Content
 
-Sinfonia distinguishes between blocking failures and recoverable operational warnings. The coordinator and enforcement layers provide structured handling paths.
+Sinfonica distinguishes between blocking failures and recoverable operational warnings. The coordinator and enforcement layers provide structured handling paths.
 
 ## Error classes
 
@@ -81,15 +81,15 @@ Failure handling supports explicit control actions:
 
 ### Idempotent re-initialization
 
-- `sinfonia init` can be rerun safely.
+- `sinfonica init` can be rerun safely.
 - `--force` refreshes generated artifacts while preserving key user config values.
 
 ## Diagnostic checklist
 
 1. Confirm you are in the intended project root.
-2. Run `sinfonia rules` and confirm expected safeguards are registered.
-3. Validate personas with `sinfonia validate .sinfonia/agents --all`.
-4. Inspect `.sinfonia/handoffs/<sessionId>/workflow.md` for current step and status.
+2. Run `sinfonica rules` and confirm expected safeguards are registered.
+3. Validate personas with `sinfonica validate .sinfonica/agents --all`.
+4. Inspect `.sinfonica/handoffs/<sessionId>/workflow.md` for current step and status.
 5. Confirm required handoff envelopes exist and pass validation.
 6. Re-run with explicit retry/skip/abort decision if a controlled failure branch is expected.
 
@@ -101,16 +101,16 @@ Failure handling supports explicit control actions:
 
 ## References and Evidence
 
-- `packages/sinfonia/src/`
-- `packages/sinfonia/tests/`
-- `packages/sinfonia/src/workflow/coordinator.ts`
-- `packages/sinfonia/src/workflow/resume.ts`
-- `packages/sinfonia/src/workflow/compaction.ts`
-- `packages/sinfonia/src/workflow/index-manager.ts`
-- `packages/sinfonia/src/handoff/approval.ts`
-- `packages/sinfonia/src/handoff/validator.ts`
-- `packages/sinfonia/src/enforcement/registry.ts`
-- `packages/sinfonia/src/enforcement/rules/enf-001-tdd.ts`
-- `packages/sinfonia/tests/workflow/coordinator.test.ts`
-- `packages/sinfonia/tests/workflow/index-manager.test.ts`
-- `packages/sinfonia/tests/cli/init.test.ts`
+- `packages/sinfonica/src/`
+- `packages/sinfonica/tests/`
+- `packages/sinfonica/src/workflow/coordinator.ts`
+- `packages/sinfonica/src/workflow/resume.ts`
+- `packages/sinfonica/src/workflow/compaction.ts`
+- `packages/sinfonica/src/workflow/index-manager.ts`
+- `packages/sinfonica/src/handoff/approval.ts`
+- `packages/sinfonica/src/handoff/validator.ts`
+- `packages/sinfonica/src/enforcement/registry.ts`
+- `packages/sinfonica/src/enforcement/rules/enf-001-tdd.ts`
+- `packages/sinfonica/tests/workflow/coordinator.test.ts`
+- `packages/sinfonica/tests/workflow/index-manager.test.ts`
+- `packages/sinfonica/tests/cli/init.test.ts`

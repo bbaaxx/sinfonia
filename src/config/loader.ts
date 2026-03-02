@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { DEFAULT_CONFIG, type SinfoniaConfig, validateConfig } from "./schema.js";
+import { DEFAULT_CONFIG, type SinfonicaConfig, validateConfig } from "./schema.js";
 
 type ConfigFlags = Partial<{
   version: string;
@@ -48,13 +48,13 @@ const parseProjectConfig = (
 
     const separator = trimmed.indexOf(":");
     if (separator <= 0) {
-      throw new Error(`Invalid YAML in .sinfonia/config.yaml at line ${index + 1}`);
+      throw new Error(`Invalid YAML in .sinfonica/config.yaml at line ${index + 1}`);
     }
 
     const key = trimmed.slice(0, separator).trim();
     const value = parseYamlValue(trimmed.slice(separator + 1));
     result[key] = value;
-    sourceByKey[key] = ".sinfonia/config.yaml";
+    sourceByKey[key] = ".sinfonica/config.yaml";
   }
 
   return result;
@@ -74,12 +74,12 @@ const envToRawConfig = (
     }
   };
 
-  assign("SINFONIA_VERSION", "version");
-  assign("SINFONIA_DEFAULT_ORCHESTRATOR", "default_orchestrator");
-  assign("SINFONIA_PROJECT_NAME", "project_name");
-  assign("SINFONIA_USER_NAME", "user_name");
-  assign("SINFONIA_SKILL_LEVEL", "skill_level");
-  assign("SINFONIA_ENFORCEMENT_STRICTNESS", "enforcement_strictness");
+  assign("SINFONICA_VERSION", "version");
+  assign("SINFONICA_DEFAULT_ORCHESTRATOR", "default_orchestrator");
+  assign("SINFONICA_PROJECT_NAME", "project_name");
+  assign("SINFONICA_USER_NAME", "user_name");
+  assign("SINFONICA_SKILL_LEVEL", "skill_level");
+  assign("SINFONICA_ENFORCEMENT_STRICTNESS", "enforcement_strictness");
 
   return mapped;
 };
@@ -112,7 +112,7 @@ const loadProjectConfig = async (
   sourceByKey: Partial<Record<string, string>>
 ): Promise<Record<string, unknown>> => {
   try {
-    const configPath = join(cwd, ".sinfonia/config.yaml");
+    const configPath = join(cwd, ".sinfonica/config.yaml");
     const content = await readFile(configPath, "utf8");
     return parseProjectConfig(content, sourceByKey);
   } catch (error: unknown) {
@@ -124,7 +124,7 @@ const loadProjectConfig = async (
   }
 };
 
-export const loadConfig = async (options: LoadConfigOptions = {}): Promise<SinfoniaConfig> => {
+export const loadConfig = async (options: LoadConfigOptions = {}): Promise<SinfonicaConfig> => {
   const cwd = options.cwd ?? process.cwd();
   const env = options.env ?? process.env;
   const flags = options.flags ?? {};

@@ -33,4 +33,4 @@ None.
 ## Recommendations
 
 - Optional: add a small comment in `program.ts` noting that `../../package.json` is resolved from `dist/cli/program.js`.
-- Optional: add a low-priority guard for missing `pkg.version` to avoid `sinfonia/undefined` in exceptional cases.
+- Optional: add a low-priority guard for missing `pkg.version` to avoid `sinfonica/undefined` in exceptional cases.

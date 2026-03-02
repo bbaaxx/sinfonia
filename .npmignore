@@ -1,7 +1,7 @@
 src/
 tests/
 .tmp/
-.sinfonia/
+.sinfonica/
 _bmad/
 _bmad-output/
 *.md

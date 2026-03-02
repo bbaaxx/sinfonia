@@ -1,15 +1,15 @@
 /**
  * ENF-005: Shell Env Injection
  *
- * Injects SINFONIA_* environment variables into every shell call so that
+ * Injects SINFONICA_* environment variables into every shell call so that
  * scripts and tools can access workflow context without reading files.
  *
  * Variables injected:
- *   SINFONIA_PROJECT_ROOT   — absolute path to the project root
- *   SINFONIA_VERSION        — sinfonia package version
- *   SINFONIA_SESSION_ID     — current workflow session ID (if available)
- *   SINFONIA_WORKFLOW_ID    — current workflow ID (if available)
- *   SINFONIA_CURRENT_STEP   — current workflow step name (if available)
+ *   SINFONICA_PROJECT_ROOT   — absolute path to the project root
+ *   SINFONICA_VERSION        — sinfonica package version
+ *   SINFONICA_SESSION_ID     — current workflow session ID (if available)
+ *   SINFONICA_WORKFLOW_ID    — current workflow ID (if available)
+ *   SINFONICA_CURRENT_STEP   — current workflow step name (if available)
  *
  * Severity: INJECTION (shell.env)
  * Layer: plugin-only
@@ -22,14 +22,14 @@ import { findLatestWorkflowIndex, parseWorkflowIndexFile } from "../utils.js";
 export type ShellEnvRecord = Record<string, string | undefined>;
 
 /**
- * Reads the sinfonia package version from its package.json.
+ * Reads the sinfonica package version from its package.json.
  * Falls back to "unknown" if not readable.
  */
-async function readSinfoniaVersion(cwd: string): Promise<string> {
+async function readSinfonicaVersion(cwd: string): Promise<string> {
   // Try to find the package.json relative to the project root
   const candidates = [
     join(cwd, "package.json"),
-    join(cwd, "packages/sinfonia/package.json"),
+    join(cwd, "packages/sinfonica/package.json"),
     // Relative to this file at runtime (dist/enforcement/rules/)
     new URL("../../../package.json", import.meta.url).pathname,
   ];
@@ -38,7 +38,7 @@ async function readSinfoniaVersion(cwd: string): Promise<string> {
     try {
       const raw = await readFile(candidate, "utf-8");
       const pkg = JSON.parse(raw) as { name?: string; version?: string };
-      if (pkg.name?.includes("sinfonia") && pkg.version) {
+      if (pkg.name?.includes("sinfonica") && pkg.version) {
         return pkg.version;
       }
     } catch {
@@ -55,8 +55,8 @@ async function readSinfoniaVersion(cwd: string): Promise<string> {
 export function createShellEnvHandler(cwd: string): () => Promise<ShellEnvRecord> {
   return async (): Promise<ShellEnvRecord> => {
     const env: ShellEnvRecord = {
-      SINFONIA_PROJECT_ROOT: cwd,
-      SINFONIA_VERSION: await readSinfoniaVersion(cwd).catch(() => "unknown"),
+      SINFONICA_PROJECT_ROOT: cwd,
+      SINFONICA_VERSION: await readSinfonicaVersion(cwd).catch(() => "unknown"),
     };
 
     // Attempt to load workflow context — non-blocking
@@ -65,9 +65,9 @@ export function createShellEnvHandler(cwd: string): () => Promise<ShellEnvRecord
       if (indexPath) {
         const index = await parseWorkflowIndexFile(indexPath);
         if (index) {
-          env["SINFONIA_SESSION_ID"] = index.frontmatter.sessionId || undefined;
-          env["SINFONIA_WORKFLOW_ID"] = index.frontmatter.workflowId || undefined;
-          env["SINFONIA_CURRENT_STEP"] = index.frontmatter.currentStep || undefined;
+          env["SINFONICA_SESSION_ID"] = index.frontmatter.sessionId || undefined;
+          env["SINFONICA_WORKFLOW_ID"] = index.frontmatter.workflowId || undefined;
+          env["SINFONICA_CURRENT_STEP"] = index.frontmatter.currentStep || undefined;
         }
       }
     } catch {

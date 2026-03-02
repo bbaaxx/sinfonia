@@ -87,7 +87,7 @@ export type WorkflowStepDef = {
 
 /** Parsed workflow definition loaded from a workflow.md definition file. */
 export type WorkflowDef = {
-  /** Workflow name (directory name under .sinfonia/workflows/). */
+  /** Workflow name (directory name under .sinfonica/workflows/). */
   name: string;
   /** Human-readable description from the workflow.md header. */
   description: string;

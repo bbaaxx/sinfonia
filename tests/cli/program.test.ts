@@ -10,9 +10,9 @@ describe("createProgram", () => {
   it("configures the command metadata", () => {
     const program = createProgram();
 
-    expect(program.name()).toBe("sinfonia");
-    expect(program.description()).toBe("Sinfonia CLI");
-    expect(program.version()).toBe(`sinfonia/${pkg.version}`);
+    expect(program.name()).toBe("sinfonica");
+    expect(program.description()).toBe("Sinfonica CLI");
+    expect(program.version()).toBe(`sinfonica/${pkg.version}`);
   });
 
   it("registers the init command", () => {

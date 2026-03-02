@@ -9,14 +9,14 @@ import { loadConfig } from "../../src/config/loader.js";
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-config-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-config-test-"));
   tempDirs.push(dir);
   return dir;
 };
 
 const writeProjectConfig = async (cwd: string, content: string): Promise<void> => {
-  await mkdir(join(cwd, ".sinfonia"), { recursive: true });
-  await writeFile(join(cwd, ".sinfonia/config.yaml"), content, "utf8");
+  await mkdir(join(cwd, ".sinfonica"), { recursive: true });
+  await writeFile(join(cwd, ".sinfonica/config.yaml"), content, "utf8");
 };
 
 afterEach(async () => {
@@ -72,8 +72,8 @@ describe("loadConfig", () => {
     const config = await loadConfig({
       cwd,
       env: {
-        SINFONIA_SKILL_LEVEL: "expert",
-        SINFONIA_PROJECT_NAME: "Env Project"
+        SINFONICA_SKILL_LEVEL: "expert",
+        SINFONICA_PROJECT_NAME: "Env Project"
       }
     });
 
@@ -88,8 +88,8 @@ describe("loadConfig", () => {
     const config = await loadConfig({
       cwd,
       env: {
-        SINFONIA_SKILL_LEVEL: "intermediate",
-        SINFONIA_PROJECT_NAME: "Env Project"
+        SINFONICA_SKILL_LEVEL: "intermediate",
+        SINFONICA_PROJECT_NAME: "Env Project"
       },
       flags: {
         skillLevel: "expert",

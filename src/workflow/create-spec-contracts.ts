@@ -3,9 +3,9 @@ import { constants } from 'node:fs';
 import { join } from 'node:path';
 
 export const CREATE_SPEC_WORKFLOW = 'create-spec';
-export const CREATE_SPEC_TARGET_PERSONA = 'sinfonia-maestro';
-export const CREATE_SPEC_ADDRESS_TO = '@sinfonia-maestro';
-export const CREATE_SPEC_SKILL_PATH = '.opencode/skills/sinfonia-create-spec/SKILL.md';
+export const CREATE_SPEC_TARGET_PERSONA = 'sinfonica-maestro';
+export const CREATE_SPEC_ADDRESS_TO = '@sinfonica-maestro';
+export const CREATE_SPEC_SKILL_PATH = '.opencode/skills/sinfonica-create-spec/SKILL.md';
 
 export const CREATE_SPEC_REQUIRED_REPORT_FIELDS = [
   'status',

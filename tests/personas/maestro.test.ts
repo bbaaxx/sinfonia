@@ -37,7 +37,7 @@ describe("Story 2.1.1 maestro persona", () => {
 
   it("keeps generated maestro stub aligned with canonical persona guidance", async () => {
     const personaContent = await readFile(join(process.cwd(), "agents/maestro.md"), "utf8");
-    const stubContent = await readFile(join(process.cwd(), ".opencode/agent/sinfonia-maestro.md"), "utf8");
+    const stubContent = await readFile(join(process.cwd(), ".opencode/agent/sinfonica-maestro.md"), "utf8");
 
     expect(personaContent).toContain("Use a warm, conversational tone while staying action-first.");
     expect(stubContent).toContain("Use a warm, conversational tone while staying action-first.");
@@ -46,7 +46,7 @@ describe("Story 2.1.1 maestro persona", () => {
   });
 
   it("has a generated opencode maestro stub", async () => {
-    const stubPath = join(process.cwd(), ".opencode/agent/sinfonia-maestro.md");
+    const stubPath = join(process.cwd(), ".opencode/agent/sinfonica-maestro.md");
     await expect(access(stubPath)).resolves.toBeUndefined();
   });
 });

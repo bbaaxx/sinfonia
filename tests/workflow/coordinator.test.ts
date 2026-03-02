@@ -34,7 +34,7 @@ async function scaffoldReturnEnvelope(
   sourcePersona: string,
   targetPersona: string,
 ): Promise<string> {
-  const sessionDir = join(cwd, '.sinfonia', 'handoffs', sessionId);
+  const sessionDir = join(cwd, '.sinfonica', 'handoffs', sessionId);
   await mkdir(sessionDir, { recursive: true });
   const filePath = join(sessionDir, '001-return.md');
   const content = [
@@ -125,7 +125,7 @@ describe('CP1 — Pipeline Definition & Initiation', () => {
   });
 
   describe('initPipeline', () => {
-    it('creates session directory under .sinfonia/handoffs/<sessionId>/', async () => {
+    it('creates session directory under .sinfonica/handoffs/<sessionId>/', async () => {
       const cwd = await makeTempDir('init');
       tempDirs.push(cwd);
 
@@ -133,7 +133,7 @@ describe('CP1 — Pipeline Definition & Initiation', () => {
       const { sessionId } = session;
 
       const { existsSync } = await import('node:fs');
-      const sessionDir = join(cwd, '.sinfonia', 'handoffs', sessionId);
+      const sessionDir = join(cwd, '.sinfonica', 'handoffs', sessionId);
       expect(existsSync(sessionDir)).toBe(true);
     });
 
@@ -568,7 +568,7 @@ describe('CP4 — Error Handling & Retry', () => {
       const cwd = await makeTempDir('detect-partial');
       tempDirs.push(cwd);
 
-      const sessionDir = join(cwd, '.sinfonia', 'handoffs', 's-test');
+      const sessionDir = join(cwd, '.sinfonica', 'handoffs', 's-test');
       await mkdir(sessionDir, { recursive: true });
       const filePath = join(sessionDir, 'bad.md');
       await writeFile(filePath, '---\nbroken: yaml: [\n---\n', 'utf8');
@@ -582,7 +582,7 @@ describe('CP4 — Error Handling & Retry', () => {
       tempDirs.push(cwd);
 
       const sessionId = 's-20260224-120000';
-      const sessionDir = join(cwd, '.sinfonia', 'handoffs', sessionId);
+      const sessionDir = join(cwd, '.sinfonica', 'handoffs', sessionId);
       await mkdir(sessionDir, { recursive: true });
       const filePath = join(sessionDir, '001-blocked.md');
       const content = [

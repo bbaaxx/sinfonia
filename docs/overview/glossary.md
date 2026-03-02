@@ -2,7 +2,7 @@
 
 **Status:** Draft
 **Last Updated:** 2026-02-26
-**Scope:** Shared terminology for Sinfonia docs
+**Scope:** Shared terminology for Sinfonica docs
 
 Back to index: [Documentation Index](../index.md)
 
@@ -25,7 +25,7 @@ Artifact
 : A recorded output produced during workflow execution (for example, document file, decision note, or review output) tracked in `workflow.md`.
 
 Compaction
-: Session context reduction event where Sinfonia can inject workflow continuity data so execution can resume accurately.
+: Session context reduction event where Sinfonica can inject workflow continuity data so execution can resume accurately.
 
 Conductor
 : Documentation analogy for the orchestrator role that coordinates workflow steps and persona routing. In implementation, this maps to coordinator logic.
@@ -70,7 +70,7 @@ Tempo
 : Documentation analogy for execution cadence, including how quickly steps move through approval and completion.
 
 Workflow definition
-: Files under `.sinfonia/workflows/<name>/` that describe a workflow and its ordered steps.
+: Files under `.sinfonica/workflows/<name>/` that describe a workflow and its ordered steps.
 
 Workflow index
 : Persistent `workflow.md` state file containing frontmatter, steps, artifacts, decisions, sessions, and context for a session.
@@ -86,9 +86,9 @@ Workflow status
 
 ## References and Evidence
 
-- `packages/sinfonia/docs/style-guide.md`
-- `packages/sinfonia/src/workflow/types.ts`
-- `packages/sinfonia/src/workflow/coordinator.ts`
-- `packages/sinfonia/src/workflow/step-engine.ts`
-- `packages/sinfonia/src/handoff/types.ts`
-- `packages/sinfonia/src/enforcement/registry.ts`
+- `packages/sinfonica/docs/style-guide.md`
+- `packages/sinfonica/src/workflow/types.ts`
+- `packages/sinfonica/src/workflow/coordinator.ts`
+- `packages/sinfonica/src/workflow/step-engine.ts`
+- `packages/sinfonica/src/handoff/types.ts`
+- `packages/sinfonica/src/enforcement/registry.ts`

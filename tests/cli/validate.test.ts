@@ -9,7 +9,7 @@ import { runValidateCommand } from "../../src/cli/validate.js";
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-cli-validate-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-cli-validate-test-"));
   tempDirs.push(dir);
   return dir;
 };

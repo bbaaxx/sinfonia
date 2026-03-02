@@ -38,7 +38,7 @@ export function createCompactionHandler(
       .join("\n");
 
     const lines = [
-      "## Sinfonia Workflow State (preserved across compaction)",
+      "## Sinfonica Workflow State (preserved across compaction)",
       `Workflow: ${frontmatter.workflowId}`,
       `Status: ${frontmatter.workflowStatus}`,
       `Current Step: ${frontmatter.currentStep} (${frontmatter.currentStepIndex}/${frontmatter.totalSteps})`,

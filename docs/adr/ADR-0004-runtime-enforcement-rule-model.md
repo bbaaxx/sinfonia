@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-02-26
-**Deciders:** Sinfonia maintainers
+**Deciders:** Sinfonica maintainers
 **Supersedes:** None
 **Superseded By:** None
 
@@ -10,11 +10,11 @@ Back to index: [Documentation Index](../index.md)
 
 ## Context
 
-Quality and safety checks are unreliable when they only run in post-hoc review. Sinfonia needs policy controls that can act during workflow execution.
+Quality and safety checks are unreliable when they only run in post-hoc review. Sinfonica needs policy controls that can act during workflow execution.
 
 ## Decision
 
-Sinfonia uses a registry-driven runtime enforcement model with hook-based rule execution and severity levels.
+Sinfonica uses a registry-driven runtime enforcement model with hook-based rule execution and severity levels.
 
 - Rules are centrally registered in an idempotent registry.
 - Rule severities are explicit (`blocking`, `advisory`, `injection`).
@@ -33,8 +33,8 @@ Sinfonia uses a registry-driven runtime enforcement model with hook-based rule e
 
 ## References and Evidence
 
-- `packages/sinfonia/src/enforcement/registry.ts`
-- `packages/sinfonia/src/enforcement/rules/enf-001-tdd.ts`
-- `packages/sinfonia/src/enforcement/rules/enf-002-secrets.ts`
-- `packages/sinfonia/src/enforcement/rules/enf-003-compaction-context.ts`
-- `packages/sinfonia/src/cli/rules.ts`
+- `packages/sinfonica/src/enforcement/registry.ts`
+- `packages/sinfonica/src/enforcement/rules/enf-001-tdd.ts`
+- `packages/sinfonica/src/enforcement/rules/enf-002-secrets.ts`
+- `packages/sinfonica/src/enforcement/rules/enf-003-compaction-context.ts`
+- `packages/sinfonica/src/cli/rules.ts`

@@ -14,7 +14,7 @@ import { generatePersonaArtifacts } from "../../src/persona/loader.js";
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-delegation-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-delegation-test-"));
   tempDirs.push(dir);
   return dir;
 };
@@ -36,8 +36,8 @@ describe("delegation helpers", () => {
     });
 
     expect(context).toContain("Dispatch Envelope: s-20260223-230000#007");
-    expect(context).toContain("Source: @sinfonia-maestro");
-    expect(context).toContain("Target: @sinfonia-coda");
+    expect(context).toContain("Source: @sinfonica-maestro");
+    expect(context).toContain("Target: @sinfonica-coda");
     expect(context).toContain("- Follow TDD");
   });
 
@@ -60,7 +60,7 @@ describe("delegation helpers", () => {
     // generatePersonaArtifacts writes stubs — opencode.json is written by init.ts
     const { access: fsAccess } = await import("node:fs/promises");
     for (const id of ["maestro", "libretto", "coda"]) {
-      await expect(fsAccess(join(cwd, ".opencode/agent", `sinfonia-${id}.md`))).resolves.toBeUndefined();
+      await expect(fsAccess(join(cwd, ".opencode/agent", `sinfonica-${id}.md`))).resolves.toBeUndefined();
     }
   });
 
@@ -122,9 +122,9 @@ describe("delegation helpers", () => {
     const warnCalls = warnSpy.mock.calls.map((c) => String(c[0]));
     for (const call of warnCalls) {
       // If the warning mentions a path, it must not be process.cwd()
-      if (call.includes("/.sinfonia")) {
+      if (call.includes("/.sinfonica")) {
         expect(call).toContain(cwd);
-        expect(call).not.toContain(process.cwd() + "/.sinfonia");
+        expect(call).not.toContain(process.cwd() + "/.sinfonica");
       }
     }
 

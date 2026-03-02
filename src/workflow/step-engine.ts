@@ -11,7 +11,7 @@ import type { StepLoadResult, WorkflowDef, WorkflowStepDef } from './types.js';
 // Constants
 // ---------------------------------------------------------------------------
 
-const WORKFLOWS_SUBDIR = join('.sinfonia', 'workflows');
+const WORKFLOWS_SUBDIR = join('.sinfonica', 'workflows');
 const STEP_FILE_PATTERN = /^step-(\d+)-(.+)\.md$/;
 
 // ---------------------------------------------------------------------------
@@ -79,7 +79,7 @@ async function extractDescription(projectRoot: string, name: string): Promise<st
 // ---------------------------------------------------------------------------
 
 /**
- * Loads the workflow definition from `.sinfonia/workflows/<name>/workflow.md`
+ * Loads the workflow definition from `.sinfonica/workflows/<name>/workflow.md`
  * and discovers all step files in the `steps/` subdirectory.
  *
  * Returns null if the workflow directory does not exist or has no steps.
@@ -128,7 +128,7 @@ export async function loadStep(
       totalSteps: steps.length,
     };
   } catch (err) {
-    console.warn(`[sinfonia:step-engine] Failed to read step ${stepIndex} for "${name}":`, err);
+    console.warn(`[sinfonica:step-engine] Failed to read step ${stepIndex} for "${name}":`, err);
     return null;
   }
 }
@@ -206,7 +206,7 @@ export async function completeStep(
     }
   } catch (err) {
     console.warn(
-      `[sinfonia:step-engine] Failed to complete step ${stepIndex} for session "${sessionId}":`,
+      `[sinfonica:step-engine] Failed to complete step ${stepIndex} for session "${sessionId}":`,
       err,
     );
   }

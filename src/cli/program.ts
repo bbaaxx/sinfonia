@@ -13,13 +13,13 @@ export const createProgram = (): Command => {
   const program = new Command();
 
   program
-    .name("sinfonia")
-    .description("Sinfonia CLI")
-    .version(`sinfonia/${pkg.version ?? "unknown"}`, "-V, --version");
+    .name("sinfonica")
+    .description("Sinfonica CLI")
+    .version(`sinfonica/${pkg.version ?? "unknown"}`, "-V, --version");
 
   program
     .command("init")
-    .description("Initialize Sinfonia project structure")
+    .description("Initialize Sinfonica project structure")
     .option("-y, --yes", "Run non-interactively with defaults")
     .option("-f, --force", "Force-refresh all generated files (useful after framework upgrades)")
     .action(async (options: { yes?: boolean; force?: boolean }) => {

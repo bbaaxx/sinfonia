@@ -175,8 +175,8 @@ export function parsePipelineConfig(config: PipelineConfig): string[] {
  * Initialize a new pipeline session.
  *
  * Creates:
- *   <cwd>/.sinfonia/handoffs/<sessionId>/   (session directory)
- *   <cwd>/.sinfonia/handoffs/<sessionId>/workflow.md  (via WorkflowIndexManager)
+ *   <cwd>/.sinfonica/handoffs/<sessionId>/   (session directory)
+ *   <cwd>/.sinfonica/handoffs/<sessionId>/workflow.md  (via WorkflowIndexManager)
  *
  * The workflow.md is initialized with all pipeline steps, each mapped to its
  * target persona via the routing table.
@@ -191,7 +191,7 @@ export async function initPipeline(
   const sid = sessionId ?? createSessionId();
 
   // Create session directory
-  const sessionDir = join(cwd, '.sinfonia', 'handoffs', sid);
+  const sessionDir = join(cwd, '.sinfonica', 'handoffs', sid);
   await mkdir(sessionDir, { recursive: true });
 
   // Build step list for workflow index

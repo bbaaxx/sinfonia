@@ -145,7 +145,7 @@ describe("SH-5: resumePipeline + getCompactionInjection round-trip preserves wor
   });
 
   it("generateCompactionInjection + resumeFromCompaction round-trips successfully", async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), "sinfonia-sh5-"));
+    tmpDir = await mkdtemp(join(tmpdir(), "sinfonica-sh5-"));
 
     const sessionId = "sh5-test-session";
     const indexPath = workflowIndexPath(tmpDir, sessionId);
@@ -172,7 +172,7 @@ describe("SH-5: resumePipeline + getCompactionInjection round-trip preserves wor
   });
 
   it("compaction injection contains session and workflow context", async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), "sinfonia-sh5b-"));
+    tmpDir = await mkdtemp(join(tmpdir(), "sinfonica-sh5b-"));
 
     const sessionId = "sh5b-test-session";
     const indexPath = workflowIndexPath(tmpDir, sessionId);
@@ -196,16 +196,16 @@ describe("SH-5: resumePipeline + getCompactionInjection round-trip preserves wor
 // ─── SH-6: Implementation Validity ───────────────────────────────────────────
 
 describe("SH-6: Produced code is a valid implementation of the story", () => {
-  it("sinfonia --version outputs sinfonia/x.y.z format", async () => {
+  it("sinfonica --version outputs sinfonica/x.y.z format", async () => {
     const { createProgram } = await import("../../src/cli/program.js");
     const program = createProgram();
-    expect(program.version()).toMatch(/^sinfonia\/\d+\.\d+\.\d+/);
+    expect(program.version()).toMatch(/^sinfonica\/\d+\.\d+\.\d+/);
   });
 
-  it("sinfonia --version matches package.json version", async () => {
+  it("sinfonica --version matches package.json version", async () => {
     const { createProgram } = await import("../../src/cli/program.js");
     const program = createProgram();
-    expect(program.version()).toBe(`sinfonia/${pkg.version ?? "unknown"}`);
+    expect(program.version()).toBe(`sinfonica/${pkg.version ?? "unknown"}`);
   });
 
   it("-V alias is registered on the program", async () => {

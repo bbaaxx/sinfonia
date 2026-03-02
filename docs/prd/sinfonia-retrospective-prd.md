@@ -1,8 +1,8 @@
-# Sinfonia Retrospective PRD (Published Copy)
+# Sinfonica Retrospective PRD (Published Copy)
 
 **Status:** Baseline approved draft
 **Source Session:** `s-20260302-004`
-**Canonical Workflow Artifact:** `.sinfonia/handoffs/s-20260302-004/prd-final.md`
+**Canonical Workflow Artifact:** `.sinfonica/handoffs/s-20260302-004/prd-final.md`
 
 This document is the discoverable docs copy of the retrospective PRD produced in workflow execution. The canonical, auditable workflow artifact remains in the handoff session path.
 
@@ -36,4 +36,4 @@ AI-assisted delivery needs durable orchestration, typed handoffs, and approval-g
 
 For full requirements, traceability matrix, constraints, risks, and phased scope, refer to the canonical session artifact:
 
-- `.sinfonia/handoffs/s-20260302-004/prd-final.md`
+- `.sinfonica/handoffs/s-20260302-004/prd-final.md`

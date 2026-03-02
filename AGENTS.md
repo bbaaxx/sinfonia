@@ -1,10 +1,10 @@
 # AGENTS.md
 
-Operational guide for coding agents working in `packages/sinfonia`.
+Operational guide for coding agents working in `packages/sinfonica`.
 
 ## Prime context before editing
 
-Before making changes in this repository, read `docs/SINFONIA_QUICK_PRIME.md` to understand the intent and operational context of the codebase.
+Before making changes in this repository, read `docs/SINFONICA_QUICK_PRIME.md` to understand the intent and operational context of the codebase.
 
 ## Quick context
 
@@ -16,7 +16,7 @@ Before making changes in this repository, read `docs/SINFONIA_QUICK_PRIME.md` to
 
 ## Required commands
 
-Run from `packages/sinfonia/`.
+Run from `packages/sinfonica/`.
 
 ### Install
 

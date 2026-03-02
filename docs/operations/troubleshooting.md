@@ -8,7 +8,7 @@ Back to index: [Documentation Index](../index.md)
 
 ## Purpose
 
-Provide practical diagnostics and fixes for common Sinfonia setup and runtime issues.
+Provide practical diagnostics and fixes for common Sinfonica setup and runtime issues.
 
 ## Audience
 
@@ -21,23 +21,23 @@ Users, maintainers, and support engineers.
 Run these checks first:
 
 ```bash
-sinfonia validate .sinfonia/agents --all
-sinfonia rules
+sinfonica validate .sinfonica/agents --all
+sinfonica rules
 npm test
 ```
 
 Then inspect:
 
-- `.sinfonia/handoffs/<sessionId>/workflow.md`
+- `.sinfonica/handoffs/<sessionId>/workflow.md`
 - latest handoff envelopes in the same session folder
 
 ## Common issues and fixes
 
-### 1) `sinfonia init` fails or creates incomplete scaffold
+### 1) `sinfonica init` fails or creates incomplete scaffold
 
 Symptoms:
 
-- missing `.sinfonia/` folders
+- missing `.sinfonica/` folders
 - missing `.opencode/agent` wrappers
 - missing enforcement plugin file
 
@@ -47,23 +47,23 @@ Checks:
 - rerun with force refresh
 
 ```bash
-sinfonia init --force -y
+sinfonica init --force -y
 ```
 
 ### 2) Persona validation fails
 
 Symptoms:
 
-- `sinfonia validate` returns non-zero
+- `sinfonica validate` returns non-zero
 - errors in required persona sections/frontmatter
 
 Checks:
 
-- validate all persona files under `.sinfonia/agents`
+- validate all persona files under `.sinfonica/agents`
 - fix reported files/line sections
 
 ```bash
-sinfonia validate .sinfonia/agents --all
+sinfonica validate .sinfonica/agents --all
 ```
 
 ### 3) Write/edit operations blocked by TDD enforcement
@@ -130,19 +130,19 @@ When raising an issue, include:
 
 ## Constraints and Non-Goals
 
-- This playbook focuses on framework-level issues in Sinfonia.
+- This playbook focuses on framework-level issues in Sinfonica.
 - It does not cover provider outages, external API quotas, or unrelated tooling failures.
 - Sensitive data should never be pasted into issue reports.
 
 ## References and Evidence
 
-- `packages/sinfonia/src/`
-- `packages/sinfonia/tests/`
-- `packages/sinfonia/src/cli/init.ts`
-- `packages/sinfonia/src/cli/validate.ts`
-- `packages/sinfonia/src/workflow/coordinator.ts`
-- `packages/sinfonia/src/workflow/index-manager.ts`
-- `packages/sinfonia/src/enforcement/registry.ts`
-- `packages/sinfonia/src/enforcement/rules/enf-001-tdd.ts`
-- `packages/sinfonia/tests/cli/init.test.ts`
-- `packages/sinfonia/tests/workflow/coordinator.test.ts`
+- `packages/sinfonica/src/`
+- `packages/sinfonica/tests/`
+- `packages/sinfonica/src/cli/init.ts`
+- `packages/sinfonica/src/cli/validate.ts`
+- `packages/sinfonica/src/workflow/coordinator.ts`
+- `packages/sinfonica/src/workflow/index-manager.ts`
+- `packages/sinfonica/src/enforcement/registry.ts`
+- `packages/sinfonica/src/enforcement/rules/enf-001-tdd.ts`
+- `packages/sinfonica/tests/cli/init.test.ts`
+- `packages/sinfonica/tests/workflow/coordinator.test.ts`

@@ -25,7 +25,7 @@ describe("ENF-003 Compaction State Preservation", () => {
   });
 
   it("returns a context block when workflow index exists", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = [
       "---",
@@ -72,7 +72,7 @@ describe("ENF-003 Compaction State Preservation", () => {
   });
 
   it("context block contains workflow ID", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = [
       "---",
@@ -117,7 +117,7 @@ describe("ENF-003 Compaction State Preservation", () => {
   });
 
   it("context block contains current step info", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = [
       "---",
@@ -161,7 +161,7 @@ describe("ENF-003 Compaction State Preservation", () => {
   });
 
   it("context block is ≤200 words", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = [
       "---",
@@ -206,7 +206,7 @@ describe("ENF-003 Compaction State Preservation", () => {
   });
 
   it("does not throw when workflow file is malformed", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     await writeFile(join(sessionDir, "workflow.md"), "malformed");
 

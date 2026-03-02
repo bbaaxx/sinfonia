@@ -14,7 +14,7 @@ import type { LoadedPersona } from "../../src/persona/types.js";
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-stub-gen-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-stub-gen-test-"));
   tempDirs.push(dir);
   return dir;
 };
@@ -65,7 +65,7 @@ describe("generateStub", () => {
     const stub = generateStub({ persona });
 
     expect(stub).toContain("---");
-    expect(stub).toContain("name: sinfonia-maestro");
+    expect(stub).toContain("name: sinfonica-maestro");
     expect(stub).toContain("mode: primary");
     expect(stub).toContain("customized: false");
     expect(stub).toContain("## Identity");
@@ -78,7 +78,7 @@ describe("generateStub", () => {
     for (const profile of PERSONA_PROFILES) {
       const persona = makeLoadedPersona(profile.id);
       const stub = generateStub({ persona });
-      expect(stub).toContain(`name: sinfonia-${profile.id}`);
+      expect(stub).toContain(`name: sinfonica-${profile.id}`);
       expect(stub).toContain(`mode: ${profile.mode}`);
       expect(stub).toContain(`Test persona ${profile.id}.`);
     }
@@ -167,11 +167,11 @@ ${
     await generateAllArtifacts({ cwd, frameworkAgentsDir: frameworkDir });
 
     for (const profile of PERSONA_PROFILES) {
-      const filePath = join(cwd, ".opencode/agent", `sinfonia-${profile.id}.md`);
+      const filePath = join(cwd, ".opencode/agent", `sinfonica-${profile.id}.md`);
       await expect(access(filePath)).resolves.toBeUndefined();
 
       const content = await readFile(filePath, "utf8");
-      expect(content).toContain(`name: sinfonia-${profile.id}`);
+      expect(content).toContain(`name: sinfonica-${profile.id}`);
       expect(content).toContain(`mode: ${profile.mode}`);
       expect(content).toContain("customized: false");
       expect(content).toContain("## Identity");
@@ -184,7 +184,7 @@ ${
     const cwd = await makeTempDir();
     const frameworkDir = join(cwd, "framework");
     await mkdir(frameworkDir, { recursive: true });
-    await mkdir(join(cwd, ".sinfonia/agents"), { recursive: true });
+    await mkdir(join(cwd, ".sinfonica/agents"), { recursive: true });
 
     for (const profile of PERSONA_PROFILES) {
       await writeFile(join(frameworkDir, `${profile.id}.md`), validPersonaMd(profile.id), "utf8");
@@ -192,14 +192,14 @@ ${
 
     // Write a custom override for maestro
     const customContent = validPersonaMd("maestro").replace("name: maestro", "name: custom-maestro");
-    await writeFile(join(cwd, ".sinfonia/agents/maestro.md"), customContent, "utf8");
+    await writeFile(join(cwd, ".sinfonica/agents/maestro.md"), customContent, "utf8");
 
     // Run twice
     await generateAllArtifacts({ cwd, frameworkAgentsDir: frameworkDir });
     await generateAllArtifacts({ cwd, frameworkAgentsDir: frameworkDir });
 
     // Custom persona file must be unchanged
-    const afterContent = await readFile(join(cwd, ".sinfonia/agents/maestro.md"), "utf8");
+    const afterContent = await readFile(join(cwd, ".sinfonica/agents/maestro.md"), "utf8");
     expect(afterContent).toContain("name: custom-maestro");
   });
 
@@ -215,7 +215,7 @@ ${
 
     // Pre-write a customized agent file for coda
     const customAgentContent = `---
-name: sinfonia-coda
+name: sinfonica-coda
 description: "My custom coda"
 mode: subagent
 customized: true
@@ -225,7 +225,7 @@ customized: true
 This is my custom coda agent.
 `;
     await writeFile(
-      join(cwd, ".opencode/agent/sinfonia-coda.md"),
+      join(cwd, ".opencode/agent/sinfonica-coda.md"),
       customAgentContent,
       "utf8"
     );
@@ -233,13 +233,13 @@ This is my custom coda agent.
     await generateAllArtifacts({ cwd, frameworkAgentsDir: frameworkDir });
 
     // Customized file must be preserved
-    const codaContent = await readFile(join(cwd, ".opencode/agent/sinfonia-coda.md"), "utf8");
+    const codaContent = await readFile(join(cwd, ".opencode/agent/sinfonica-coda.md"), "utf8");
     expect(codaContent).toContain("customized: true");
     expect(codaContent).toContain("## Custom Identity");
     expect(codaContent).toContain("This is my custom coda agent.");
 
     // Non-customized files should still be generated normally
-    const maestroContent = await readFile(join(cwd, ".opencode/agent/sinfonia-maestro.md"), "utf8");
+    const maestroContent = await readFile(join(cwd, ".opencode/agent/sinfonica-maestro.md"), "utf8");
     expect(maestroContent).toContain("customized: false");
     expect(maestroContent).toContain("## Identity");
   });

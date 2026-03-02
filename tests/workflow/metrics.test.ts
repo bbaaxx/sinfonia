@@ -21,7 +21,7 @@ import {
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-metrics-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-metrics-test-"));
   tempDirs.push(dir);
   return dir;
 };

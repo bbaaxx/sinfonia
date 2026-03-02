@@ -13,7 +13,7 @@ import {
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-policy-profile-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-policy-profile-test-"));
   tempDirs.push(dir);
   return dir;
 };
@@ -49,8 +49,8 @@ describe("policy profile parser scaffold", () => {
 
   it("loads profile from file path", async () => {
     const cwd = await makeTempDir();
-    await mkdir(join(cwd, ".sinfonia"), { recursive: true });
-    const profilePath = join(cwd, ".sinfonia", "policy-profile.yaml");
+    await mkdir(join(cwd, ".sinfonica"), { recursive: true });
+    const profilePath = join(cwd, ".sinfonica", "policy-profile.yaml");
     await writeFile(profilePath, "policy_profile_id: qa\noverrides.ENF-001.enabled: true\n", "utf8");
 
     const profile = await loadPolicyProfile(profilePath);

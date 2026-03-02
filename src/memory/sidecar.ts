@@ -7,7 +7,7 @@ import type { SidecarMemoryOptions, MemoryReadResult } from './types.js';
 // ---------------------------------------------------------------------------
 
 const DEFAULT_SIZE_WARNING_KB = 50;
-const MEMORY_SUBDIR = join('.sinfonia', 'memory');
+const MEMORY_SUBDIR = join('.sinfonica', 'memory');
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -36,7 +36,7 @@ async function fileExists(filePath: string): Promise<boolean> {
 
 /**
  * Creates a new memory file for the given persona at
- * `<projectRoot>/.sinfonia/memory/<personaId>.md`.
+ * `<projectRoot>/.sinfonica/memory/<personaId>.md`.
  *
  * - Returns the file path on success.
  * - Returns null if sidecarEnabled is false.
@@ -68,7 +68,7 @@ export async function createMemoryFile(
     await writeFile(filePath, header, 'utf-8');
     return filePath;
   } catch (err) {
-    console.warn(`[sinfonia:memory] Failed to create memory file for "${personaId}":`, err);
+    console.warn(`[sinfonica:memory] Failed to create memory file for "${personaId}":`, err);
     return null;
   }
 }
@@ -103,7 +103,7 @@ export async function appendMemoryEntry(
     await writeFile(filePath, existing + entry, 'utf-8');
     return filePath;
   } catch (err) {
-    console.warn(`[sinfonia:memory] Failed to append entry for "${personaId}":`, err);
+    console.warn(`[sinfonica:memory] Failed to append entry for "${personaId}":`, err);
     return null;
   }
 }
@@ -159,7 +159,7 @@ export async function checkMemorySize(
 
     if (sizeKb > thresholdKb) {
       console.warn(
-        `[sinfonia:memory] Memory file for "${personaId}" is ${sizeKb.toFixed(1)}KB` +
+        `[sinfonica:memory] Memory file for "${personaId}" is ${sizeKb.toFixed(1)}KB` +
           ` (threshold: ${thresholdKb}KB). Consider summarising older entries.`,
       );
       return true;

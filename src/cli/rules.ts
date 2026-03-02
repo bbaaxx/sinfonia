@@ -1,5 +1,5 @@
 /**
- * CLI command: sinfonia rules
+ * CLI command: sinfonica rules
  *
  * Lists all registered enforcement rules in table or JSON format.
  * Exit code: always 0 (listing is informational, never an error condition).
@@ -12,7 +12,7 @@ export interface RulesCommandOptions {
 }
 
 /**
- * Runs the `sinfonia rules` command.
+ * Runs the `sinfonica rules` command.
  * Returns 0 on success (always — listing rules is never an error).
  */
 export async function runRulesCommand(options: RulesCommandOptions): Promise<number> {
@@ -41,7 +41,7 @@ export async function runRulesCommand(options: RulesCommandOptions): Promise<num
   const separator = "─".repeat(header.length);
 
   console.log("");
-  console.log("Sinfonia Enforcement Rules");
+  console.log("Sinfonica Enforcement Rules");
   console.log(separator);
   console.log(header);
   console.log(separator);

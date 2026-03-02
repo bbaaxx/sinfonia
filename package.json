@@ -1,12 +1,12 @@
 {
-  "name": "sinfonia",
+  "name": "sinfonica",
   "version": "0.0.0",
-  "description": "Sinfonia CLI scaffold",
+  "description": "Sinfonica CLI scaffold",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "sinfonia": "dist/cli/index.js"
+    "sinfonica": "dist/cli/index.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -26,7 +26,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/bbaaxx/sinfonia"
+    "url": "https://github.com/bbaaxx/sinfonica"
   },
   "keywords": [
     "opencode",

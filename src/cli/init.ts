@@ -61,7 +61,7 @@ const DEFAULT_CONFIG: WizardConfig = {
 const quoteYaml = (value: string): string => value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 
 const toConfigYaml = (config: WizardConfig): string => `version: "0.1"
-sinfonia_version: "${FRAMEWORK_VERSION}"
+sinfonica_version: "${FRAMEWORK_VERSION}"
 default_orchestrator: maestro
 project_name: "${quoteYaml(config.projectName)}"
 user_name: "${quoteYaml(config.userName)}"
@@ -70,7 +70,7 @@ enforcement_strictness: ${config.enforcementStrictness}
 `;
 
 const ENFORCEMENT_PLUGIN = `/**
- * Sinfonia Enforcement Plugin
+ * Sinfonica Enforcement Plugin
  *
  * Registers enforcement rules that intercept agent tool calls, session events,
  * and shell environment injection to enforce project quality standards.
@@ -80,13 +80,13 @@ const ENFORCEMENT_PLUGIN = `/**
  *   ENF-002  Secret Protection     — blocks reads/writes to sensitive credential files
  *   ENF-003  Compaction Preservation — injects workflow state into compaction context
  *   ENF-004  Spec Stop Guard       — warns when workflow has incomplete steps at idle
- *   ENF-005  Shell Env Injection   — injects SINFONIA_* env vars into every shell call
+ *   ENF-005  Shell Env Injection   — injects SINFONICA_* env vars into every shell call
  *   ENF-007  Session-End Completeness — warns on session idle if steps are incomplete
  */
 
 import type { Plugin } from "@opencode/plugin";
 
-import { loadSinfoniaConfig } from "../../src/enforcement/utils.js";
+import { loadSinfonicaConfig } from "../../src/enforcement/utils.js";
 import { createTddEnforcerHandler } from "../../src/enforcement/rules/enf-001-tdd.js";
 import { createSecretProtectionHandler } from "../../src/enforcement/rules/enf-002-secrets.js";
 import { createCompactionHandler } from "../../src/enforcement/rules/enf-003-compaction.js";
@@ -94,11 +94,11 @@ import { createSpecStopGuardHandler } from "../../src/enforcement/rules/enf-004-
 import { createShellEnvHandler } from "../../src/enforcement/rules/enf-005-shell-env.js";
 import { createCompletenessWarningHandler } from "../../src/enforcement/rules/enf-007-completeness.js";
 
-const SinfoniaEnforcement: Plugin = async ({ project, directory }) => {
+const SinfonicaEnforcement: Plugin = async ({ project, directory }) => {
   const cwd = directory ?? project ?? process.cwd();
 
   // Load config non-blocking — enforcement degrades gracefully if config missing
-  const config = await loadSinfoniaConfig(cwd).catch(() => null);
+  const config = await loadSinfonicaConfig(cwd).catch(() => null);
 
   return {
     "tool.execute.before": async (params) => {
@@ -133,7 +133,7 @@ const SinfoniaEnforcement: Plugin = async ({ project, directory }) => {
   };
 };
 
-export default SinfoniaEnforcement;
+export default SinfonicaEnforcement;
 `;
 
 const ensureDirectory = async (path: string): Promise<void> => {
@@ -193,7 +193,7 @@ const mergeOpenCodeConfig = (current: Record<string, unknown>): Record<string, u
 
   const agent: Record<string, unknown> = {};
   for (const profile of PERSONA_PROFILES) {
-    const key = `sinfonia-${profile.id}`;
+    const key = `sinfonica-${profile.id}`;
     const existing = currentAgent[key];
     // Preserve existing entry if it already has the correct shape
     if (isRecord(existing) && "mode" in existing && "tools" in existing) {
@@ -231,8 +231,8 @@ const writeOpenCodeConfig = async (cwd: string): Promise<void> => {
 
 const readInstalledVersion = async (cwd: string): Promise<string | null> => {
   try {
-    const content = await readFile(join(cwd, ".sinfonia/config.yaml"), "utf8");
-    const match = content.match(/^sinfonia_version:\s*"?([^"\n]+)"?\s*$/m);
+    const content = await readFile(join(cwd, ".sinfonica/config.yaml"), "utf8");
+    const match = content.match(/^sinfonica_version:\s*"?([^"\n]+)"?\s*$/m);
     return match ? match[1] : null;
   } catch {
     return null;
@@ -240,14 +240,14 @@ const readInstalledVersion = async (cwd: string): Promise<string | null> => {
 };
 
 const updateConfigVersion = async (cwd: string): Promise<void> => {
-  const configPath = join(cwd, ".sinfonia/config.yaml");
+  const configPath = join(cwd, ".sinfonica/config.yaml");
   try {
     let content = await readFile(configPath, "utf8");
-    if (/^sinfonia_version:/m.test(content)) {
-      content = content.replace(/^sinfonia_version:.*$/m, `sinfonia_version: "${FRAMEWORK_VERSION}"`);
+    if (/^sinfonica_version:/m.test(content)) {
+      content = content.replace(/^sinfonica_version:.*$/m, `sinfonica_version: "${FRAMEWORK_VERSION}"`);
     } else {
       // Insert after the version line
-      content = content.replace(/^(version:.*\n)/m, `$1sinfonia_version: "${FRAMEWORK_VERSION}"\n`);
+      content = content.replace(/^(version:.*\n)/m, `$1sinfonica_version: "${FRAMEWORK_VERSION}"\n`);
     }
     await writeFile(configPath, content, "utf8");
   } catch {
@@ -255,13 +255,13 @@ const updateConfigVersion = async (cwd: string): Promise<void> => {
   }
 };
 
-const ensureSinfoniaRootIsDirectory = async (cwd: string): Promise<void> => {
-  const path = join(cwd, ".sinfonia");
+const ensureSinfonicaRootIsDirectory = async (cwd: string): Promise<void> => {
+  const path = join(cwd, ".sinfonica");
 
   try {
     const details = await stat(path);
     if (!details.isDirectory()) {
-      throw new Error(".sinfonia exists as a file");
+      throw new Error(".sinfonica exists as a file");
     }
   } catch (error: unknown) {
     if (error instanceof Error && "code" in error && error.code === "ENOENT") {
@@ -273,7 +273,7 @@ const ensureSinfoniaRootIsDirectory = async (cwd: string): Promise<void> => {
 
 const hasExistingInit = async (cwd: string): Promise<boolean> => {
   try {
-    const details = await stat(join(cwd, ".sinfonia/config.yaml"));
+    const details = await stat(join(cwd, ".sinfonica/config.yaml"));
     return details.isFile();
   } catch (error: unknown) {
     if (error instanceof Error && "code" in error && error.code === "ENOENT") {
@@ -289,13 +289,13 @@ export const initProject = async (
 ): Promise<void> => {
   const force = options.force ?? false;
 
-  await ensureSinfoniaRootIsDirectory(cwd);
+  await ensureSinfonicaRootIsDirectory(cwd);
 
-  await ensureDirectory(join(cwd, ".sinfonia/agents"));
-  await ensureDirectory(join(cwd, ".sinfonia/handoffs"));
-  await ensureDirectory(join(cwd, ".sinfonia/memory"));
+  await ensureDirectory(join(cwd, ".sinfonica/agents"));
+  await ensureDirectory(join(cwd, ".sinfonica/handoffs"));
+  await ensureDirectory(join(cwd, ".sinfonica/memory"));
 
-  const configPath = join(cwd, ".sinfonia/config.yaml");
+  const configPath = join(cwd, ".sinfonica/config.yaml");
   const configYaml = toConfigYaml(options.config ?? DEFAULT_CONFIG);
   if (options.overwriteConfig) {
     await writeFile(configPath, configYaml, "utf8");
@@ -305,7 +305,7 @@ export const initProject = async (
     await updateConfigVersion(cwd);
   }
 
-  const enforcementPluginPath = join(cwd, ".opencode/plugins/sinfonia-enforcement.ts");
+  const enforcementPluginPath = join(cwd, ".opencode/plugins/sinfonica-enforcement.ts");
   if (force) {
     await ensureParentDirectory(enforcementPluginPath);
     await writeFile(enforcementPluginPath, ENFORCEMENT_PLUGIN, "utf8");
@@ -332,7 +332,7 @@ export const runInitCommand = async (options: RunInitCommandOptions = {}): Promi
         console.error(`\x1b[36m↻ Force-refreshing all generated files (framework ${installedVersion} → ${FRAMEWORK_VERSION})\x1b[0m`);
       } else {
         console.error(`\x1b[33mℹ Framework version changed: ${installedVersion} → ${FRAMEWORK_VERSION}`);
-        console.error(`  Run 'sinfonia init --force' to update all generated files.\x1b[0m`);
+        console.error(`  Run 'sinfonica init --force' to update all generated files.\x1b[0m`);
       }
     } else if (force) {
       console.error(`\x1b[36m↻ Force-refreshing all generated files\x1b[0m`);

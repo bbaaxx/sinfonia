@@ -1,7 +1,7 @@
-# Sinfonia
+# Sinfonica
 
 <p align="center">
-  <img src="assets/logo.png" alt="Sinfonia logo" width="400" />
+  <img src="assets/logo.png" alt="Sinfonica logo" width="400" />
 </p>
 
 <p align="center">
@@ -16,10 +16,10 @@
 </p>
 
 <p align="center">
-  <img src="assets/hero.png" alt="Sinfonia hero" width="860" />
+  <img src="assets/hero.png" alt="Sinfonica hero" width="860" />
 </p>
 
-> Sinfonia gives AI-assisted engineering teams a shared score: explicit workflow steps, review gates, and traceable artifacts across sessions.
+> Sinfonica gives AI-assisted engineering teams a shared score: explicit workflow steps, review gates, and traceable artifacts across sessions.
 
 <p align="center">
   <a href="#quick-start"><strong>Quick Start</strong></a> •
@@ -32,7 +32,7 @@
 <summary><strong>Table of Contents</strong></summary>
 
 - [For AI Assistants](#for-ai-assistants)
-- [Why Sinfonia](#why-sinfonia)
+- [Why Sinfonica](#why-sinfonica)
 - [Before / After](#before--after)
 - [Quick Start](#quick-start)
 - [Features at a Glance](#features-at-a-glance)
@@ -40,7 +40,7 @@
 - [Execution Walkthrough](#execution-walkthrough)
 - [Built-in Workflows](#built-in-workflows)
 - [Contracts Snapshot](#contracts-snapshot)
-- [Use Sinfonia When](#use-sinfonia-when)
+- [Use Sinfonica When](#use-sinfonica-when)
 - [CLI Commands](#cli-commands)
 - [Documentation](#documentation)
 - [Troubleshooting Quick Links](#troubleshooting-quick-links)
@@ -71,12 +71,12 @@ Use this section for fast bootstrap context before generating plans or docs.
   - `code-review -> rondo`
 - Do not infer undocumented behavior. If evidence is missing, state uncertainty explicitly.
 
-## Why Sinfonia
+## Why Sinfonica
 
 Most agentic workflows fail for operational reasons, not model quality:
 unclear handoffs, invisible state, and missing runtime guardrails.
 
-Sinfonia addresses this directly:
+Sinfonica addresses this directly:
 
 - **Explicit handoffs**: persona-to-persona communication uses typed envelope contracts.
 - **Durable workflow state**: every session persists to a canonical `workflow.md` index.
@@ -86,13 +86,13 @@ Sinfonia addresses this directly:
 
 ## Before / After
 
-| Without Sinfonia | With Sinfonia |
-| --- | --- |
-| Delegation is prompt-only and inconsistent | Delegation uses typed handoff envelopes |
-| Session context is fragile | Session state persists in canonical `workflow.md` |
-| Review process is manual and ad hoc | Approval gates are part of runtime flow |
-| Safety checks happen late | Enforcement rules run at runtime hooks |
-| Team setup is custom every time | `sinfonia init` bootstraps a standard operating baseline |
+| Without Sinfonica                          | With Sinfonica                                            |
+| ------------------------------------------ | --------------------------------------------------------- |
+| Delegation is prompt-only and inconsistent | Delegation uses typed handoff envelopes                   |
+| Session context is fragile                 | Session state persists in canonical `workflow.md`         |
+| Review process is manual and ad hoc        | Approval gates are part of runtime flow                   |
+| Safety checks happen late                  | Enforcement rules run at runtime hooks                    |
+| Team setup is custom every time            | `sinfonica init` bootstraps a standard operating baseline |
 
 ## Quick Start
 
@@ -103,13 +103,13 @@ npm install
 npm run build
 
 # initialize framework assets in your target repository
-sinfonia init -y
+sinfonica init -y
 
 # validate persona contracts
-sinfonia validate .sinfonia/agents --all
+sinfonica validate .sinfonica/agents --all
 
 # inspect active enforcement rules
-sinfonia rules
+sinfonica rules
 ```
 
 ## Features at a Glance
@@ -149,37 +149,37 @@ Example flow: implement a story with review gates.
 5. Workflow index records step status, artifacts, and decisions.
 6. Pipeline completes when all steps and approvals are satisfied.
 
-Sinfonia keeps engineering tempo stable: every movement is explicit, traceable, and recoverable.
+Sinfonica keeps engineering tempo stable: every movement is explicit, traceable, and recoverable.
 
 ## Built-in Workflows
 
-| Workflow | Primary Persona | Typical Outcome |
-| --- | --- | --- |
-| `create-prd` | `libretto` | Product requirements draft and approval |
-| `create-spec` | `amadeus` | Technical specification from approved PRD |
-| `dev-story` | `coda` | Test-first implementation delivery |
-| `code-review` | `rondo` | Structured review findings and decision |
+| Workflow      | Primary Persona | Typical Outcome                           |
+| ------------- | --------------- | ----------------------------------------- |
+| `create-prd`  | `libretto`      | Product requirements draft and approval   |
+| `create-spec` | `amadeus`       | Technical specification from approved PRD |
+| `dev-story`   | `coda`          | Test-first implementation delivery        |
+| `code-review` | `rondo`         | Structured review findings and decision   |
 
 Routing lives in `src/workflow/coordinator.ts`.
 Step discovery and execution live in `src/workflow/step-engine.ts`.
 
 ## Contracts Snapshot
 
-| Domain | Contract |
-| --- | --- |
-| Workflow statuses | `created`, `in-progress`, `complete`, `blocked`, `failed` |
-| Step statuses | `pending`, `in-progress`, `completed`, `blocked`, `failed` |
-| Handoff types | `dispatch`, `return`, `revision`, `direct` |
-| Session state file | `.sinfonia/handoffs/<sessionId>/workflow.md` |
-| Rule severities | `blocking`, `advisory`, `injection` |
+| Domain             | Contract                                                   |
+| ------------------ | ---------------------------------------------------------- |
+| Workflow statuses  | `created`, `in-progress`, `complete`, `blocked`, `failed`  |
+| Step statuses      | `pending`, `in-progress`, `completed`, `blocked`, `failed` |
+| Handoff types      | `dispatch`, `return`, `revision`, `direct`                 |
+| Session state file | `.sinfonica/handoffs/<sessionId>/workflow.md`              |
+| Rule severities    | `blocking`, `advisory`, `injection`                        |
 
-## Use Sinfonia When
+## Use Sinfonica When
 
 - You need multi-step AI workflows with explicit ownership and approvals.
 - You need durable session history and auditable artifacts.
 - You want runtime safety rules, not only post-hoc review.
 
-Skip Sinfonia when:
+Skip Sinfonica when:
 
 - You only need one-off prompts with no workflow state.
 - Your team does not need delegation or policy gates.
@@ -187,11 +187,11 @@ Skip Sinfonia when:
 
 ## CLI Commands
 
-| Command | Description |
-| --- | --- |
-| `sinfonia init [-y] [--force]` | Scaffold `.sinfonia/` runtime assets, persona files, stubs, and plugin wiring |
-| `sinfonia validate <path> [--all]` | Validate persona markdown contracts |
-| `sinfonia rules [--json]` | List registered enforcement rules |
+| Command                             | Description                                                                    |
+| ----------------------------------- | ------------------------------------------------------------------------------ |
+| `sinfonica init [-y] [--force]`     | Scaffold `.sinfonica/` runtime assets, persona files, stubs, and plugin wiring |
+| `sinfonica validate <path> [--all]` | Validate persona markdown contracts                                            |
+| `sinfonica rules [--json]`          | List registered enforcement rules                                              |
 
 ## Troubleshooting Quick Links
 
@@ -212,12 +212,12 @@ Skip Sinfonia when:
 - Sensitive file paths are protected by enforcement rules.
 - Write/edit operations can be blocked when matching test updates are missing.
 - Runtime context injection supports safer continuity after compaction.
-- Rule inventory is always inspectable via `sinfonia rules`.
+- Rule inventory is always inspectable via `sinfonica rules`.
 
 ## Project Structure
 
 ```text
-packages/sinfonia/
+packages/sinfonica/
   src/
     cli/
     workflow/
@@ -233,7 +233,7 @@ packages/sinfonia/
 ## FAQ
 
 <details>
-<summary><strong>Is Sinfonia a hosted platform?</strong></summary>
+<summary><strong>Is Sinfonica a hosted platform?</strong></summary>
 
 No. It is a local-first framework designed to run from your repository.
 
@@ -247,23 +247,23 @@ Yes. Add workflow definitions and ordered step files, then keep coordinator rout
 </details>
 
 <details>
-<summary><strong>Does Sinfonia replace CI/CD?</strong></summary>
+<summary><strong>Does Sinfonica replace CI/CD?</strong></summary>
 
-No. Sinfonia coordinates agent workflows; CI/CD remains your delivery enforcement layer.
+No. Sinfonica coordinates agent workflows; CI/CD remains your delivery enforcement layer.
 
 </details>
 
 <details>
 <summary><strong>What if a workflow is rejected mid-run?</strong></summary>
 
-Sinfonia can generate revision handoffs and continue once updated output is approved.
+Sinfonica can generate revision handoffs and continue once updated output is approved.
 
 </details>
 
 <details>
 <summary><strong>Can I rerun setup safely?</strong></summary>
 
-Yes. `sinfonia init` is idempotent; use `--force` when you want generated artifact refresh.
+Yes. `sinfonica init` is idempotent; use `--force` when you want generated artifact refresh.
 
 </details>
 

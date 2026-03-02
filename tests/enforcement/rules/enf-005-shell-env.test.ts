@@ -19,21 +19,21 @@ describe("ENF-005 Shell Env Injection", () => {
     await rm(tmpDir, { recursive: true, force: true });
   });
 
-  it("always injects SINFONIA_PROJECT_ROOT", async () => {
+  it("always injects SINFONICA_PROJECT_ROOT", async () => {
     const result = await handler();
-    expect(result).toHaveProperty("SINFONIA_PROJECT_ROOT");
-    expect(result["SINFONIA_PROJECT_ROOT"]).toBe(tmpDir);
+    expect(result).toHaveProperty("SINFONICA_PROJECT_ROOT");
+    expect(result["SINFONICA_PROJECT_ROOT"]).toBe(tmpDir);
   });
 
-  it("always injects SINFONIA_VERSION", async () => {
+  it("always injects SINFONICA_VERSION", async () => {
     const result = await handler();
-    expect(result).toHaveProperty("SINFONIA_VERSION");
-    expect(typeof result["SINFONIA_VERSION"]).toBe("string");
-    expect(result["SINFONIA_VERSION"]!.length).toBeGreaterThan(0);
+    expect(result).toHaveProperty("SINFONICA_VERSION");
+    expect(typeof result["SINFONICA_VERSION"]).toBe("string");
+    expect(result["SINFONICA_VERSION"]!.length).toBeGreaterThan(0);
   });
 
-  it("injects SINFONIA_SESSION_ID when workflow index exists", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+  it("injects SINFONICA_SESSION_ID when workflow index exists", async () => {
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = [
       "---",
@@ -73,11 +73,11 @@ describe("ENF-005 Shell Env Injection", () => {
     await writeFile(join(sessionDir, "workflow.md"), content);
 
     const result = await handler();
-    expect(result["SINFONIA_SESSION_ID"]).toBe("sess-xyz-789");
+    expect(result["SINFONICA_SESSION_ID"]).toBe("sess-xyz-789");
   });
 
-  it("injects SINFONIA_WORKFLOW_ID when workflow index exists", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+  it("injects SINFONICA_WORKFLOW_ID when workflow index exists", async () => {
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = [
       "---",
@@ -117,11 +117,11 @@ describe("ENF-005 Shell Env Injection", () => {
     await writeFile(join(sessionDir, "workflow.md"), content);
 
     const result = await handler();
-    expect(result["SINFONIA_WORKFLOW_ID"]).toBe("wf-test-456");
+    expect(result["SINFONICA_WORKFLOW_ID"]).toBe("wf-test-456");
   });
 
-  it("injects SINFONIA_CURRENT_STEP when workflow index exists", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+  it("injects SINFONICA_CURRENT_STEP when workflow index exists", async () => {
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = [
       "---",
@@ -161,18 +161,18 @@ describe("ENF-005 Shell Env Injection", () => {
     await writeFile(join(sessionDir, "workflow.md"), content);
 
     const result = await handler();
-    expect(result["SINFONIA_CURRENT_STEP"]).toBe("Implementation Phase");
+    expect(result["SINFONICA_CURRENT_STEP"]).toBe("Implementation Phase");
   });
 
-  it("returns only SINFONIA_PROJECT_ROOT and SINFONIA_VERSION when no workflow exists", async () => {
+  it("returns only SINFONICA_PROJECT_ROOT and SINFONICA_VERSION when no workflow exists", async () => {
     const result = await handler();
     // Should have at least these two
-    expect(result).toHaveProperty("SINFONIA_PROJECT_ROOT");
-    expect(result).toHaveProperty("SINFONIA_VERSION");
+    expect(result).toHaveProperty("SINFONICA_PROJECT_ROOT");
+    expect(result).toHaveProperty("SINFONICA_VERSION");
     // Should not have workflow-specific vars
-    expect(result["SINFONIA_SESSION_ID"]).toBeUndefined();
-    expect(result["SINFONIA_WORKFLOW_ID"]).toBeUndefined();
-    expect(result["SINFONIA_CURRENT_STEP"]).toBeUndefined();
+    expect(result["SINFONICA_SESSION_ID"]).toBeUndefined();
+    expect(result["SINFONICA_WORKFLOW_ID"]).toBeUndefined();
+    expect(result["SINFONICA_CURRENT_STEP"]).toBeUndefined();
   });
 
   it("returns empty object gracefully on error (non-blocking)", async () => {

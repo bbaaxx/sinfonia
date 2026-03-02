@@ -14,9 +14,9 @@ export type Orchestrator = (typeof ORCHESTRATORS)[number];
 export type SkillLevel = (typeof SKILL_LEVELS)[number];
 export type EnforcementStrictness = (typeof ENFORCEMENT_LEVELS)[number];
 
-export type SinfoniaConfig = {
+export type SinfonicaConfig = {
   version: string;
-  sinfoniaVersion?: string;
+  sinfonicaVersion?: string;
   defaultOrchestrator: Orchestrator;
   projectName: string;
   userName: string;
@@ -26,7 +26,7 @@ export type SinfoniaConfig = {
 
 type ConfigKey =
   | "version"
-  | "sinfonia_version"
+  | "sinfonica_version"
   | "default_orchestrator"
   | "project_name"
   | "user_name"
@@ -35,7 +35,7 @@ type ConfigKey =
 
 const KNOWN_KEYS: ConfigKey[] = [
   "version",
-  "sinfonia_version",
+  "sinfonica_version",
   "default_orchestrator",
   "project_name",
   "user_name",
@@ -43,7 +43,7 @@ const KNOWN_KEYS: ConfigKey[] = [
   "enforcement_strictness"
 ];
 
-export const DEFAULT_CONFIG: SinfoniaConfig = {
+export const DEFAULT_CONFIG: SinfonicaConfig = {
   version: "0.1",
   defaultOrchestrator: "maestro",
   projectName: "",
@@ -81,7 +81,7 @@ const ensureOneOf = <T extends readonly string[]>(
 export const validateConfig = (
   raw: Record<string, unknown>,
   sourceByKey: Partial<Record<string, string>> = {}
-): SinfoniaConfig => {
+): SinfonicaConfig => {
   for (const key of Object.keys(raw)) {
     if (!KNOWN_KEYS.includes(key as ConfigKey)) {
       const source = sourceByKey[key] ?? "config input";
@@ -91,7 +91,7 @@ export const validateConfig = (
 
   const resolved: Record<ConfigKey, unknown> = {
     version: raw.version ?? DEFAULT_CONFIG.version,
-    sinfonia_version: raw.sinfonia_version ?? undefined,
+    sinfonica_version: raw.sinfonica_version ?? undefined,
     default_orchestrator: raw.default_orchestrator ?? DEFAULT_CONFIG.defaultOrchestrator,
     project_name: raw.project_name ?? DEFAULT_CONFIG.projectName,
     user_name: raw.user_name ?? DEFAULT_CONFIG.userName,
@@ -99,7 +99,7 @@ export const validateConfig = (
     enforcement_strictness: raw.enforcement_strictness ?? DEFAULT_CONFIG.enforcementStrictness
   };
 
-  const result: SinfoniaConfig = {
+  const result: SinfonicaConfig = {
     version: ensureString("version", resolved.version),
     defaultOrchestrator: ensureOneOf("default_orchestrator", resolved.default_orchestrator, ORCHESTRATORS),
     projectName: ensureString("project_name", resolved.project_name),
@@ -112,8 +112,8 @@ export const validateConfig = (
     )
   };
 
-  if (resolved.sinfonia_version !== undefined) {
-    result.sinfoniaVersion = ensureString("sinfonia_version", resolved.sinfonia_version);
+  if (resolved.sinfonica_version !== undefined) {
+    result.sinfonicaVersion = ensureString("sinfonica_version", resolved.sinfonica_version);
   }
 
   return result;

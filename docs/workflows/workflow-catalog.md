@@ -16,7 +16,7 @@ Users and contributors.
 
 ## Main Content
 
-Sinfonia ships with four built-in workflows under `packages/sinfonia/workflows/`. Each workflow has a `workflow.md` definition and ordered step files.
+Sinfonica ships with four built-in workflows under `packages/sinfonica/workflows/`. Each workflow has a `workflow.md` definition and ordered step files.
 
 ## Built-in Workflows
 
@@ -78,12 +78,12 @@ In orchestral terms, each workflow is a score with its own movement order; the c
 
 ## References and Evidence
 
-- `packages/sinfonia/workflows/`
-- `packages/sinfonia/src/`
-- `packages/sinfonia/workflows/create-prd/workflow.md`
-- `packages/sinfonia/workflows/create-spec/workflow.md`
-- `packages/sinfonia/workflows/dev-story/workflow.md`
-- `packages/sinfonia/workflows/code-review/workflow.md`
-- `packages/sinfonia/src/workflow/coordinator.ts`
-- `packages/sinfonia/src/workflow/step-engine.ts`
-- `packages/sinfonia/tests/workflow/coordinator.test.ts`
+- `packages/sinfonica/workflows/`
+- `packages/sinfonica/src/`
+- `packages/sinfonica/workflows/create-prd/workflow.md`
+- `packages/sinfonica/workflows/create-spec/workflow.md`
+- `packages/sinfonica/workflows/dev-story/workflow.md`
+- `packages/sinfonica/workflows/code-review/workflow.md`
+- `packages/sinfonica/src/workflow/coordinator.ts`
+- `packages/sinfonica/src/workflow/step-engine.ts`
+- `packages/sinfonica/tests/workflow/coordinator.test.ts`

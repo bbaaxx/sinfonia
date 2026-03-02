@@ -13,7 +13,7 @@ import {
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-persona-loader-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-persona-loader-test-"));
   tempDirs.push(dir);
   return dir;
 };
@@ -89,16 +89,16 @@ describe("persona loader and artifact generation", () => {
   it("loads persona from override first and falls back to framework", async () => {
     const cwd = await makeTempDir();
     const frameworkDir = join(cwd, "framework");
-    await mkdir(join(cwd, ".sinfonia/agents"), { recursive: true });
+    await mkdir(join(cwd, ".sinfonica/agents"), { recursive: true });
     await mkdir(frameworkDir, { recursive: true });
 
     await writeFile(join(frameworkDir, "maestro.md"), validPersona("maestro"), "utf8");
-    await writeFile(join(cwd, ".sinfonia/agents/maestro.md"), validPersona("maestro").replace("name: maestro", "name: override"), "utf8");
+    await writeFile(join(cwd, ".sinfonica/agents/maestro.md"), validPersona("maestro").replace("name: maestro", "name: override"), "utf8");
 
     const loadedOverride = await loadPersona({ cwd, personaId: "maestro", frameworkAgentsDir: frameworkDir });
     expect(loadedOverride.sourceType).toBe("override");
 
-    await rm(join(cwd, ".sinfonia/agents/maestro.md"));
+    await rm(join(cwd, ".sinfonica/agents/maestro.md"));
     const loadedFallback = await loadPersona({ cwd, personaId: "maestro", frameworkAgentsDir: frameworkDir });
     expect(loadedFallback.sourceType).toBe("framework");
   });
@@ -150,7 +150,7 @@ describe("persona loader and artifact generation", () => {
 
     expect(personas).toHaveLength(6);
     for (const profile of PERSONA_PROFILES) {
-      await expect(access(join(cwd, ".opencode/agent", `sinfonia-${profile.id}.md`))).resolves.toBeUndefined();
+      await expect(access(join(cwd, ".opencode/agent", `sinfonica-${profile.id}.md`))).resolves.toBeUndefined();
     }
 
     // opencode.json is written by init.ts, not generatePersonaArtifacts

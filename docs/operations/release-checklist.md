@@ -8,7 +8,7 @@ Back to index: [Documentation Index](../index.md)
 
 ## Purpose
 
-Provide a repeatable pre-release checklist so Sinfonia releases ship with validated behavior and aligned documentation.
+Provide a repeatable pre-release checklist so Sinfonica releases ship with validated behavior and aligned documentation.
 
 ## Audience
 
@@ -18,7 +18,7 @@ Maintainers and release owners.
 
 ## Pre-release checklist
 
-Run from `packages/sinfonia/` unless noted.
+Run from `packages/sinfonica/` unless noted.
 
 ### 1) Sync and dependency hygiene
 
@@ -45,8 +45,8 @@ npm test
 - Verify command registration remains intact.
 
 ```bash
-sinfonia --version
-sinfonia rules
+sinfonica --version
+sinfonica rules
 ```
 
 ### 4) Scaffold and validation sanity
@@ -55,8 +55,8 @@ sinfonia rules
 - Validate generated personas.
 
 ```bash
-sinfonia init -y
-sinfonia validate .sinfonia/agents --all
+sinfonica init -y
+sinfonica validate .sinfonica/agents --all
 ```
 
 ### 5) Enforcement visibility
@@ -94,11 +94,11 @@ sinfonia validate .sinfonia/agents --all
 
 ## References and Evidence
 
-- `packages/sinfonia/package.json`
-- `packages/sinfonia/tests/`
-- `packages/sinfonia/src/cli/program.ts`
-- `packages/sinfonia/src/cli/init.ts`
-- `packages/sinfonia/src/cli/validate.ts`
-- `packages/sinfonia/src/cli/rules.ts`
-- `packages/sinfonia/src/enforcement/registry.ts`
-- `packages/sinfonia/docs/index.md`
+- `packages/sinfonica/package.json`
+- `packages/sinfonica/tests/`
+- `packages/sinfonica/src/cli/program.ts`
+- `packages/sinfonica/src/cli/init.ts`
+- `packages/sinfonica/src/cli/validate.ts`
+- `packages/sinfonica/src/cli/rules.ts`
+- `packages/sinfonica/src/enforcement/registry.ts`
+- `packages/sinfonica/docs/index.md`

@@ -94,7 +94,7 @@ const frameworkDirFromModule = (): string => {
 };
 
 export const loadPersona = async (options: LoadPersonaOptions): Promise<LoadedPersona> => {
-  const overridePath = join(options.cwd, ".sinfonia/agents", `${options.personaId}.md`);
+  const overridePath = join(options.cwd, ".sinfonica/agents", `${options.personaId}.md`);
   const frameworkDir = options.frameworkAgentsDir ?? frameworkDirFromModule();
   const fallbackPath = join(frameworkDir, `${options.personaId}.md`);
 
@@ -123,7 +123,7 @@ export const loadPersona = async (options: LoadPersonaOptions): Promise<LoadedPe
 
   let sidecarMemoryPath: string | undefined;
   if (options.sidecarMemoryEnabled) {
-    const candidate = join(options.cwd, ".sinfonia/memory", `${options.personaId}.md`);
+    const candidate = join(options.cwd, ".sinfonica/memory", `${options.personaId}.md`);
     if (await fileExists(candidate)) {
       sidecarMemoryPath = candidate;
     }

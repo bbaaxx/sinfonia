@@ -1,7 +1,0 @@
-version: "0.1"
-sinfonia_version: "0.0.0"
-default_orchestrator: maestro
-project_name: "sinfonia"
-user_name: ""
-skill_level: expert
-enforcement_strictness: low

@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-02-26
-**Deciders:** Sinfonia maintainers
+**Deciders:** Sinfonica maintainers
 **Supersedes:** None
 **Superseded By:** None
 
@@ -33,7 +33,7 @@ Workflow execution spans multiple steps, approvals, and possible resumes. Withou
 
 ## References and Evidence
 
-- `packages/sinfonia/src/workflow/index-manager.ts`
-- `packages/sinfonia/src/workflow/types.ts`
-- `packages/sinfonia/src/workflow/step-engine.ts`
-- `packages/sinfonia/tests/workflow/index-manager.test.ts`
+- `packages/sinfonica/src/workflow/index-manager.ts`
+- `packages/sinfonica/src/workflow/types.ts`
+- `packages/sinfonica/src/workflow/step-engine.ts`
+- `packages/sinfonica/tests/workflow/index-manager.test.ts`

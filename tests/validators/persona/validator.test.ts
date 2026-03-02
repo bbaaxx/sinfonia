@@ -9,7 +9,7 @@ import { validatePersonaPaths } from "../../../src/validators/persona/validator.
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-validate-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-validate-test-"));
   tempDirs.push(dir);
   return dir;
 };

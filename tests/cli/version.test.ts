@@ -6,10 +6,10 @@ import { createProgram } from "../../src/cli/program.js";
 const require = createRequire(import.meta.url);
 const pkg = require("../../package.json") as { version: string };
 
-describe("sinfonia --version", () => {
-  it("reports version in sinfonia/<version> format", () => {
+describe("sinfonica --version", () => {
+  it("reports version in sinfonica/<version> format", () => {
     const program = createProgram();
-    expect(program.version()).toBe(`sinfonia/${pkg.version}`);
+    expect(program.version()).toBe(`sinfonica/${pkg.version}`);
   });
 
   it("registers -V as the version flag alias", () => {

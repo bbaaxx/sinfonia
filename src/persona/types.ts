@@ -5,7 +5,7 @@ export type PersonaMode = "primary" | "subagent";
 export type PersonaPermissions = string[];
 
 /**
- * Static profile for a Sinfonia persona — defines identity, mode, and permissions.
+ * Static profile for a Sinfonica persona — defines identity, mode, and permissions.
  * Used by stub-generator to produce opencode.json entries and agent stubs.
  */
 export type PersonaProfile = {
@@ -52,7 +52,7 @@ export type LoadPersonaOptions = {
   personaId: string;
   frameworkAgentsDir?: string;
   sidecarMemoryEnabled?: boolean;
-  /** When true, always load from the framework source (ignore .sinfonia/agents/ override). */
+  /** When true, always load from the framework source (ignore .sinfonica/agents/ override). */
   forceFramework?: boolean;
 };
 

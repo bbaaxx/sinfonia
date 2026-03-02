@@ -18,8 +18,8 @@ export const formatDelegationContext = (envelope: DispatchEnvelope): string => {
 
   return [
     `Dispatch Envelope: ${envelope.sessionId}#${String(envelope.sequence).padStart(3, "0")}`,
-    `Source: @sinfonia-${envelope.sourcePersona}`,
-    `Target: @sinfonia-${envelope.targetPersona}`,
+    `Source: @sinfonica-${envelope.sourcePersona}`,
+    `Target: @sinfonica-${envelope.targetPersona}`,
     "",
     "Task",
     envelope.task,
@@ -64,14 +64,14 @@ export const trackDelegation = async (
   cwd: string
 ): Promise<void> => {
   try {
-    const indexPath = workflowIndexPath(join(cwd, ".sinfonia"), sessionId);
+    const indexPath = workflowIndexPath(join(cwd, ".sinfonica"), sessionId);
     await updateWorkflowIndex(indexPath, {
       currentStep: `delegating-to-${targetPersona}`
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.warn(
-      `[sinfonia] trackDelegation: failed to update workflow index for session ${sessionId} → ${targetPersona} (envelope: ${envelopePath}): ${message}`
+      `[sinfonica] trackDelegation: failed to update workflow index for session ${sessionId} → ${targetPersona} (envelope: ${envelopePath}): ${message}`
     );
   }
 };

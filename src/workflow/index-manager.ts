@@ -222,7 +222,7 @@ const assertTransition = (from: WorkflowStatus, to: WorkflowStatus): void => {
 };
 
 export const workflowIndexPath = (cwd: string, sessionId: string): string =>
-  join(cwd, ".sinfonia/handoffs", sessionId, WORKFLOW_FILENAME);
+  join(cwd, ".sinfonica/handoffs", sessionId, WORKFLOW_FILENAME);
 
 export const writeWorkflowIndexAtomically = async (
   filePath: string,

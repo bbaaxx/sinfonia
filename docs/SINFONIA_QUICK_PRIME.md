@@ -1,14 +1,14 @@
-# Sinfonia Quick Prime
+# Sinfonica Quick Prime
 
 Audience: Any agent about to work in this repository.
 
-## 1) What Sinfonia is here
+## 1) What Sinfonica is here
 
-Sinfonia in this package is the orchestration framework itself, not just generated project assets.
+Sinfonica in this package is the orchestration framework itself, not just generated project assets.
 
 - `maestro` is the orchestrator persona that plans, delegates, and integrates work.
 - Six personas are available: `maestro` (orchestrator), `libretto`, `amadeus`, `coda`, `rondo` (workflow specialists), and `metronome` (QA/test planning); see `agents/`.
-- Sinfonia can run as an MCP server, exposing workflow and handoff tools to MCP-compatible hosts; see `src/mcp/` and `README.md`.
+- Sinfonica can run as an MCP server, exposing workflow and handoff tools to MCP-compatible hosts; see `src/mcp/` and `README.md`.
 - The code that powers `maestro` and the other personas lives in this same repo under `src/` and `workflows/`.
 - Changes here can affect both framework behavior and how future agent sessions run.
 
@@ -46,7 +46,7 @@ High-value source files:
 - Branding/images: `assets/`
 - Tool configuration: `opencode.json` (OpenCode agent integration)
 - Package docs: `docs/`
-- Session/runtime artifacts during execution: `.sinfonia/`
+- Session/runtime artifacts during execution: `.sinfonica/`
 
 ## 4) How to work safely as an agent
 
@@ -62,7 +62,7 @@ Git and command safety:
 
 - Avoid destructive git commands (`reset --hard`, force operations) unless explicitly requested.
 - Do not commit or push unless explicitly asked.
-- Run commands from `packages/sinfonia/`.
+- Run commands from `packages/sinfonica/`.
 
 ## 5) Required quality gates
 

@@ -11,7 +11,7 @@ import { writeHandoffEnvelope } from "../../src/handoff/writer.js";
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-handoff-rv-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-handoff-rv-test-"));
   tempDirs.push(dir);
   return dir;
 };

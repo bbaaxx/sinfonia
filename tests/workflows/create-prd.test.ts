@@ -30,7 +30,7 @@ const SOURCE_WORKFLOW_DIR = join(PKG_ROOT, 'workflows', WORKFLOW_NAME);
 let testDir: string;
 
 beforeEach(async () => {
-  testDir = join(tmpdir(), `sinfonia-create-prd-test-${Date.now()}`);
+  testDir = join(tmpdir(), `sinfonica-create-prd-test-${Date.now()}`);
   await mkdir(testDir, { recursive: true });
 });
 
@@ -40,10 +40,10 @@ afterEach(async () => {
 
 /**
  * Copies the real workflow source files into the test tmpdir under
- * .sinfonia/workflows/<name>/ so the step-engine can find them.
+ * .sinfonica/workflows/<name>/ so the step-engine can find them.
  */
 async function installWorkflow(): Promise<void> {
-  const destWorkflowDir = join(testDir, '.sinfonia', 'workflows', WORKFLOW_NAME);
+  const destWorkflowDir = join(testDir, '.sinfonica', 'workflows', WORKFLOW_NAME);
   const destStepsDir = join(destWorkflowDir, 'steps');
   await mkdir(destStepsDir, { recursive: true });
 

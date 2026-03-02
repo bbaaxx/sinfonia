@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-02-26
-**Deciders:** Sinfonia maintainers
+**Deciders:** Sinfonica maintainers
 **Supersedes:** None
 **Superseded By:** None
 
@@ -14,7 +14,7 @@ Persona-to-persona delegation fails when handoffs are inconsistent, underspecifi
 
 ## Decision
 
-Sinfonia handoffs use a typed envelope contract with explicit handoff types and required payload sections.
+Sinfonica handoffs use a typed envelope contract with explicit handoff types and required payload sections.
 
 - Allowed handoff types are controlled (`dispatch`, `return`, `revision`, `direct`).
 - Envelopes are written and read through dedicated handoff modules.
@@ -33,8 +33,8 @@ Sinfonia handoffs use a typed envelope contract with explicit handoff types and 
 
 ## References and Evidence
 
-- `packages/sinfonia/src/handoff/types.ts`
-- `packages/sinfonia/src/handoff/writer.ts`
-- `packages/sinfonia/src/handoff/reader.ts`
-- `packages/sinfonia/src/handoff/validator.ts`
-- `packages/sinfonia/tests/self-hosting/acceptance.test.ts`
+- `packages/sinfonica/src/handoff/types.ts`
+- `packages/sinfonica/src/handoff/writer.ts`
+- `packages/sinfonica/src/handoff/reader.ts`
+- `packages/sinfonica/src/handoff/validator.ts`
+- `packages/sinfonica/tests/self-hosting/acceptance.test.ts`

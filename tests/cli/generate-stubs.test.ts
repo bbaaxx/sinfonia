@@ -10,7 +10,7 @@ import { initProject } from "../../src/cli/init.js";
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-stub-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-stub-test-"));
   tempDirs.push(dir);
   return dir;
 };
@@ -35,7 +35,7 @@ describe("workflow command stubs and skill packaging", () => {
       expect(content.startsWith("---\n")).toBe(true);
       expect(content).toContain(`name: ${workflow.commandName}`);
       expect(content).toContain("description:");
-      expect(content).toContain("@sinfonia-maestro");
+      expect(content).toContain("@sinfonica-maestro");
       expect(content).toContain(`workflow \`${workflow.workflowId}\``);
       expect(content).toContain("$ARGUMENTS");
     }

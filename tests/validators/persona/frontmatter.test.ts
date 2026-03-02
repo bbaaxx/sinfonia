@@ -13,7 +13,7 @@ icon: 🎯
 capabilities:
   - routing
   - orchestration
-author: Sinfonia Team
+author: Sinfonica Team
 license: MIT
 ---
 
@@ -91,7 +91,7 @@ describe("validatePersonaFrontmatter", () => {
   });
 
   it("warns on invalid author or license", () => {
-    const badAuthor = validPersona.replace("author: Sinfonia Team", `author: ${"a".repeat(101)}`);
+    const badAuthor = validPersona.replace("author: Sinfonica Team", `author: ${"a".repeat(101)}`);
     const badLicense = validPersona.replace("license: MIT", "license: !!!");
 
     expect(validatePersonaFrontmatter("agents/maestro.md", badAuthor).warnings.some((x) => x.ruleId === "FM-10")).toBe(true);

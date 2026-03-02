@@ -17,15 +17,15 @@ describe('create-spec contracts', () => {
       const normalized = await normalizeCreateSpecRequest({
         session_id: 's-20260302-005',
         workflow: 'create-spec',
-        target_persona: 'sinfonia-maestro',
-        skill_path: '.opencode/skills/sinfonia-create-spec/SKILL.md',
+        target_persona: 'sinfonica-maestro',
+        skill_path: '.opencode/skills/sinfonica-create-spec/SKILL.md',
         request_text: 'Create and route create-spec orchestration to maestro.',
         required_report_fields: [...CREATE_SPEC_REQUIRED_REPORT_FIELDS],
       });
 
       expect(normalized.session_id).toBe('s-20260302-005');
       expect(normalized.workflow).toBe('create-spec');
-      expect(normalized.target_persona).toBe('sinfonia-maestro');
+      expect(normalized.target_persona).toBe('sinfonica-maestro');
       expect(normalized.required_report_fields).toEqual(CREATE_SPEC_REQUIRED_REPORT_FIELDS);
     });
 
@@ -34,8 +34,8 @@ describe('create-spec contracts', () => {
         normalizeCreateSpecRequest({
           session_id: 's-20260302-005',
           workflow: 'create-spec',
-          target_persona: 'sinfonia-maestro',
-          skill_path: '.opencode/skills/sinfonia-create-spec/SKILL.md',
+          target_persona: 'sinfonica-maestro',
+          skill_path: '.opencode/skills/sinfonica-create-spec/SKILL.md',
           request_text: 'Create spec.',
           required_report_fields: ['status', 'next_action', 'blockers', 'approval_requirement', 'artifacts'],
         }),
@@ -47,8 +47,8 @@ describe('create-spec contracts', () => {
         normalizeCreateSpecRequest({
           session_id: 's-20260302-005',
           workflow: 'create-spec',
-          target_persona: 'sinfonia-maestro',
-          skill_path: '.opencode/skills/sinfonia-create-spec/MISSING.md',
+          target_persona: 'sinfonica-maestro',
+          skill_path: '.opencode/skills/sinfonica-create-spec/MISSING.md',
           request_text: 'Create spec.',
           required_report_fields: [...CREATE_SPEC_REQUIRED_REPORT_FIELDS],
         }),
@@ -64,8 +64,8 @@ describe('create-spec contracts', () => {
             {
               session_id: 's-20260302-005',
               workflow: 'create-spec',
-              target_persona: 'sinfonia-maestro',
-              skill_path: '.opencode/skills/sinfonia-create-spec/SKILL.md',
+              target_persona: 'sinfonica-maestro',
+              skill_path: '.opencode/skills/sinfonica-create-spec/SKILL.md',
               request_text: 'Create spec.',
               required_report_fields: [...CREATE_SPEC_REQUIRED_REPORT_FIELDS],
             },
@@ -83,13 +83,13 @@ describe('create-spec contracts', () => {
       const normalized = await normalizeCreateSpecRequest({
         session_id: 's-20260302-005',
         workflow: 'create-spec',
-        target_persona: 'sinfonia-maestro',
-        skill_path: '.opencode/skills/sinfonia-create-spec/SKILL.md',
+        target_persona: 'sinfonica-maestro',
+        skill_path: '.opencode/skills/sinfonica-create-spec/SKILL.md',
         request_text: 'Create and route create-spec orchestration to maestro.',
       });
 
       const prompt = buildCreateSpecTaskPrompt(normalized, 'Normalized request summary text.');
-      expect(prompt.address_to).toBe('@sinfonia-maestro');
+      expect(prompt.address_to).toBe('@sinfonica-maestro');
       expect(prompt.workflow).toBe('create-spec');
       expect(() => validateCreateSpecTaskPrompt(prompt, normalized)).not.toThrow();
     });
@@ -98,8 +98,8 @@ describe('create-spec contracts', () => {
       const normalized = await normalizeCreateSpecRequest({
         session_id: 's-20260302-005',
         workflow: 'create-spec',
-        target_persona: 'sinfonia-maestro',
-        skill_path: '.opencode/skills/sinfonia-create-spec/SKILL.md',
+        target_persona: 'sinfonica-maestro',
+        skill_path: '.opencode/skills/sinfonica-create-spec/SKILL.md',
         request_text: 'Create and route create-spec orchestration to maestro.',
       });
 
@@ -108,7 +108,7 @@ describe('create-spec contracts', () => {
         validateCreateSpecTaskPrompt(
           {
             ...prompt,
-            address_to: '@sinfonia-amadeus',
+            address_to: '@sinfonica-amadeus',
           },
           normalized,
         ),
@@ -119,8 +119,8 @@ describe('create-spec contracts', () => {
       const normalized = await normalizeCreateSpecRequest({
         session_id: 's-20260302-005',
         workflow: 'create-spec',
-        target_persona: 'sinfonia-maestro',
-        skill_path: '.opencode/skills/sinfonia-create-spec/SKILL.md',
+        target_persona: 'sinfonica-maestro',
+        skill_path: '.opencode/skills/sinfonica-create-spec/SKILL.md',
         request_text: 'Create and route create-spec orchestration to maestro.',
       });
 
@@ -149,7 +149,7 @@ describe('create-spec contracts', () => {
           blockers: 'None',
           next_action: 'Await explicit approval before dispatching next stage.',
           approval_requirement: 'required',
-          artifacts: ['.sinfonia/handoffs/s-20260302-005/dispatch-03-coda.md'],
+          artifacts: ['.sinfonica/handoffs/s-20260302-005/dispatch-03-coda.md'],
         }),
       ).not.toThrow();
     });

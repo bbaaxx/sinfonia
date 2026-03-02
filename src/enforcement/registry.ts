@@ -1,7 +1,7 @@
 /**
  * Enforcement Rule Registry
  *
- * Central registry for all Sinfonia enforcement rules.
+ * Central registry for all Sinfonica enforcement rules.
  * Registration is idempotent — calling registerRule with the same ID twice
  * is safe and will not create duplicates.
  */
@@ -113,7 +113,7 @@ registerRule({
   id: "ENF-005",
   name: "Shell Env Injection",
   description:
-    "Injects SINFONIA_PROJECT_ROOT, SINFONIA_VERSION, SINFONIA_SESSION_ID, SINFONIA_WORKFLOW_ID, and SINFONIA_CURRENT_STEP into every shell call.",
+    "Injects SINFONICA_PROJECT_ROOT, SINFONICA_VERSION, SINFONICA_SESSION_ID, SINFONICA_WORKFLOW_ID, and SINFONICA_CURRENT_STEP into every shell call.",
   severity: "injection",
   hook: "shell.env",
   layer: "plugin",

@@ -12,7 +12,7 @@ word_count: 196
 
 # Dispatch Envelope: session-version-flag#001
 
-Source: @sinfonia-maestro → Target: @sinfonia-coda
+Source: @sinfonica-maestro → Target: @sinfonica-coda
 
 ## Artifacts
 
@@ -21,7 +21,7 @@ Source: @sinfonia-maestro → Target: @sinfonia-coda
 
 ## Task
 
-Implement the `--version` flag for the Sinfonia CLI so that running `sinfonia --version` (or `sinfonia -V`) prints the version read from `package.json` in the format `sinfonia/x.y.z`.
+Implement the `--version` flag for the Sinfonica CLI so that running `sinfonica --version` (or `sinfonica -V`) prints the version read from `package.json` in the format `sinfonica/x.y.z`.
 
 ## Context
 
@@ -33,9 +33,9 @@ Implement the `--version` flag for the Sinfonia CLI so that running `sinfonia --
 
 ## Acceptance Criteria
 
-1. `sinfonia --version` prints `sinfonia/x.y.z` where `x.y.z` is read from `package.json` at runtime.
-2. `sinfonia -V` alias produces the same output.
-3. Output format is exactly `sinfonia/<version>` (e.g. `sinfonia/0.1.0`).
+1. `sinfonica --version` prints `sinfonica/x.y.z` where `x.y.z` is read from `package.json` at runtime.
+2. `sinfonica -V` alias produces the same output.
+3. Output format is exactly `sinfonica/<version>` (e.g. `sinfonica/0.1.0`).
 4. Unit test added at `tests/cli/version.test.ts` covering both `--version` and `-V`.
 5. Build passes (`npm run build` or equivalent) with no errors.
 6. All pre-existing tests remain green.

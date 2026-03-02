@@ -13,7 +13,7 @@ vi.mock("../../src/workflow/index-manager.js", () => ({
   addDecision: vi.fn().mockResolvedValue(undefined),
   addArtifact: vi.fn().mockResolvedValue(undefined),
   workflowIndexPath: vi.fn((cwd: string, sessionId: string) =>
-    join(cwd, ".sinfonia/handoffs", sessionId, "workflow.md")
+    join(cwd, ".sinfonica/handoffs", sessionId, "workflow.md")
   )
 }));
 
@@ -22,7 +22,7 @@ import { addDecision } from "../../src/workflow/index-manager.js";
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-approval-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-approval-test-"));
   tempDirs.push(dir);
   return dir;
 };
@@ -36,7 +36,7 @@ describe("approval gate", () => {
   it("approves envelope and calls addDecision with correct arguments", async () => {
     const cwd = await makeTempDir();
     const sessionId = "s-20260223-231530";
-    await mkdir(join(cwd, ".sinfonia/handoffs", sessionId), { recursive: true });
+    await mkdir(join(cwd, ".sinfonica/handoffs", sessionId), { recursive: true });
 
     const envelope = await writeHandoffEnvelope(
       cwd,
@@ -58,7 +58,7 @@ describe("approval gate", () => {
     const approveResult = await applyApprovalDecision({
       cwd,
       envelopePath: envelope.filePath,
-      workflowPath: join(cwd, ".sinfonia/handoffs", sessionId, "workflow.md"),
+      workflowPath: join(cwd, ".sinfonica/handoffs", sessionId, "workflow.md"),
       decision: "approve",
       reviewer: "maestro",
       note: "Looks good"
@@ -88,7 +88,7 @@ describe("approval gate", () => {
   it("creates revision handoff on reject and calls addDecision with reject decision", async () => {
     const cwd = await makeTempDir();
     const sessionId = "s-20260223-231530";
-    await mkdir(join(cwd, ".sinfonia/handoffs", sessionId), { recursive: true });
+    await mkdir(join(cwd, ".sinfonica/handoffs", sessionId), { recursive: true });
 
     const envelope = await writeHandoffEnvelope(
       cwd,
@@ -110,7 +110,7 @@ describe("approval gate", () => {
     const result = await applyApprovalDecision({
       cwd,
       envelopePath: envelope.filePath,
-      workflowPath: join(cwd, ".sinfonia/handoffs", sessionId, "workflow.md"),
+      workflowPath: join(cwd, ".sinfonica/handoffs", sessionId, "workflow.md"),
       decision: "reject",
       reviewer: "maestro",
       note: "Add missing edge-case tests"
@@ -163,10 +163,10 @@ describe("approval gate", () => {
   it("returns invalid status for malformed envelope missing handoff_type, does not advance pipeline", async () => {
     const cwd = await makeTempDir();
     const sessionId = "s-20260223-231530";
-    await mkdir(join(cwd, ".sinfonia/handoffs", sessionId), { recursive: true });
+    await mkdir(join(cwd, ".sinfonica/handoffs", sessionId), { recursive: true });
 
     // Write a malformed envelope file directly — missing handoff_type field
-    const malformedPath = join(cwd, ".sinfonia/handoffs", sessionId, "malformed.md");
+    const malformedPath = join(cwd, ".sinfonica/handoffs", sessionId, "malformed.md");
     await writeFile(
       malformedPath,
       [
@@ -194,7 +194,7 @@ describe("approval gate", () => {
     const result = await applyApprovalDecision({
       cwd,
       envelopePath: malformedPath,
-      workflowPath: join(cwd, ".sinfonia/handoffs", sessionId, "workflow.md"),
+      workflowPath: join(cwd, ".sinfonica/handoffs", sessionId, "workflow.md"),
       decision: "approve",
       reviewer: "maestro"
     });
@@ -214,10 +214,10 @@ describe("approval gate", () => {
   it("returns invalid status with HV-03 rule ID when required fields are missing", async () => {
     const cwd = await makeTempDir();
     const sessionId = "s-20260223-231530";
-    await mkdir(join(cwd, ".sinfonia/handoffs", sessionId), { recursive: true });
+    await mkdir(join(cwd, ".sinfonica/handoffs", sessionId), { recursive: true });
 
     // Write envelope missing multiple required fields (handoff_type, word_count)
-    const malformedPath = join(cwd, ".sinfonia/handoffs", sessionId, "missing-fields.md");
+    const malformedPath = join(cwd, ".sinfonica/handoffs", sessionId, "missing-fields.md");
     await writeFile(
       malformedPath,
       [
@@ -245,7 +245,7 @@ describe("approval gate", () => {
     const result = await applyApprovalDecision({
       cwd,
       envelopePath: malformedPath,
-      workflowPath: join(cwd, ".sinfonia/handoffs", sessionId, "workflow.md"),
+      workflowPath: join(cwd, ".sinfonica/handoffs", sessionId, "workflow.md"),
       decision: "approve",
       reviewer: "maestro"
     });
@@ -262,7 +262,7 @@ describe("approval gate", () => {
   it("valid envelope passes pre-flight and existing approve/reject flows are unaffected (regression)", async () => {
     const cwd = await makeTempDir();
     const sessionId = "s-20260223-231530";
-    await mkdir(join(cwd, ".sinfonia/handoffs", sessionId), { recursive: true });
+    await mkdir(join(cwd, ".sinfonica/handoffs", sessionId), { recursive: true });
 
     // Write a fully valid envelope via the writer
     const envelope = await writeHandoffEnvelope(
@@ -285,7 +285,7 @@ describe("approval gate", () => {
     const result = await applyApprovalDecision({
       cwd,
       envelopePath: envelope.filePath,
-      workflowPath: join(cwd, ".sinfonia/handoffs", sessionId, "workflow.md"),
+      workflowPath: join(cwd, ".sinfonica/handoffs", sessionId, "workflow.md"),
       decision: "approve",
       reviewer: "maestro",
       note: "Regression check"

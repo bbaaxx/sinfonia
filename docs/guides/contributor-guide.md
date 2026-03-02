@@ -8,7 +8,7 @@ Back to index: [Documentation Index](../index.md)
 
 ## Purpose
 
-Define the expected contribution workflow for Sinfonia code and documentation changes.
+Define the expected contribution workflow for Sinfonica code and documentation changes.
 
 ## Audience
 
@@ -21,7 +21,7 @@ Contributors and maintainers.
 1. Create a focused branch for one change set.
 2. Implement or update behavior in the smallest responsible module.
 3. Add or update tests that prove the behavior.
-4. Update relevant docs under `packages/sinfonia/docs/`.
+4. Update relevant docs under `packages/sinfonica/docs/`.
 5. Run quality checks before opening review.
 
 ## Repository areas
@@ -36,7 +36,7 @@ Contributors and maintainers.
 
 ## Quality gates
 
-Run from `packages/sinfonia/`:
+Run from `packages/sinfonica/`:
 
 ```bash
 npm run build
@@ -76,16 +76,16 @@ Expected baseline:
 
 ## Constraints and Non-Goals
 
-- This guide is for contributing to Sinfonia itself, not consuming Sinfonia in downstream repositories.
+- This guide is for contributing to Sinfonica itself, not consuming Sinfonica in downstream repositories.
 - It does not replace your org's branch protection or review policy.
 - It does not define publishing/release governance beyond package-local checks.
 
 ## References and Evidence
 
-- `packages/sinfonia/tests/`
-- `packages/sinfonia/package.json`
-- `packages/sinfonia/src/workflow/coordinator.ts`
-- `packages/sinfonia/src/workflow/index-manager.ts`
-- `packages/sinfonia/src/enforcement/registry.ts`
-- `packages/sinfonia/tests/workflow/coordinator.test.ts`
-- `packages/sinfonia/tests/cli/init.test.ts`
+- `packages/sinfonica/tests/`
+- `packages/sinfonica/package.json`
+- `packages/sinfonica/src/workflow/coordinator.ts`
+- `packages/sinfonica/src/workflow/index-manager.ts`
+- `packages/sinfonica/src/enforcement/registry.ts`
+- `packages/sinfonica/tests/workflow/coordinator.test.ts`
+- `packages/sinfonica/tests/cli/init.test.ts`

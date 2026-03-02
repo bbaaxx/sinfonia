@@ -10,7 +10,7 @@ import { createWorkflowIndex, workflowIndexPath } from "../../src/workflow/index
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-compaction-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-compaction-test-"));
   tempDirs.push(dir);
   return dir;
 };

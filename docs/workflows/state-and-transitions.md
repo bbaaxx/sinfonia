@@ -16,7 +16,7 @@ Maintainers and advanced users.
 
 ## Main Content
 
-Sinfonia tracks workflow progress in a canonical `workflow.md` index. State is expressed at both workflow and step levels.
+Sinfonica tracks workflow progress in a canonical `workflow.md` index. State is expressed at both workflow and step levels.
 
 ## Workflow state model
 
@@ -55,7 +55,7 @@ Transition safety:
 
 ## Step advancement rules
 
-- Step files are discovered in order from `.sinfonia/workflows/<workflow>/steps/`.
+- Step files are discovered in order from `.sinfonica/workflows/<workflow>/steps/`.
 - Active step pointer is represented by `currentStep` and `currentStepIndex` in frontmatter.
 - `advanceStep` moves to the next step and updates workflow status.
 - `completeStep` marks final completion when no next step exists.
@@ -93,12 +93,12 @@ Writes are performed atomically to protect state integrity during update failure
 
 ## References and Evidence
 
-- `packages/sinfonia/src/workflow/`
-- `packages/sinfonia/src/workflow/types.ts`
-- `packages/sinfonia/src/workflow/index-manager.ts`
-- `packages/sinfonia/src/workflow/step-engine.ts`
-- `packages/sinfonia/src/workflow/coordinator.ts`
-- `packages/sinfonia/src/workflow/compaction.ts`
-- `packages/sinfonia/src/workflow/resume.ts`
-- `packages/sinfonia/tests/workflow/coordinator.test.ts`
-- `packages/sinfonia/tests/workflow/index-manager.test.ts`
+- `packages/sinfonica/src/workflow/`
+- `packages/sinfonica/src/workflow/types.ts`
+- `packages/sinfonica/src/workflow/index-manager.ts`
+- `packages/sinfonica/src/workflow/step-engine.ts`
+- `packages/sinfonica/src/workflow/coordinator.ts`
+- `packages/sinfonica/src/workflow/compaction.ts`
+- `packages/sinfonica/src/workflow/resume.ts`
+- `packages/sinfonica/tests/workflow/coordinator.test.ts`
+- `packages/sinfonica/tests/workflow/index-manager.test.ts`

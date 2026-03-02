@@ -1,12 +1,12 @@
-# Sinfonia Documentation Style Guide
+# Sinfonica Documentation Style Guide
 
 **Status:** Active
 **Last Updated:** 2026-02-26
-**Scope:** Voice, tone, structure, and consistency rules for `packages/sinfonia` documentation
+**Scope:** Voice, tone, structure, and consistency rules for `packages/sinfonica` documentation
 
 ## Purpose
 
-Keep Sinfonia docs clear for developers and users while preserving a subtle orchestral identity.
+Keep Sinfonica docs clear for developers and users while preserving a subtle orchestral identity.
 
 ## Core Voice
 
@@ -89,8 +89,8 @@ Use this default structure for major docs:
 
 Major behavior claims must reference at least one of:
 
-- `packages/sinfonia/src/...`
-- `packages/sinfonia/tests/...`
+- `packages/sinfonica/src/...`
+- `packages/sinfonica/tests/...`
 - Relevant files in `specs/`
 
 Root-level evidence from `_bmad-output/` and `.tmp/` may be used for rationale and decision history.
@@ -105,7 +105,7 @@ Root-level evidence from `_bmad-output/` and `.tmp/` may be used for rationale a
 
 ## References and Evidence
 
-- `specs/SPEC-06-sinfonia-documentation-agent-primer.md`
-- `specs/SPEC-07-sinfonia-documentation-artifact-map.md`
-- `packages/sinfonia/README.md`
-- `packages/sinfonia/docs/index.md`
+- `specs/SPEC-06-sinfonica-documentation-agent-primer.md`
+- `specs/SPEC-07-sinfonica-documentation-artifact-map.md`
+- `packages/sinfonica/README.md`
+- `packages/sinfonica/docs/index.md`

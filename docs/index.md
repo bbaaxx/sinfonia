@@ -1,14 +1,14 @@
-# Sinfonia Documentation
+# Sinfonica Documentation
 
 **Status:** Draft
 **Last Updated:** 2026-02-26
 **Scope:** Central index for all package documentation
 
-This index is the score for the Sinfonia docs set: start here to find concept guides, architecture references, and operational playbooks.
+This index is the score for the Sinfonica docs set: start here to find concept guides, architecture references, and operational playbooks.
 
 ## Start Here
 
-- [Sinfonia Quick Prime](SINFONIA_QUICK_PRIME.md)
+- [Sinfonica Quick Prime](SINFONICA_QUICK_PRIME.md)
 - [Style Guide](style-guide.md)
 - [Getting Started](guides/getting-started.md)
 - [CLI Reference](reference/cli-reference.md)
@@ -36,7 +36,7 @@ This index is the score for the Sinfonia docs set: start here to find concept gu
   - [Contributor Guide](guides/contributor-guide.md)
   - [Migration Guide](guides/migration-guide.md)
 - Product Requirements
-  - [Sinfonia Retrospective PRD (Published Copy)](prd/sinfonia-retrospective-prd.md)
+  - [Sinfonica Retrospective PRD (Published Copy)](prd/sinfonica-retrospective-prd.md)
 - Operations
   - [Testing and Validation](operations/testing-and-validation.md)
   - [Troubleshooting](operations/troubleshooting.md)
@@ -51,7 +51,7 @@ This index is the score for the Sinfonia docs set: start here to find concept gu
 
 ## Source Evidence
 
-- `packages/sinfonia/src/`
-- `packages/sinfonia/tests/`
-- `specs/SPEC-06-sinfonia-documentation-agent-primer.md`
-- `specs/SPEC-07-sinfonia-documentation-artifact-map.md`
+- `packages/sinfonica/src/`
+- `packages/sinfonica/tests/`
+- `specs/SPEC-06-sinfonica-documentation-agent-primer.md`
+- `specs/SPEC-07-sinfonica-documentation-artifact-map.md`

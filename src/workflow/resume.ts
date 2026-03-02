@@ -120,7 +120,7 @@ export const resumeFromCompaction = async (cwd: string, injection: string): Prom
 
 export const recoverFromCrash = async (cwd: string, sessionId: string): Promise<ResumeReport> => {
   const workflowPath = workflowIndexPath(cwd, sessionId);
-  const sessionDir = join(cwd, ".sinfonia/handoffs", sessionId);
+  const sessionDir = join(cwd, ".sinfonica/handoffs", sessionId);
   const entries = await readdir(sessionDir);
   const envelopeFiles = entries
     .filter((entry) => entry.endsWith(".md") && entry !== "workflow.md")
@@ -186,7 +186,7 @@ export const recoverFromCrash = async (cwd: string, sessionId: string): Promise<
 };
 
 export const resumeLatestActiveSession = async (cwd: string): Promise<ResumeReport | null> => {
-  const root = join(cwd, ".sinfonia/handoffs");
+  const root = join(cwd, ".sinfonica/handoffs");
   let entries: string[] = [];
   try {
     entries = await readdir(root);

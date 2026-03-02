@@ -11,7 +11,7 @@ vi.mock("../../src/workflow/index-manager.js", () => ({
   addArtifact: vi.fn().mockResolvedValue(undefined),
   addDecision: vi.fn().mockResolvedValue(undefined),
   workflowIndexPath: vi.fn((cwd: string, sessionId: string) =>
-    join(cwd, ".sinfonia/handoffs", sessionId, "workflow.md")
+    join(cwd, ".sinfonica/handoffs", sessionId, "workflow.md")
   )
 }));
 
@@ -20,7 +20,7 @@ import { addArtifact } from "../../src/workflow/index-manager.js";
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-handoff-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-handoff-test-"));
   tempDirs.push(dir);
   return dir;
 };
@@ -38,7 +38,7 @@ describe("handoff writer", () => {
 
   it("builds expected handoff path pattern", () => {
     const path = handoffPathFor("/tmp/work", "s-20260223-231530", 7, "maestro", "coda");
-    expect(path).toContain(".sinfonia/handoffs/s-20260223-231530/007-maestro-to-coda.md");
+    expect(path).toContain(".sinfonica/handoffs/s-20260223-231530/007-maestro-to-coda.md");
   });
 
   it("auto increments sequence per session", async () => {

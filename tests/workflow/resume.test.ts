@@ -12,7 +12,7 @@ import { recoverFromCrash, resumeFromCompaction, resumeLatestActiveSession } fro
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-resume-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-resume-test-"));
   tempDirs.push(dir);
   return dir;
 };
@@ -43,7 +43,7 @@ describe("workflow resume and recovery", () => {
   it("recovers from crash by rebuilding workflow index from envelopes", async () => {
     const cwd = await makeTempDir();
     const sessionId = "s-20260223-231701";
-    const sessionDir = join(cwd, ".sinfonia/handoffs", sessionId);
+    const sessionDir = join(cwd, ".sinfonica/handoffs", sessionId);
     await mkdir(sessionDir, { recursive: true });
 
     await writeHandoffEnvelope(

@@ -28,7 +28,7 @@ describe("ENF-007 Session-End Completeness Warning", () => {
   });
 
   it("does nothing when all steps are completed", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = buildWorkflowContent([
       { step: "Step 1", persona: "architect", status: "completed" },
@@ -41,7 +41,7 @@ describe("ENF-007 Session-End Completeness Warning", () => {
   });
 
   it("emits console.warn when workflow has pending steps", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = buildWorkflowContent([
       { step: "Step 1", persona: "architect", status: "completed" },
@@ -54,7 +54,7 @@ describe("ENF-007 Session-End Completeness Warning", () => {
   });
 
   it("emits console.warn when workflow has in-progress steps", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = buildWorkflowContent([
       { step: "Step 1", persona: "architect", status: "in-progress" },
@@ -66,7 +66,7 @@ describe("ENF-007 Session-End Completeness Warning", () => {
   });
 
   it("warning message contains ENF-007 rule ID", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = buildWorkflowContent([
       { step: "Step 1", persona: "architect", status: "pending" },
@@ -79,7 +79,7 @@ describe("ENF-007 Session-End Completeness Warning", () => {
   });
 
   it("warning message lists incomplete step names", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = buildWorkflowContent([
       { step: "Design Phase", persona: "architect", status: "pending" },
@@ -94,7 +94,7 @@ describe("ENF-007 Session-End Completeness Warning", () => {
   });
 
   it("does not throw when workflow file is malformed", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     await writeFile(join(sessionDir, "workflow.md"), "malformed content");
 

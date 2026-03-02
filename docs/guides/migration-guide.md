@@ -8,7 +8,7 @@ Back to index: [Documentation Index](../index.md)
 
 ## Purpose
 
-Provide a controlled path for upgrading Sinfonia consumers when contract-level behavior changes are introduced.
+Provide a controlled path for upgrading Sinfonica consumers when contract-level behavior changes are introduced.
 
 ## Audience
 
@@ -30,22 +30,22 @@ npm run build
 2. Re-run scaffold refresh if needed:
 
 ```bash
-sinfonia init --force -y
+sinfonica init --force -y
 ```
 
 3. Re-validate persona contracts:
 
 ```bash
-sinfonia validate .sinfonia/agents --all
+sinfonica validate .sinfonica/agents --all
 ```
 
 4. Verify enforcement inventory:
 
 ```bash
-sinfonia rules
+sinfonica rules
 ```
 
-5. Compare workflow definitions and step files under `.sinfonia/workflows/` with your customized versions.
+5. Compare workflow definitions and step files under `.sinfonica/workflows/` with your customized versions.
 6. Re-run your project's integration flows and acceptance checks.
 
 ## Migration impact areas to inspect
@@ -58,7 +58,7 @@ sinfonia rules
 
 ## Forward policy
 
-When Sinfonia publishes stable version-to-version breaking changes, this page should include:
+When Sinfonica publishes stable version-to-version breaking changes, this page should include:
 
 - source version -> target version matrix,
 - explicit breaking changes,
@@ -73,8 +73,8 @@ When Sinfonia publishes stable version-to-version breaking changes, this page sh
 
 ## References and Evidence
 
-- `packages/sinfonia/docs/index.md`
-- `packages/sinfonia/src/cli/init.ts`
-- `packages/sinfonia/src/cli/validate.ts`
-- `packages/sinfonia/src/cli/rules.ts`
-- `packages/sinfonia/src/config/schema.ts`
+- `packages/sinfonica/docs/index.md`
+- `packages/sinfonica/src/cli/init.ts`
+- `packages/sinfonica/src/cli/validate.ts`
+- `packages/sinfonica/src/cli/rules.ts`
+- `packages/sinfonica/src/config/schema.ts`

@@ -18,7 +18,7 @@ import { createWorkflowIndex } from '../../src/workflow/index-manager.js';
 let testDir: string;
 
 beforeEach(async () => {
-  testDir = join(tmpdir(), `sinfonia-step-engine-test-${Date.now()}`);
+  testDir = join(tmpdir(), `sinfonica-step-engine-test-${Date.now()}`);
   await mkdir(testDir, { recursive: true });
 });
 
@@ -32,7 +32,7 @@ async function scaffoldWorkflow(
   name: string,
   steps: Array<{ slug: string; content?: string }>,
 ): Promise<string> {
-  const workflowDir = join(base, '.sinfonia', 'workflows', name);
+  const workflowDir = join(base, '.sinfonica', 'workflows', name);
   const stepsDir = join(workflowDir, 'steps');
   await mkdir(stepsDir, { recursive: true });
 
@@ -134,7 +134,7 @@ describe('loadWorkflowDef', () => {
   });
 
   it('returns null when steps directory is empty', async () => {
-    const workflowDir = join(testDir, '.sinfonia', 'workflows', 'empty-workflow');
+    const workflowDir = join(testDir, '.sinfonica', 'workflows', 'empty-workflow');
     await mkdir(join(workflowDir, 'steps'), { recursive: true });
     await writeFile(join(workflowDir, 'workflow.md'), '# Workflow: empty\n', 'utf-8');
 

@@ -28,7 +28,7 @@ describe("ENF-004 Spec Stop Guard", () => {
   });
 
   it("does nothing when all steps are completed", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = [
       "---",
@@ -73,7 +73,7 @@ describe("ENF-004 Spec Stop Guard", () => {
   });
 
   it("emits console.warn when workflow has incomplete steps", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = [
       "---",
@@ -121,7 +121,7 @@ describe("ENF-004 Spec Stop Guard", () => {
   });
 
   it("warning includes count of incomplete steps", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     const content = [
       "---",
@@ -168,7 +168,7 @@ describe("ENF-004 Spec Stop Guard", () => {
   });
 
   it("does not throw when workflow file is malformed", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     await writeFile(join(sessionDir, "workflow.md"), "malformed content");
 

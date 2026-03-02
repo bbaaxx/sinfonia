@@ -8,7 +8,7 @@ Back to index: [Documentation Index](../index.md)
 
 ## Purpose
 
-Define supported configuration keys, value constraints, and precedence rules used by Sinfonia runtime.
+Define supported configuration keys, value constraints, and precedence rules used by Sinfonica runtime.
 
 ## Audience
 
@@ -21,11 +21,11 @@ Implementers and maintainers.
 Configuration is merged in this order (lowest to highest priority):
 
 1. Internal defaults
-2. Project config file (`.sinfonia/config.yaml`)
-3. Environment variables (`SINFONIA_*`)
+2. Project config file (`.sinfonica/config.yaml`)
+3. Environment variables (`SINFONICA_*`)
 4. CLI flags
 
-Sinfonia tracks value origins internally (`sourceByKey`) for diagnostics.
+Sinfonica tracks value origins internally (`sourceByKey`) for diagnostics.
 
 ## Supported keys
 
@@ -63,7 +63,7 @@ Sinfonia tracks value origins internally (`sourceByKey`) for diagnostics.
 
 Primary config file:
 
-- `.sinfonia/config.yaml`
+- `.sinfonica/config.yaml`
 
 Expected format:
 
@@ -80,7 +80,7 @@ enforcement: high
 
 ## Environment variable mapping
 
-Any variable prefixed with `SINFONIA_` can override known keys after normalization.
+Any variable prefixed with `SINFONICA_` can override known keys after normalization.
 
 Practical guidance:
 
@@ -101,7 +101,7 @@ Practical guidance:
 
 ## Policy profile stub (disabled by default)
 
-Sinfonia includes a parser scaffold for enforcement policy profile files (`src/enforcement/policy-profile.ts`) to lock the future contract shape without runtime toggles.
+Sinfonica includes a parser scaffold for enforcement policy profile files (`src/enforcement/policy-profile.ts`) to lock the future contract shape without runtime toggles.
 
 - Runtime application is disabled by default (`POLICY_PROFILE_RUNTIME_ENABLED = false`).
 - Profile contract shape:
@@ -113,9 +113,9 @@ Sinfonia includes a parser scaffold for enforcement policy profile files (`src/e
 
 ## References and Evidence
 
-- `packages/sinfonia/src/`
-- `packages/sinfonia/opencode.json`
-- `packages/sinfonia/src/config/loader.ts`
-- `packages/sinfonia/src/config/schema.ts`
-- `packages/sinfonia/src/cli/init.ts`
-- `packages/sinfonia/tests/cli/init.test.ts`
+- `packages/sinfonica/src/`
+- `packages/sinfonica/opencode.json`
+- `packages/sinfonica/src/config/loader.ts`
+- `packages/sinfonica/src/config/schema.ts`
+- `packages/sinfonica/src/cli/init.ts`
+- `packages/sinfonica/tests/cli/init.test.ts`

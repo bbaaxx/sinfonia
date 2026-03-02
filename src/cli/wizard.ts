@@ -109,7 +109,7 @@ export const runInitWizard = async (options: RunInitWizardOptions): Promise<Wiza
   }
 
   if (options.hasPreviousInit) {
-    const choice = (await options.prompt("Existing .sinfonia detected [resume|re-init|cancel]: "))
+    const choice = (await options.prompt("Existing .sinfonica detected [resume|re-init|cancel]: "))
       .trim()
       .toLowerCase();
 

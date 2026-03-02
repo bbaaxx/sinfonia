@@ -26,7 +26,7 @@ export const handoffPathFor = (
   targetPersona: string
 ): string => {
   const filename = `${String(sequence).padStart(3, "0")}-${sourcePersona}-to-${targetPersona}.md`;
-  return join(cwd, ".sinfonia/handoffs", sessionId, filename);
+  return join(cwd, ".sinfonica/handoffs", sessionId, filename);
 };
 
 const nextSequence = async (sessionDir: string): Promise<number> => {
@@ -113,7 +113,7 @@ export const writeHandoffEnvelope = async (
   sessionId: string = createSessionId(),
   createdAt: Date = new Date()
 ): Promise<WrittenHandoff> => {
-  const sessionDir = join(cwd, ".sinfonia/handoffs", sessionId);
+  const sessionDir = join(cwd, ".sinfonica/handoffs", sessionId);
   const sequence = await nextSequence(sessionDir);
   const filePath = handoffPathFor(cwd, sessionId, sequence, payload.sourcePersona, payload.targetPersona);
   const handoffId = `${sessionId}-${String(sequence).padStart(3, "0")}`;

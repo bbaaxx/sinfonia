@@ -29,5 +29,5 @@ What is the chosen direction?
 
 ## References and Evidence
 
-- `packages/sinfonia/src/`
+- `packages/sinfonica/src/`
 - `specs/`

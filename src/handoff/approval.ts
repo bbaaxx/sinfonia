@@ -127,6 +127,6 @@ export const canProgressPipeline = async (envelopePath: string): Promise<boolean
 };
 
 export const workflowPathForSession = (cwd: string, sessionId: string): string =>
-  join(cwd, ".sinfonia/handoffs", sessionId, "workflow.md");
+  join(cwd, ".sinfonica/handoffs", sessionId, "workflow.md");
 
 export const envelopeDirectory = (envelopePath: string): string => dirname(envelopePath);

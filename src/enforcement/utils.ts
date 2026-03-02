@@ -1,5 +1,5 @@
 /**
- * Shared utilities for the Sinfonia enforcement plugin.
+ * Shared utilities for the Sinfonica enforcement plugin.
  * All functions are pure or async-pure — no side effects beyond filesystem reads.
  */
 
@@ -26,7 +26,7 @@ const SKIP_EXTENSIONS = new Set([
   ".rst",
 ]);
 
-const SKIP_PATH_PREFIXES = ["dist/", "build/", "node_modules/", ".sinfonia/", ".opencode/"];
+const SKIP_PATH_PREFIXES = ["dist/", "build/", "node_modules/", ".sinfonica/", ".opencode/"];
 
 const TEST_FILE_PATTERNS = [
   /\.test\.[tj]sx?$/,
@@ -114,11 +114,11 @@ export function formatBlockMessage(ruleId: string, reason: string, filePath?: st
 // ─── findLatestWorkflowIndex ──────────────────────────────────────────────────
 
 /**
- * Scans .sinfonia/handoffs/ for session directories and returns the path to
+ * Scans .sinfonica/handoffs/ for session directories and returns the path to
  * the most recently modified workflow.md, or null if none exists.
  */
 export async function findLatestWorkflowIndex(cwd: string): Promise<string | null> {
-  const handoffsDir = join(cwd, ".sinfonia", "handoffs");
+  const handoffsDir = join(cwd, ".sinfonica", "handoffs");
 
   let sessionDirs: string[];
   try {
@@ -326,13 +326,13 @@ export async function checkGitDiff(cwd: string): Promise<string[]> {
   }
 }
 
-// ─── loadSinfoniaConfig ───────────────────────────────────────────────────────
+// ─── loadSinfonicaConfig ───────────────────────────────────────────────────────
 
 /**
- * Loads the Sinfonia config from the project directory.
+ * Loads the Sinfonica config from the project directory.
  * Returns null if config cannot be loaded (non-blocking).
  */
-export async function loadSinfoniaConfig(
+export async function loadSinfonicaConfig(
   cwd: string
 ): Promise<{ enforcementStrictness: string } | null> {
   try {

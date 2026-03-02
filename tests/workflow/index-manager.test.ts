@@ -15,7 +15,7 @@ import {
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-workflow-index-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-workflow-index-test-"));
   tempDirs.push(dir);
   return dir;
 };
@@ -84,7 +84,7 @@ describe("workflow index manager", () => {
     const sessionId = "s-20260223-231532";
     const filePath = workflowIndexPath(cwd, sessionId);
     const original = "original-content\n";
-    await mkdir(join(cwd, ".sinfonia/handoffs", sessionId), { recursive: true });
+    await mkdir(join(cwd, ".sinfonica/handoffs", sessionId), { recursive: true });
     await writeFile(filePath, original, "utf8");
 
     await expect(
@@ -92,7 +92,7 @@ describe("workflow index manager", () => {
     ).rejects.toThrow("Simulated crash before rename");
 
     await expect(readFile(filePath, "utf8")).resolves.toBe(original);
-    await expect(access(join(cwd, ".sinfonia/handoffs", sessionId, ".workflow.md.tmp"))).resolves.toBeUndefined();
+    await expect(access(join(cwd, ".sinfonica/handoffs", sessionId, ".workflow.md.tmp"))).resolves.toBeUndefined();
   });
 
   it("round-trips required frontmatter fields", async () => {

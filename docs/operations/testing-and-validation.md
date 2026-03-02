@@ -8,7 +8,7 @@ Back to index: [Documentation Index](../index.md)
 
 ## Purpose
 
-Define the standard verification routine for Sinfonia changes, including test strategy and practical command sequence.
+Define the standard verification routine for Sinfonica changes, including test strategy and practical command sequence.
 
 ## Audience
 
@@ -18,7 +18,7 @@ Contributors and maintainers.
 
 ## Test strategy
 
-Sinfonia relies on layered testing:
+Sinfonica relies on layered testing:
 
 - Unit and module tests for CLI, workflow, handoff, config, persona, and enforcement modules.
 - Integration-oriented tests for workflow behavior and index persistence.
@@ -26,7 +26,7 @@ Sinfonia relies on layered testing:
 
 ## Baseline validation commands
 
-Run from `packages/sinfonia/`:
+Run from `packages/sinfonica/`:
 
 ```bash
 npm run build
@@ -76,10 +76,10 @@ Some tests intentionally trigger errors and warnings to validate guardrails. Tre
 
 ## References and Evidence
 
-- `packages/sinfonia/tests/`
-- `packages/sinfonia/vitest.config.ts`
-- `packages/sinfonia/package.json`
-- `packages/sinfonia/tests/cli/init.test.ts`
-- `packages/sinfonia/tests/workflow/coordinator.test.ts`
-- `packages/sinfonia/tests/workflow/index-manager.test.ts`
-- `packages/sinfonia/tests/self-hosting/acceptance.test.ts`
+- `packages/sinfonica/tests/`
+- `packages/sinfonica/vitest.config.ts`
+- `packages/sinfonica/package.json`
+- `packages/sinfonica/tests/cli/init.test.ts`
+- `packages/sinfonica/tests/workflow/coordinator.test.ts`
+- `packages/sinfonica/tests/workflow/index-manager.test.ts`
+- `packages/sinfonica/tests/self-hosting/acceptance.test.ts`

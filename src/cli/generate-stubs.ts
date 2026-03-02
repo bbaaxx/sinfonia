@@ -11,28 +11,28 @@ export type WorkflowStub = {
 
 export const WORKFLOW_STUBS: WorkflowStub[] = [
   {
-    commandName: "sinfonia-create-prd",
-    description: "Create a PRD with the Sinfonia workflow",
+    commandName: "sinfonica-create-prd",
+    description: "Create a PRD with the Sinfonica workflow",
     workflowId: "create-prd",
-    skillName: "sinfonia-create-prd"
+    skillName: "sinfonica-create-prd"
   },
   {
-    commandName: "sinfonia-create-spec",
-    description: "Create a spec with the Sinfonia workflow",
+    commandName: "sinfonica-create-spec",
+    description: "Create a spec with the Sinfonica workflow",
     workflowId: "create-spec",
-    skillName: "sinfonia-create-spec"
+    skillName: "sinfonica-create-spec"
   },
   {
-    commandName: "sinfonia-dev-story",
-    description: "Implement a story with the Sinfonia workflow",
+    commandName: "sinfonica-dev-story",
+    description: "Implement a story with the Sinfonica workflow",
     workflowId: "dev-story",
-    skillName: "sinfonia-dev-story"
+    skillName: "sinfonica-dev-story"
   },
   {
-    commandName: "sinfonia-code-review",
-    description: "Run a code review with the Sinfonia workflow",
+    commandName: "sinfonica-code-review",
+    description: "Run a code review with the Sinfonica workflow",
     workflowId: "code-review",
-    skillName: "sinfonia-code-review"
+    skillName: "sinfonica-code-review"
   }
 ];
 
@@ -54,7 +54,7 @@ name: ${workflow.commandName}
 description: ${workflow.description}
 ---
 
-Route this request to @sinfonia-maestro and run workflow \`${workflow.workflowId}\`.
+Route this request to @sinfonica-maestro and run workflow \`${workflow.workflowId}\`.
 
 User input: $ARGUMENTS
 

@@ -8,7 +8,7 @@ Back to index: [Documentation Index](../index.md)
 
 ## Purpose
 
-Describe the runtime architecture of Sinfonia, including control flow, persistence boundaries, and enforcement touchpoints.
+Describe the runtime architecture of Sinfonica, including control flow, persistence boundaries, and enforcement touchpoints.
 
 ## Audience
 
@@ -16,15 +16,15 @@ Maintainers and contributors.
 
 ## Main Content
 
-Sinfonia is a local-first TypeScript orchestration framework with a CLI entry surface, workflow runtime core, and policy enforcement layer.
+Sinfonica is a local-first TypeScript orchestration framework with a CLI entry surface, workflow runtime core, and policy enforcement layer.
 
 ### Architectural layers
 
 1. Interface layer (CLI)
 
-- `sinfonia init` scaffolds runtime and persona assets.
-- `sinfonia validate` checks persona markdown contracts.
-- `sinfonia rules` lists active enforcement rules.
+- `sinfonica init` scaffolds runtime and persona assets.
+- `sinfonica validate` checks persona markdown contracts.
+- `sinfonica rules` lists active enforcement rules.
 
 2. Orchestration layer (workflow + handoff)
 
@@ -54,9 +54,9 @@ Sinfonia is a local-first TypeScript orchestration framework with a CLI entry su
 
 ### Data and persistence boundaries
 
-- Session state is stored in `.sinfonia/handoffs/<sessionId>/workflow.md`.
+- Session state is stored in `.sinfonica/handoffs/<sessionId>/workflow.md`.
 - Handoff envelopes are stored under session-specific handoff paths.
-- Workflow definitions and step files are loaded from `.sinfonia/workflows/<name>/`.
+- Workflow definitions and step files are loaded from `.sinfonica/workflows/<name>/`.
 - Config is resolved from defaults, project config, env vars, and CLI flags.
 
 Atomicity and resilience:
@@ -79,16 +79,16 @@ Atomicity and resilience:
 
 ## References and Evidence
 
-- `packages/sinfonia/src/`
-- `packages/sinfonia/tests/`
-- `packages/sinfonia/src/cli/program.ts`
-- `packages/sinfonia/src/cli/init.ts`
-- `packages/sinfonia/src/workflow/coordinator.ts`
-- `packages/sinfonia/src/workflow/step-engine.ts`
-- `packages/sinfonia/src/workflow/index-manager.ts`
-- `packages/sinfonia/src/handoff/writer.ts`
-- `packages/sinfonia/src/handoff/approval.ts`
-- `packages/sinfonia/src/handoff/validator.ts`
-- `packages/sinfonia/src/enforcement/registry.ts`
-- `packages/sinfonia/src/persona/loader.ts`
-- `packages/sinfonia/tests/workflow/coordinator.test.ts`
+- `packages/sinfonica/src/`
+- `packages/sinfonica/tests/`
+- `packages/sinfonica/src/cli/program.ts`
+- `packages/sinfonica/src/cli/init.ts`
+- `packages/sinfonica/src/workflow/coordinator.ts`
+- `packages/sinfonica/src/workflow/step-engine.ts`
+- `packages/sinfonica/src/workflow/index-manager.ts`
+- `packages/sinfonica/src/handoff/writer.ts`
+- `packages/sinfonica/src/handoff/approval.ts`
+- `packages/sinfonica/src/handoff/validator.ts`
+- `packages/sinfonica/src/enforcement/registry.ts`
+- `packages/sinfonica/src/persona/loader.ts`
+- `packages/sinfonica/tests/workflow/coordinator.test.ts`

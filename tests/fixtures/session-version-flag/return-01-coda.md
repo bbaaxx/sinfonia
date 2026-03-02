@@ -7,16 +7,16 @@ source_persona: coda
 target_persona: maestro
 status: completed
 created_at: 2026-02-24T12:30:00Z
-word_count: 319
+word_count: 325
 ---
 
 # Return Envelope: session-version-flag#001
 
-Source: @sinfonia-coda → Target: @sinfonia-maestro
+Source: @sinfonica-coda → Target: @sinfonica-maestro
 
 ## Artifacts
 
-- `src/cli/program.ts` updated to wire `sinfonia/<version>` and `-V, --version`
+- `src/cli/program.ts` updated to wire `sinfonica/<version>` and `-V, --version`
 - `tests/cli/version.test.ts` added
 - `tests/cli/program.test.ts` updated to match dynamic package version
 
@@ -24,9 +24,9 @@ Source: @sinfonia-coda → Target: @sinfonia-maestro
 
 Two files changed, one file created:
 
-- **`src/cli/program.ts`** — Added `createRequire` import and dynamic `pkg` load from `../../package.json`. Replaced hardcoded `.version("0.0.0")` with `.version(\`sinfonia/${pkg.version}\`, "-V, --version")`.
-- **`tests/cli/version.test.ts`** *(new)* — Unit tests covering both `--version` format (`sinfonia/<version>`) and `-V` alias registration.
-- **`tests/cli/program.test.ts`** — Updated existing metadata test (line 11) to expect `sinfonia/${pkg.version}` instead of the now-stale `"0.0.0"` literal.
+- **`src/cli/program.ts`** — Added `createRequire` import and dynamic `pkg` load from `../../package.json`. Replaced hardcoded `.version("0.0.0")` with `.version(\`sinfonica/${pkg.version}\`, "-V, --version")`.
+- **`tests/cli/version.test.ts`** _(new)_ — Unit tests covering both `--version` format (`sinfonica/<version>`) and `-V` alias registration.
+- **`tests/cli/program.test.ts`** — Updated existing metadata test (line 11) to expect `sinfonica/${pkg.version}` instead of the now-stale `"0.0.0"` literal.
 
 ## Completion Assessment
 
@@ -61,7 +61,7 @@ New test file results:
 
 ```
 ✓ tests/cli/version.test.ts (2 tests) 2ms
-  ✓ reports version in sinfonia/<version> format
+  ✓ reports version in sinfonica/<version> format
   ✓ registers -V as the version flag alias
 ```
 
@@ -69,14 +69,14 @@ All pre-existing tests remain green. Stderr output present in other test files c
 
 ## Acceptance Criteria Verification
 
-| # | Criterion | Result |
-|---|-----------|--------|
-| 1 | `sinfonia --version` prints `sinfonia/x.y.z` from `package.json` | ✓ |
-| 2 | `sinfonia -V` alias produces the same output | ✓ |
-| 3 | Output format is exactly `sinfonia/<version>` | ✓ |
-| 4 | Unit test at `tests/cli/version.test.ts` covering both flags | ✓ |
-| 5 | Build passes with no errors | ✓ |
-| 6 | All pre-existing tests remain green | ✓ |
+| #   | Criterion                                                          | Result |
+| --- | ------------------------------------------------------------------ | ------ |
+| 1   | `sinfonica --version` prints `sinfonica/x.y.z` from `package.json` | ✓      |
+| 2   | `sinfonica -V` alias produces the same output                      | ✓      |
+| 3   | Output format is exactly `sinfonica/<version>`                     | ✓      |
+| 4   | Unit test at `tests/cli/version.test.ts` covering both flags       | ✓      |
+| 5   | Build passes with no errors                                        | ✓      |
+| 6   | All pre-existing tests remain green                                | ✓      |
 
 ## Next Steps
 

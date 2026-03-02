@@ -8,7 +8,7 @@ Back to index: [Documentation Index](../index.md)
 
 ## Purpose
 
-Define the major Sinfonia components, their responsibilities, and how they interact at runtime.
+Define the major Sinfonica components, their responsibilities, and how they interact at runtime.
 
 ## Audience
 
@@ -16,7 +16,7 @@ Maintainers and contributors.
 
 ## Main Content
 
-Sinfonia is organized into focused modules with explicit interfaces between orchestration, state, validation, and enforcement concerns.
+Sinfonica is organized into focused modules with explicit interfaces between orchestration, state, validation, and enforcement concerns.
 
 ## Component Catalog
 
@@ -29,7 +29,7 @@ Sinfonia is organized into focused modules with explicit interfaces between orch
 
 `src/cli/init.ts`
 
-- Bootstraps `.sinfonia/` project structure.
+- Bootstraps `.sinfonica/` project structure.
 - Generates persona assets, workflow stubs, and enforcement plugin wiring.
 - Supports interactive wizard and non-interactive modes.
 
@@ -116,16 +116,16 @@ Sinfonia is organized into focused modules with explicit interfaces between orch
 
 ## References and Evidence
 
-- `packages/sinfonia/src/`
-- `packages/sinfonia/src/cli/program.ts`
-- `packages/sinfonia/src/cli/init.ts`
-- `packages/sinfonia/src/cli/validate.ts`
-- `packages/sinfonia/src/cli/rules.ts`
-- `packages/sinfonia/src/workflow/coordinator.ts`
-- `packages/sinfonia/src/workflow/step-engine.ts`
-- `packages/sinfonia/src/workflow/index-manager.ts`
-- `packages/sinfonia/src/handoff/types.ts`
-- `packages/sinfonia/src/handoff/writer.ts`
-- `packages/sinfonia/src/handoff/approval.ts`
-- `packages/sinfonia/src/enforcement/registry.ts`
-- `packages/sinfonia/src/config/loader.ts`
+- `packages/sinfonica/src/`
+- `packages/sinfonica/src/cli/program.ts`
+- `packages/sinfonica/src/cli/init.ts`
+- `packages/sinfonica/src/cli/validate.ts`
+- `packages/sinfonica/src/cli/rules.ts`
+- `packages/sinfonica/src/workflow/coordinator.ts`
+- `packages/sinfonica/src/workflow/step-engine.ts`
+- `packages/sinfonica/src/workflow/index-manager.ts`
+- `packages/sinfonica/src/handoff/types.ts`
+- `packages/sinfonica/src/handoff/writer.ts`
+- `packages/sinfonica/src/handoff/approval.ts`
+- `packages/sinfonica/src/enforcement/registry.ts`
+- `packages/sinfonica/src/config/loader.ts`

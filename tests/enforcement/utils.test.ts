@@ -133,19 +133,19 @@ describe("findLatestWorkflowIndex", () => {
     await rm(tmpDir, { recursive: true, force: true });
   });
 
-  it("returns null when no .sinfonia/handoffs directory exists", async () => {
+  it("returns null when no .sinfonica/handoffs directory exists", async () => {
     const result = await findLatestWorkflowIndex(tmpDir);
     expect(result).toBeNull();
   });
 
   it("returns null when handoffs directory is empty", async () => {
-    await mkdir(join(tmpDir, ".sinfonia/handoffs"), { recursive: true });
+    await mkdir(join(tmpDir, ".sinfonica/handoffs"), { recursive: true });
     const result = await findLatestWorkflowIndex(tmpDir);
     expect(result).toBeNull();
   });
 
   it("returns path to workflow.md when one session exists", async () => {
-    const sessionDir = join(tmpDir, ".sinfonia/handoffs/session-abc");
+    const sessionDir = join(tmpDir, ".sinfonica/handoffs/session-abc");
     await mkdir(sessionDir, { recursive: true });
     await writeFile(join(sessionDir, "workflow.md"), "---\nworkflow_id: test\n---\n");
     const result = await findLatestWorkflowIndex(tmpDir);
@@ -153,8 +153,8 @@ describe("findLatestWorkflowIndex", () => {
   });
 
   it("returns the most recently modified workflow.md when multiple sessions exist", async () => {
-    const dir1 = join(tmpDir, ".sinfonia/handoffs/session-old");
-    const dir2 = join(tmpDir, ".sinfonia/handoffs/session-new");
+    const dir1 = join(tmpDir, ".sinfonica/handoffs/session-old");
+    const dir2 = join(tmpDir, ".sinfonica/handoffs/session-new");
     await mkdir(dir1, { recursive: true });
     await mkdir(dir2, { recursive: true });
     await writeFile(join(dir1, "workflow.md"), "old");

@@ -19,7 +19,7 @@ async function checkBuildFreshness(): Promise<void> {
 
     if (srcStat.mtimeMs > distStat.mtimeMs) {
       console.error(
-        "\x1b[33m⚠ Sinfonia build may be stale. Run 'npm run build' to recompile.\x1b[0m"
+        "\x1b[33m⚠ Sinfonica build may be stale. Run 'npm run build' to recompile.\x1b[0m"
       );
     }
   } catch {

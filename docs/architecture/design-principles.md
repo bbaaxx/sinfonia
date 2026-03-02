@@ -8,7 +8,7 @@ Back to index: [Documentation Index](../index.md)
 
 ## Purpose
 
-Capture the guiding principles behind Sinfonia so future changes preserve behavior consistency, safety, and maintainability.
+Capture the guiding principles behind Sinfonica so future changes preserve behavior consistency, safety, and maintainability.
 
 ## Audience
 
@@ -64,7 +64,7 @@ Implication:
 
 ### 5) Compose from small, testable modules
 
-Sinfonia favors focused modules (CLI, workflow, handoff, persona, enforcement, config) with clear boundaries.
+Sinfonica favors focused modules (CLI, workflow, handoff, persona, enforcement, config) with clear boundaries.
 
 Implication:
 
@@ -74,7 +74,7 @@ Implication:
 
 Operational behavior should remain inspectable through CLI output, workflow records, and rule listings.
 
-- `sinfonia rules` makes active safeguards visible.
+- `sinfonica rules` makes active safeguards visible.
 - Workflow and handoff artifacts make execution history auditable.
 
 Implication:
@@ -97,14 +97,14 @@ Implication:
 
 ## References and Evidence
 
-- `packages/sinfonia/src/`
+- `packages/sinfonica/src/`
 - `specs/`
-- `packages/sinfonia/src/workflow/coordinator.ts`
-- `packages/sinfonia/src/workflow/index-manager.ts`
-- `packages/sinfonia/src/workflow/types.ts`
-- `packages/sinfonia/src/handoff/types.ts`
-- `packages/sinfonia/src/enforcement/registry.ts`
-- `packages/sinfonia/src/enforcement/rules/enf-001-tdd.ts`
-- `packages/sinfonia/src/cli/rules.ts`
-- `specs/SPEC-06-sinfonia-documentation-agent-primer.md`
-- `specs/SPEC-07-sinfonia-documentation-artifact-map.md`
+- `packages/sinfonica/src/workflow/coordinator.ts`
+- `packages/sinfonica/src/workflow/index-manager.ts`
+- `packages/sinfonica/src/workflow/types.ts`
+- `packages/sinfonica/src/handoff/types.ts`
+- `packages/sinfonica/src/enforcement/registry.ts`
+- `packages/sinfonica/src/enforcement/rules/enf-001-tdd.ts`
+- `packages/sinfonica/src/cli/rules.ts`
+- `specs/SPEC-06-sinfonica-documentation-agent-primer.md`
+- `specs/SPEC-07-sinfonica-documentation-artifact-map.md`

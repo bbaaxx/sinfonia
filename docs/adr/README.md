@@ -2,7 +2,7 @@
 
 **Status:** Draft
 **Last Updated:** 2026-02-26
-**Scope:** Index of durable technical decisions for Sinfonia
+**Scope:** Index of durable technical decisions for Sinfonica
 
 Back to index: [Documentation Index](../index.md)
 

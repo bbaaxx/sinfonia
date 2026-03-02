@@ -24,7 +24,7 @@ const exists = async (path: string): Promise<boolean> => {
 const tempDirs: string[] = [];
 
 const makeTempDir = async (): Promise<string> => {
-  const dir = await mkdtemp(join(tmpdir(), "sinfonia-init-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "sinfonica-init-test-"));
   tempDirs.push(dir);
   return dir;
 };
@@ -43,49 +43,49 @@ describe("initProject", () => {
 
     await initProject(cwd);
 
-    await expect(stat(join(cwd, ".sinfonia/agents"))).resolves.toBeDefined();
-    await expect(stat(join(cwd, ".sinfonia/handoffs"))).resolves.toBeDefined();
-    await expect(stat(join(cwd, ".sinfonia/memory"))).resolves.toBeDefined();
+    await expect(stat(join(cwd, ".sinfonica/agents"))).resolves.toBeDefined();
+    await expect(stat(join(cwd, ".sinfonica/handoffs"))).resolves.toBeDefined();
+    await expect(stat(join(cwd, ".sinfonica/memory"))).resolves.toBeDefined();
 
-    await expect(readFile(join(cwd, ".sinfonia/config.yaml"), "utf8")).resolves.toContain("version:");
+    await expect(readFile(join(cwd, ".sinfonica/config.yaml"), "utf8")).resolves.toContain("version:");
 
     for (const persona of FRAMEWORK_PERSONAS) {
-      await expect(readFile(join(cwd, ".sinfonia/agents", `${persona.id}.md`), "utf8")).resolves.toContain(
+      await expect(readFile(join(cwd, ".sinfonica/agents", `${persona.id}.md`), "utf8")).resolves.toContain(
         `persona_id: ${persona.id}`
       );
-      await expect(readFile(join(cwd, ".opencode/agent", `sinfonia-${persona.id}.md`), "utf8")).resolves.toContain(
-        `name: sinfonia-${persona.id}`
+      await expect(readFile(join(cwd, ".opencode/agent", `sinfonica-${persona.id}.md`), "utf8")).resolves.toContain(
+        `name: sinfonica-${persona.id}`
       );
     }
 
-    const pluginContent = await readFile(join(cwd, ".opencode/plugins/sinfonia-enforcement.ts"), "utf8");
+    const pluginContent = await readFile(join(cwd, ".opencode/plugins/sinfonica-enforcement.ts"), "utf8");
     expect(pluginContent).toContain("import type { Plugin }");
-    expect(pluginContent).toContain("SinfoniaEnforcement");
+    expect(pluginContent).toContain("SinfonicaEnforcement");
     expect(pluginContent).toContain("tool.execute.before");
     expect(pluginContent).toContain("createTddEnforcerHandler");
-    await expect(readFile(join(cwd, "opencode.json"), "utf8")).resolves.toContain("sinfonia");
+    await expect(readFile(join(cwd, "opencode.json"), "utf8")).resolves.toContain("sinfonica");
   });
 
   it("is idempotent and preserves customized files", async () => {
     const cwd = await makeTempDir();
 
     await initProject(cwd);
-    await writeFile(join(cwd, ".sinfonia/config.yaml"), "custom: true\n", "utf8");
-    await writeFile(join(cwd, ".opencode/agent/sinfonia-maestro.md"), "custom-stub\n", "utf8");
+    await writeFile(join(cwd, ".sinfonica/config.yaml"), "custom: true\n", "utf8");
+    await writeFile(join(cwd, ".opencode/agent/sinfonica-maestro.md"), "custom-stub\n", "utf8");
 
     await initProject(cwd);
 
-    await expect(readFile(join(cwd, ".sinfonia/config.yaml"), "utf8")).resolves.toBe("custom: true\n");
-    await expect(readFile(join(cwd, ".opencode/agent/sinfonia-maestro.md"), "utf8")).resolves.not.toBe(
+    await expect(readFile(join(cwd, ".sinfonica/config.yaml"), "utf8")).resolves.toBe("custom: true\n");
+    await expect(readFile(join(cwd, ".opencode/agent/sinfonica-maestro.md"), "utf8")).resolves.not.toBe(
       "custom-stub\n"
     );
   });
 
-  it("fails when .sinfonia exists as a file", async () => {
+  it("fails when .sinfonica exists as a file", async () => {
     const cwd = await makeTempDir();
-    await writeFile(join(cwd, ".sinfonia"), "not-a-directory", "utf8");
+    await writeFile(join(cwd, ".sinfonica"), "not-a-directory", "utf8");
 
-    await expect(initProject(cwd)).rejects.toThrow(".sinfonia exists as a file");
+    await expect(initProject(cwd)).rejects.toThrow(".sinfonica exists as a file");
   });
 
   it("fails with permission error when project root is not writable", async () => {
@@ -109,11 +109,11 @@ describe("initProject", () => {
     const cwd = await makeTempDir();
 
     await initProject(cwd);
-    await writeFile(join(cwd, ".sinfonia/config.yaml"), "custom: true\n", "utf8");
+    await writeFile(join(cwd, ".sinfonica/config.yaml"), "custom: true\n", "utf8");
 
     await runInitCommand({ cwd, yes: true });
 
-    await expect(readFile(join(cwd, ".sinfonia/config.yaml"), "utf8")).resolves.toBe("custom: true\n");
+    await expect(readFile(join(cwd, ".sinfonica/config.yaml"), "utf8")).resolves.toBe("custom: true\n");
   });
 
   it("supports re-init flow and overwrites config when selected", async () => {
@@ -127,23 +127,23 @@ describe("initProject", () => {
       prompt: async () => answers.shift() ?? ""
     });
 
-    const config = await readFile(join(cwd, ".sinfonia/config.yaml"), "utf8");
+    const config = await readFile(join(cwd, ".sinfonica/config.yaml"), "utf8");
     expect(config).toContain('project_name: "My App"');
     expect(config).toContain('user_name: "Dana"');
     expect(config).toContain("skill_level: expert");
     expect(config).toContain("enforcement_strictness: low");
   });
 
-  it("stamps sinfonia_version in config on init", async () => {
+  it("stamps sinfonica_version in config on init", async () => {
     const cwd = await makeTempDir();
 
     await initProject(cwd);
 
-    const config = await readFile(join(cwd, ".sinfonia/config.yaml"), "utf8");
-    expect(config).toContain(`sinfonia_version: "${FRAMEWORK_VERSION}"`);
+    const config = await readFile(join(cwd, ".sinfonica/config.yaml"), "utf8");
+    expect(config).toContain(`sinfonica_version: "${FRAMEWORK_VERSION}"`);
   });
 
-  it("updates sinfonia_version on re-init without overwriting other config values", async () => {
+  it("updates sinfonica_version on re-init without overwriting other config values", async () => {
     const cwd = await makeTempDir();
 
     await initProject(cwd, {
@@ -151,16 +151,16 @@ describe("initProject", () => {
     });
 
     // Simulate a previous install by replacing the version stamp
-    const configPath = join(cwd, ".sinfonia/config.yaml");
+    const configPath = join(cwd, ".sinfonica/config.yaml");
     let content = await readFile(configPath, "utf8");
-    content = content.replace(/^sinfonia_version:.*$/m, 'sinfonia_version: "old"');
+    content = content.replace(/^sinfonica_version:.*$/m, 'sinfonica_version: "old"');
     await writeFile(configPath, content, "utf8");
 
     // Re-init without overwriting config
     await initProject(cwd);
 
     const updated = await readFile(configPath, "utf8");
-    expect(updated).toContain(`sinfonia_version: "${FRAMEWORK_VERSION}"`);
+    expect(updated).toContain(`sinfonica_version: "${FRAMEWORK_VERSION}"`);
     expect(updated).toContain('project_name: "My App"');
     expect(updated).toContain('user_name: "Dana"');
     expect(updated).toContain("skill_level: expert");
@@ -193,7 +193,7 @@ describe("initProject --force", () => {
 
     await initProject(cwd);
 
-    const pluginPath = join(cwd, ".opencode/plugins/sinfonia-enforcement.ts");
+    const pluginPath = join(cwd, ".opencode/plugins/sinfonica-enforcement.ts");
     await writeFile(pluginPath, "custom-plugin\n", "utf8");
 
     await initProject(cwd, { force: true });
@@ -201,17 +201,17 @@ describe("initProject --force", () => {
     const content = await readFile(pluginPath, "utf8");
     expect(content).not.toBe("custom-plugin\n");
     expect(content).toContain("import type { Plugin }");
-    expect(content).toContain("SinfoniaEnforcement");
+    expect(content).toContain("SinfonicaEnforcement");
     expect(content).toContain("tool.execute.before");
     expect(content).toContain("createTddEnforcerHandler");
   });
 
-  it("overwrites .sinfonia/agents/ personas with --force", async () => {
+  it("overwrites .sinfonica/agents/ personas with --force", async () => {
     const cwd = await makeTempDir();
 
     await initProject(cwd);
 
-    const personaPath = join(cwd, ".sinfonia/agents/maestro.md");
+    const personaPath = join(cwd, ".sinfonica/agents/maestro.md");
     await writeFile(personaPath, "custom-persona\n", "utf8");
 
     await initProject(cwd, { force: true });
@@ -226,8 +226,8 @@ describe("initProject --force", () => {
 
     await initProject(cwd);
 
-    const agentPath = join(cwd, ".opencode/agent/sinfonia-maestro.md");
-    const customContent = `---\nname: sinfonia-maestro\ncustomized: true\n---\n\ncustom-body\n`;
+    const agentPath = join(cwd, ".opencode/agent/sinfonica-maestro.md");
+    const customContent = `---\nname: sinfonica-maestro\ncustomized: true\n---\n\ncustom-body\n`;
     await writeFile(agentPath, customContent, "utf8");
 
     await initProject(cwd, { force: true });
@@ -246,7 +246,7 @@ describe("initProject --force", () => {
 
     await initProject(cwd, { force: true });
 
-    const config = await readFile(join(cwd, ".sinfonia/config.yaml"), "utf8");
+    const config = await readFile(join(cwd, ".sinfonica/config.yaml"), "utf8");
     expect(config).toContain('project_name: "My App"');
     expect(config).toContain('user_name: "Alex"');
     expect(config).toContain("skill_level: expert");

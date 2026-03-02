@@ -1,7 +1,7 @@
 /**
  * Clean Init Test — P1-EXIT-8
  *
- * Verifies that `sinfonia init --yes` on a clean directory produces all
+ * Verifies that `sinfonica init --yes` on a clean directory produces all
  * expected files and that the generated personas validate with 0 errors.
  */
 
@@ -16,16 +16,16 @@ import { validatePersonaPaths } from "../../src/validators/persona/validator.js"
 
 const execFileAsync = promisify(execFile);
 
-// Path to the built sinfonia CLI binary
-const SINFONIA_BIN = join(import.meta.dirname, "../../dist/cli/index.js");
+// Path to the built sinfonica CLI binary
+const SINFONICA_BIN = join(import.meta.dirname, "../../dist/cli/index.js");
 
-describe("Clean Init (P1-EXIT-8): sinfonia init --yes on a clean directory", () => {
+describe("Clean Init (P1-EXIT-8): sinfonica init --yes on a clean directory", () => {
   let tmpDir: string;
 
   beforeAll(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), "sinfonia-clean-init-"));
-    // Run sinfonia init --yes in the temp directory
-    await execFileAsync("node", [SINFONIA_BIN, "init", "--yes"], {
+    tmpDir = await mkdtemp(join(tmpdir(), "sinfonica-clean-init-"));
+    // Run sinfonica init --yes in the temp directory
+    await execFileAsync("node", [SINFONICA_BIN, "init", "--yes"], {
       cwd: tmpDir,
     });
   });
@@ -38,27 +38,27 @@ describe("Clean Init (P1-EXIT-8): sinfonia init --yes on a clean directory", () 
 
   // ── Generated file presence ──────────────────────────────────────────────
 
-  it("generates .sinfonia/agents/ directory", async () => {
-    await expect(access(join(tmpDir, ".sinfonia/agents"))).resolves.toBeUndefined();
+  it("generates .sinfonica/agents/ directory", async () => {
+    await expect(access(join(tmpDir, ".sinfonica/agents"))).resolves.toBeUndefined();
   });
 
-  it("generates .sinfonia/handoffs/ directory", async () => {
-    await expect(access(join(tmpDir, ".sinfonia/handoffs"))).resolves.toBeUndefined();
+  it("generates .sinfonica/handoffs/ directory", async () => {
+    await expect(access(join(tmpDir, ".sinfonica/handoffs"))).resolves.toBeUndefined();
   });
 
-  it("generates .sinfonia/memory/ directory", async () => {
-    await expect(access(join(tmpDir, ".sinfonia/memory"))).resolves.toBeUndefined();
+  it("generates .sinfonica/memory/ directory", async () => {
+    await expect(access(join(tmpDir, ".sinfonica/memory"))).resolves.toBeUndefined();
   });
 
-  it("generates .sinfonia/config.yaml", async () => {
-    await expect(access(join(tmpDir, ".sinfonia/config.yaml"))).resolves.toBeUndefined();
+  it("generates .sinfonica/config.yaml", async () => {
+    await expect(access(join(tmpDir, ".sinfonica/config.yaml"))).resolves.toBeUndefined();
   });
 
-  it("generates all 6 persona files in .sinfonia/agents/", async () => {
+  it("generates all 6 persona files in .sinfonica/agents/", async () => {
     const personas = ["maestro", "libretto", "amadeus", "coda", "rondo", "metronome"];
     for (const persona of personas) {
       await expect(
-        access(join(tmpDir, `.sinfonia/agents/${persona}.md`))
+        access(join(tmpDir, `.sinfonica/agents/${persona}.md`))
       ).resolves.toBeUndefined();
     }
   });
@@ -68,7 +68,7 @@ describe("Clean Init (P1-EXIT-8): sinfonia init --yes on a clean directory", () 
     const personas = ["maestro", "libretto", "amadeus", "coda", "rondo", "metronome"];
     for (const persona of personas) {
       await expect(
-        access(join(tmpDir, `.opencode/agent/sinfonia-${persona}.md`))
+        access(join(tmpDir, `.opencode/agent/sinfonica-${persona}.md`))
       ).resolves.toBeUndefined();
     }
   });
@@ -78,7 +78,7 @@ describe("Clean Init (P1-EXIT-8): sinfonia init --yes on a clean directory", () 
     const commands = ["dev-story", "code-review", "create-prd", "create-spec"];
     for (const cmd of commands) {
       await expect(
-        access(join(tmpDir, `.opencode/command/sinfonia-${cmd}.md`))
+        access(join(tmpDir, `.opencode/command/sinfonica-${cmd}.md`))
       ).resolves.toBeUndefined();
     }
   });
@@ -88,14 +88,14 @@ describe("Clean Init (P1-EXIT-8): sinfonia init --yes on a clean directory", () 
     const skills = ["dev-story", "code-review", "create-prd", "create-spec"];
     for (const skill of skills) {
       await expect(
-        access(join(tmpDir, `.opencode/skills/sinfonia-${skill}`))
+        access(join(tmpDir, `.opencode/skills/sinfonica-${skill}`))
       ).resolves.toBeUndefined();
     }
   });
 
-  it("generates .opencode/plugins/sinfonia-enforcement.ts", async () => {
+  it("generates .opencode/plugins/sinfonica-enforcement.ts", async () => {
     await expect(
-      access(join(tmpDir, ".opencode/plugins/sinfonia-enforcement.ts"))
+      access(join(tmpDir, ".opencode/plugins/sinfonica-enforcement.ts"))
     ).resolves.toBeUndefined();
   });
 
@@ -113,15 +113,15 @@ describe("Clean Init (P1-EXIT-8): sinfonia init --yes on a clean directory", () 
     expect(config.agent).toBeDefined();
     expect(config.agents).toBeUndefined();
 
-    // Must NOT have `plugins` or `sinfonia` keys (not part of opencode schema)
+    // Must NOT have `plugins` or `sinfonica` keys (not part of opencode schema)
     expect(config.plugins).toBeUndefined();
-    expect(config.sinfonia).toBeUndefined();
+    expect(config.sinfonica).toBeUndefined();
 
     const agent = config.agent as Record<string, unknown>;
     const expectedPersonas = ["maestro", "libretto", "amadeus", "coda", "rondo", "metronome"];
 
     for (const persona of expectedPersonas) {
-      const key = `sinfonia-${persona}`;
+      const key = `sinfonica-${persona}`;
       const entry = agent[key] as Record<string, unknown>;
       expect(entry).toBeDefined();
       // Each entry must have mode, tools, description — not a path string
@@ -137,7 +137,7 @@ describe("Clean Init (P1-EXIT-8): sinfonia init --yes on a clean directory", () 
     }
 
     // Maestro must be primary mode with full tool access
-    const maestro = agent["sinfonia-maestro"] as Record<string, unknown>;
+    const maestro = agent["sinfonica-maestro"] as Record<string, unknown>;
     expect(maestro.mode).toBe("primary");
     const maestroTools = maestro.tools as Record<string, boolean>;
     expect(maestroTools.read).toBe(true);
@@ -146,7 +146,7 @@ describe("Clean Init (P1-EXIT-8): sinfonia init --yes on a clean directory", () 
     expect(maestroTools.bash).toBe(true);
 
     // Metronome must be subagent with read-only tools
-    const metronome = agent["sinfonia-metronome"] as Record<string, unknown>;
+    const metronome = agent["sinfonica-metronome"] as Record<string, unknown>;
     expect(metronome.mode).toBe("subagent");
     const metronomeTools = metronome.tools as Record<string, boolean>;
     expect(metronomeTools.read).toBe(true);
@@ -159,7 +159,7 @@ describe("Clean Init (P1-EXIT-8): sinfonia init --yes on a clean directory", () 
 
   it("all 6 generated personas validate with 0 errors (validate agents dir)", async () => {
     const result = await validatePersonaPaths(
-      join(tmpDir, ".sinfonia/agents"),
+      join(tmpDir, ".sinfonica/agents"),
       true
     );
     expect(result.errorCount).toBe(0);
@@ -168,7 +168,7 @@ describe("Clean Init (P1-EXIT-8): sinfonia init --yes on a clean directory", () 
   for (const persona of ["maestro", "libretto", "amadeus", "coda", "rondo", "metronome"]) {
     it(`generated ${persona}.md has 0 validation errors`, async () => {
       const result = await validatePersonaPaths(
-        join(tmpDir, `.sinfonia/agents/${persona}.md`),
+        join(tmpDir, `.sinfonica/agents/${persona}.md`),
         false
       );
       const fileResult = result.files[0];

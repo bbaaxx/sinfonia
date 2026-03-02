@@ -8,7 +8,7 @@ Back to index: [Documentation Index](../index.md)
 
 ## Purpose
 
-Document the core runtime types and behavioral contracts that define Sinfonia orchestration semantics.
+Document the core runtime types and behavioral contracts that define Sinfonica orchestration semantics.
 
 ## Audience
 
@@ -166,13 +166,13 @@ Exit code contracts:
 
 ## References and Evidence
 
-- `packages/sinfonia/src/`
-- `packages/sinfonia/tests/`
-- `packages/sinfonia/src/workflow/types.ts`
-- `packages/sinfonia/src/workflow/index-manager.ts`
-- `packages/sinfonia/src/handoff/types.ts`
-- `packages/sinfonia/src/handoff/validator.ts`
-- `packages/sinfonia/src/enforcement/registry.ts`
-- `packages/sinfonia/src/cli/program.ts`
-- `packages/sinfonia/tests/workflow/index-manager.test.ts`
-- `packages/sinfonia/tests/self-hosting/acceptance.test.ts`
+- `packages/sinfonica/src/`
+- `packages/sinfonica/tests/`
+- `packages/sinfonica/src/workflow/types.ts`
+- `packages/sinfonica/src/workflow/index-manager.ts`
+- `packages/sinfonica/src/handoff/types.ts`
+- `packages/sinfonica/src/handoff/validator.ts`
+- `packages/sinfonica/src/enforcement/registry.ts`
+- `packages/sinfonica/src/cli/program.ts`
+- `packages/sinfonica/tests/workflow/index-manager.test.ts`
+- `packages/sinfonica/tests/self-hosting/acceptance.test.ts`
