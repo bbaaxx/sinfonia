@@ -28,6 +28,7 @@ import { validateHandoffEnvelope } from '../handoff/validator.js';
 import { applyApprovalDecision } from '../handoff/approval.js';
 import { formatDelegationContext, trackDelegation } from '../persona/delegation.js';
 import { emitWorkflowMetric } from './metrics.js';
+import { validateCreateSpecStageReport, type CreateSpecStageReportStatus } from './create-spec-contracts.js';
 import type { WorkflowIndex, WorkflowStatus } from './types.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -88,10 +89,13 @@ export interface ResumeResult {
 }
 
 export interface OrchestrationCueInput {
+  stageId?: string;
+  status?: CreateSpecStageReportStatus;
   stageStatus: string;
   blockers?: string[];
   nextAction: string;
   approvalRequired: boolean;
+  artifacts?: string[];
 }
 
 /**
@@ -102,12 +106,29 @@ export function formatOrchestrationCue(input: OrchestrationCueInput): string {
   const blockers = (input.blockers ?? []).filter((value) => value.trim().length > 0);
   const blockerText = blockers.length > 0 ? blockers.join('; ') : 'None';
   const approval = input.approvalRequired ? 'Yes' : 'No';
+  const approvalRequirement = input.approvalRequired ? 'required' : 'not_required';
+  const artifacts = (input.artifacts ?? []).filter((value) => value.trim().length > 0);
+  const status = input.status ?? (blockers.length > 0 ? 'blocked' : input.approvalRequired ? 'awaiting_approval' : 'in_progress');
+
+  validateCreateSpecStageReport({
+    stage_id: input.stageId ?? 'coordinator-orchestration',
+    status,
+    blockers: blockerText,
+    next_action: input.nextAction,
+    approval_requirement: approvalRequirement,
+    artifacts,
+  });
 
   return [
     `Stage Status: ${input.stageStatus}`,
     `Blockers: ${blockerText}`,
     `Next Action: ${input.nextAction}`,
     `Approval Required: ${approval}`,
+    `status: ${status}`,
+    `blockers: ${blockerText}`,
+    `next_action: ${input.nextAction}`,
+    `approval_requirement: ${approvalRequirement}`,
+    `artifacts: ${artifacts.length > 0 ? artifacts.join(', ') : 'none'}`,
   ].join('\n');
 }
 
@@ -265,10 +286,13 @@ export async function dispatchStep(
     envelopePath,
     delegationContext,
     orchestrationCue: formatOrchestrationCue({
+      stageId: `${stepIndex + 1}-${workflowName}`,
+      status: workflowName === 'create-spec' ? 'awaiting_approval' : 'in_progress',
       stageStatus: `Stage ${stepIndex + 1} dispatched to ${persona} for ${workflowName}.`,
       blockers: [],
       nextAction: `Wait for ${persona} return envelope and run approval gate.`,
-      approvalRequired: false,
+      approvalRequired: workflowName === 'create-spec',
+      artifacts: envelopePath ? [envelopePath] : [],
     }),
   };
 }
@@ -361,6 +385,8 @@ export async function processReturnEnvelope(
         nextStepIndex,
         workflowIndex,
         orchestrationCue: formatOrchestrationCue({
+          stageId: isComplete ? '05-report' : `step-${nextStepIndex}`,
+          status: isComplete ? 'complete' : 'in_progress',
           stageStatus: isComplete
             ? 'Pipeline complete after approval.'
             : `Pipeline advanced to step ${nextStepIndex}.`,
@@ -368,7 +394,8 @@ export async function processReturnEnvelope(
           nextAction: isComplete
             ? 'Publish final summary and confirm follow-up needs.'
             : `Dispatch next step at index ${nextStepIndex}.`,
-          approvalRequired: false,
+          approvalRequired: isComplete,
+          artifacts: [envelopePath],
         }),
       };
     } catch (err) {
@@ -378,10 +405,13 @@ export async function processReturnEnvelope(
         outcome: 'advanced',
         workflowIndex: fallback,
         orchestrationCue: formatOrchestrationCue({
+          stageId: 'post-approval-refresh',
+          status: 'blocked',
           stageStatus: 'Approval accepted, but pipeline status refresh encountered a warning.',
           blockers: ['Workflow index refresh failed during post-approval update.'],
           nextAction: 'Re-check stage status and continue with the next valid step.',
-          approvalRequired: false,
+          approvalRequired: true,
+          artifacts: [envelopePath],
         }),
       };
     }
@@ -420,6 +450,8 @@ export async function processReturnEnvelope(
         revisionPath,
         workflowIndex,
         orchestrationCue: formatOrchestrationCue({
+          stageId: '03-dispatch-and-execute',
+          status: 'blocked',
           stageStatus: revisionPath
             ? 'Stage blocked with revision request sent to subagent.'
             : 'Stage blocked after rejection; revision request was not created.',
@@ -428,6 +460,7 @@ export async function processReturnEnvelope(
             ? 'Wait for revised return envelope, then request approval decision.'
             : 'Create or re-send revision request before continuing.',
           approvalRequired: true,
+          artifacts: revisionPath ? [envelopePath, revisionPath] : [envelopePath],
         }),
       };
     } catch (err) {
@@ -437,10 +470,13 @@ export async function processReturnEnvelope(
         outcome: 'held',
         workflowIndex: fallback,
         orchestrationCue: formatOrchestrationCue({
+          stageId: '03-dispatch-and-execute',
+          status: 'blocked',
           stageStatus: 'Stage held after rejection with workflow index warning.',
           blockers: [note ?? 'Rejected by reviewer'],
           nextAction: 'Confirm blocked state, then send revision or retry guidance.',
           approvalRequired: true,
+          artifacts: [envelopePath],
         }),
       };
     }
@@ -554,10 +590,13 @@ export async function handleFailure(
       envelopePath,
       workflowIndex,
       orchestrationCue: formatOrchestrationCue({
+        stageId: `retry-${stepIndex + 1}-${workflowName}`,
+        status: 'in_progress',
         stageStatus: `Retry dispatched for step ${stepIndex + 1} (${workflowName}).`,
         blockers: [failureNotes],
         nextAction: 'Wait for retry return envelope and reassess.',
         approvalRequired: false,
+        artifacts: envelopePath ? [envelopePath] : [],
       }),
     };
   }
@@ -617,10 +656,13 @@ export async function handleFailure(
       action: 'skip',
       workflowIndex: workflowIndex!,
       orchestrationCue: formatOrchestrationCue({
+        stageId: `skip-${stepIndex + 1}-${workflowName}`,
+        status: 'in_progress',
         stageStatus: `Step ${stepIndex + 1} (${workflowName}) skipped after failure handling.`,
         blockers: [failureNotes],
         nextAction: 'Proceed to the next pipeline step.',
         approvalRequired: false,
+        artifacts: [],
       }),
     };
   }
@@ -664,10 +706,13 @@ export async function handleFailure(
     action: 'abort',
     workflowIndex: workflowIndex!,
     orchestrationCue: formatOrchestrationCue({
+      stageId: `abort-${stepIndex + 1}-${workflowName}`,
+      status: 'blocked',
       stageStatus: `Pipeline aborted at step ${stepIndex + 1} (${workflowName}).`,
       blockers: [failureNotes],
       nextAction: 'Escalate to developer and hold pipeline until new direction.',
       approvalRequired: true,
+      artifacts: [],
     }),
   };
 }
@@ -697,10 +742,13 @@ export async function resumePipeline(
     currentStepIndex,
     workflowIndex,
     orchestrationCue: formatOrchestrationCue({
+      stageId: `resume-${currentStepIndex}`,
+      status: 'in_progress',
       stageStatus: `Pipeline resumed at step index ${currentStepIndex}.`,
       blockers: [],
       nextAction: 'Continue from the current step according to workflow status.',
       approvalRequired: false,
+      artifacts: [],
     }),
   };
 }
@@ -734,10 +782,13 @@ export async function resumeFromInjection(
     currentStepIndex,
     workflowIndex,
     orchestrationCue: formatOrchestrationCue({
+      stageId: `resume-injection-${currentStepIndex}`,
+      status: 'in_progress',
       stageStatus: `Pipeline resumed from compaction at step index ${currentStepIndex}.`,
       blockers: [],
       nextAction: 'Continue orchestration from restored state.',
       approvalRequired: false,
+      artifacts: [],
     }),
   };
 }
