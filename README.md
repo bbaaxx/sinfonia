@@ -1,7 +1,7 @@
 # Sinfonia
 
 <p align="center">
-  <img src="docs/assets/logo-placeholder.png" alt="Sinfonia logo placeholder" width="140" />
+  <img src="assets/logo.png" alt="Sinfonia logo" width="140" />
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/hero-placeholder.png" alt="Sinfonia hero image placeholder" width="860" />
+  <img src="assets/hero.png" alt="Sinfonia hero" width="860" />
 </p>
 
 > Sinfonia gives AI-assisted engineering teams a shared score: explicit workflow steps, review gates, and traceable artifacts across sessions.
@@ -286,8 +286,6 @@ Contributions are welcome. For the best review experience:
 
 ---
 
-Design note: image assets are currently placeholders and intentionally easy to replace:
+Design note: some image assets are still placeholders and intentionally easy to replace:
 
-- `docs/assets/logo-placeholder.png`
-- `docs/assets/hero-placeholder.png`
 - `docs/assets/workflow-diagram-placeholder.png`
