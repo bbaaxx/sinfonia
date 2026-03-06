@@ -64,7 +64,7 @@ const matchesToolPattern = (toolName: string, pattern: string): boolean => {
     return true;
   }
   if (pattern.endsWith("*")) {
-    return toolName.startsWith(pattern.slice(0, -1));
+    return toolName.toLowerCase().startsWith(pattern.slice(0, -1).toLowerCase());
   }
   return toolName.toLowerCase() === pattern.toLowerCase();
 };

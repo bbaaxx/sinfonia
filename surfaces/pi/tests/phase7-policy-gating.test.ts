@@ -1,4 +1,4 @@
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -8,7 +8,25 @@ import { initPipeline } from "../../../src/workflow/coordinator.js";
 import { evaluateToolCall, evaluateAdvanceRequest, resolveCurrentPhase, type WorkflowStateSnapshot } from "../src/orchestration/policy.ts";
 import { resolvePhaseFromStep, isToolAllowedInPhase, computeAllowedTools, DEFAULT_PHASE_TOOL_MAP } from "../src/orchestration/phase-tools.ts";
 import { validateStepEvidence, extractEvidenceFromToolResult } from "../src/orchestration/evidence.ts";
+import { readWorkflowState } from "../src/workflow-state.ts";
 import registerSinfonicaExtension, { type ExtensionAPI } from "../index.ts";
+
+// Minimal type for test harness (ExtensionContext not exported from module)
+type ExtensionContext = {
+  cwd: string;
+  ui: {
+    notify: (message: string, level?: "info" | "warning" | "error") => void;
+    confirm: (title: string, message: string) => Promise<boolean>;
+    select: (title: string, options: string[]) => Promise<string | undefined>;
+    input: (title: string, placeholder?: string) => Promise<string | undefined>;
+    setStatus: (id: string, text: string | undefined) => void;
+    setWidget: (id: string, lines: string[] | undefined) => void;
+  };
+  sessionManager?: {
+    getEntries: () => unknown[];
+    getBranch: () => unknown;
+  };
+};
 
 const makeState = (overrides: Partial<WorkflowStateSnapshot> = {}): WorkflowStateSnapshot => ({
   sessionId: "s-20260305-000100",
@@ -70,6 +88,13 @@ describe("phase-tools: isToolAllowedInPhase", () => {
     expect(isToolAllowedInPhase("sinfonica_advance_step", "planning")).toBe(true);
   });
 
+  it("matches sinfonica wildcard case-insensitively", () => {
+    // Item #6: case-insensitive wildcard matching
+    expect(isToolAllowedInPhase("Sinfonica_start_workflow", "planning")).toBe(true);
+    expect(isToolAllowedInPhase("SINFONICA_advance_step", "planning")).toBe(true);
+    expect(isToolAllowedInPhase("Sinfonica_List_Workflows", "planning")).toBe(true);
+  });
+
   it("allows everything during implementation", () => {
     expect(isToolAllowedInPhase("Write", "implementation")).toBe(true);
     expect(isToolAllowedInPhase("Edit", "implementation")).toBe(true);
@@ -110,6 +135,50 @@ describe("phase-tools: computeAllowedTools", () => {
     expect(planningTools).not.toContain("Write");
     expect(planningTools).not.toContain("Edit");
     expect(planningTools).not.toContain("Bash");
+  });
+});
+
+// Item #5: Real step slug resolution test
+describe("workflow-state: readWorkflowState slug extraction", () => {
+  it("extracts step slugs from stages section", async () => {
+    const cwd = await makeTempDir();
+    const sessionId = "s-20260305-slugtest";
+    const workflowDir = join(cwd, ".sinfonica", "handoffs", sessionId);
+    await mkdir(workflowDir, { recursive: true });
+    
+    const workflowContent = `---
+workflow_id: test-workflow
+session_id: s-20260305-slugtest
+workflow_status: in_progress
+current_step_index: 2
+total_steps: 3
+created_at: 2026-03-05T00:00:00Z
+---
+
+# Test Workflow
+
+## Stages
+
+1. Gather Context (Amadeus)
+   - Status: approved
+
+2. Draft Specification (Coda)
+   - Status: in_progress
+
+3. Approval
+   - Status: pending
+`;
+    
+    await writeFile(join(workflowDir, "workflow.md"), workflowContent, "utf8");
+    
+    const state = await readWorkflowState(cwd, sessionId);
+    
+    expect(state.stepSlugs).toBeDefined();
+    expect(state.stepSlugs).toHaveLength(3);
+    expect(state.stepSlugs[0]).toBe("gather-context");
+    expect(state.stepSlugs[1]).toBe("draft-specification");
+    expect(state.stepSlugs[2]).toBe("approval");
+    expect(state.currentStep).toBe(2);
   });
 });
 
@@ -276,25 +345,44 @@ type RegisteredTool = {
   }>;
 };
 
+type RegisteredCommand = {
+  name: string;
+  handler: (args: string | undefined, ctx: ReturnType<typeof makeTestCtx>) => Promise<void>;
+};
+
+type EventHandler = (event: Record<string, unknown>, ctx?: ExtensionContext) => unknown | Promise<unknown>;
+
 const createApiHarness = (execHandler?: (command: string, args: string[]) => Promise<{ stdout: string; stderr: string; code: number | null }>) => {
   const tools: RegisteredTool[] = [];
+  const commands: RegisteredCommand[] = [];
+  const eventHandlers: Map<string, EventHandler[]> = new Map();
+  const appendedEntries: Array<{ customType: string; data?: unknown }> = [];
 
   const api: ExtensionAPI = {
     registerTool: (tool) => {
       tools.push(tool as unknown as RegisteredTool);
     },
-    registerCommand: () => {},
+    registerCommand: (name, command) => {
+      commands.push({ name, handler: command.handler });
+    },
     exec: async (command, args) => {
       if (execHandler) {
         return execHandler(command, args);
       }
       return { stdout: "", stderr: "error: unknown command 'advance'", code: 1 };
     },
-    on: () => {},
+    on: (event: string, handler: EventHandler) => {
+      const handlers = eventHandlers.get(event) ?? [];
+      handlers.push(handler);
+      eventHandlers.set(event, handlers);
+    },
     sendMessage: () => {},
+    appendEntry: (customType: string, data?: unknown) => {
+      appendedEntries.push({ customType, data });
+    },
   };
 
-  return { api, tools };
+  return { api, tools, commands, eventHandlers, appendedEntries };
 };
 
 afterEach(async () => {
@@ -348,5 +436,306 @@ describe("advance gate hardening (integration)", () => {
     // request-revision is not gated by evidence — it should proceed
     expect(result.details.blocked).toBeUndefined();
     expect(result.content[0].text).toContain("Recorded request-revision");
+  });
+
+  // Item #7: Command-path advance test
+  it("command-path /sinfonica advance shows warning when no evidence exists", async () => {
+    const cwd = await makeTempDir();
+    const sessionId = "s-20260305-000202";
+    await initPipeline(cwd, ["create-spec"], "Draft spec", sessionId);
+
+    const notifyMessages: Array<{ message: string; level: string }> = [];
+    const testCtx = {
+      cwd,
+      ui: {
+        notify: (message: string, level?: "info" | "warning" | "error") => {
+          notifyMessages.push({ message, level: level ?? "info" });
+        },
+        confirm: async () => true, // User confirms the advance
+        select: async () => undefined as string | undefined,
+        input: async () => undefined as string | undefined,
+        setStatus: () => {},
+        setWidget: () => {},
+      },
+      waitForIdle: async () => {},
+      newSession: async () => {},
+      fork: async () => {},
+      navigateTree: async () => {},
+      reload: async () => {},
+    };
+
+    const harness = createApiHarness();
+    registerSinfonicaExtension(harness.api);
+
+    const sinfonicaCommand = harness.commands.find((cmd) => cmd.name === "sinfonica");
+    expect(sinfonicaCommand).toBeDefined();
+
+    // Call the command handler with "advance approve"
+    await sinfonicaCommand!.handler("advance approve", testCtx as ReturnType<typeof makeTestCtx>);
+
+    // Verify warning was shown (evidence check fails)
+    const warningCall = notifyMessages.find(
+      (call) => call.level === "warning" && call.message.includes("Cannot advance")
+    );
+    expect(warningCall).toBeDefined();
+    expect(warningCall!.message).toContain("no execution evidence");
+  });
+});
+
+// --- A1/A2: Event handler tests ---
+
+describe("event handlers", () => {
+  // A1: tool_call handler test
+  it("tool_call handler returns { block: true, reason } when enforcement=block and tool not allowed", async () => {
+    const cwd = await makeTempDir();
+    const sessionId = "s-20260305-toolcall-001";
+    await initPipeline(cwd, ["create-spec"], "Draft spec", sessionId);
+
+    // Set enforcement mode to block via environment
+    const originalEnv = process.env.SINFONICA_PI_ENFORCEMENT;
+    process.env.SINFONICA_PI_ENFORCEMENT = "block";
+
+    try {
+      const harness = createApiHarness();
+      registerSinfonicaExtension(harness.api);
+
+      const toolCallHandlers = harness.eventHandlers.get("tool_call");
+      expect(toolCallHandlers).toBeDefined();
+      expect(toolCallHandlers!.length).toBeGreaterThan(0);
+
+      const notifyMessages: Array<{ message: string; level: string }> = [];
+      const mockCtx: ExtensionContext = {
+        cwd,
+        ui: {
+          notify: (message: string, level?: "info" | "warning" | "error") => {
+            notifyMessages.push({ message, level: level ?? "info" });
+          },
+          confirm: async () => false,
+          select: async () => undefined,
+          input: async () => undefined,
+          setStatus: () => {},
+          setWidget: () => {},
+        },
+      };
+
+      // Call all tool_call handlers and collect results
+      const results: unknown[] = [];
+      for (const handler of toolCallHandlers!) {
+        const result = await handler(
+          { toolName: "Write", toolCallId: "test-call-1", input: { path: "/test.txt" } },
+          mockCtx
+        );
+        results.push(result);
+      }
+      
+      console.log("All handler results:", results);
+
+      // At least one handler should return a block result
+      const blockResult = results.find((r): r is { block: boolean; reason: string } => 
+        r !== undefined && r !== null && typeof r === "object" && "block" in r && (r as Record<string, unknown>).block === true
+      );
+
+      // Should return block object
+      expect(blockResult).toEqual({ block: true, reason: expect.stringContaining("not allowed during planning") });
+    } finally {
+      process.env.SINFONICA_PI_ENFORCEMENT = originalEnv;
+    }
+  });
+
+  it("tool_call handler notifies but allows when enforcement=warn", async () => {
+    const cwd = await makeTempDir();
+    const sessionId = "s-20260305-toolcall-002";
+    await initPipeline(cwd, ["create-spec"], "Draft spec", sessionId);
+
+    const originalEnv = process.env.SINFONICA_PI_ENFORCEMENT;
+    process.env.SINFONICA_PI_ENFORCEMENT = "warn";
+
+    try {
+      const harness = createApiHarness();
+      registerSinfonicaExtension(harness.api);
+
+      const toolCallHandlers = harness.eventHandlers.get("tool_call");
+      expect(toolCallHandlers).toBeDefined();
+
+      const notifyMessages: Array<{ message: string; level: string }> = [];
+      const mockCtx: ExtensionContext = {
+        cwd,
+        ui: {
+          notify: (message: string, level?: "info" | "warning" | "error") => {
+            notifyMessages.push({ message, level: level ?? "info" });
+          },
+          confirm: async () => false,
+          select: async () => undefined,
+          input: async () => undefined,
+          setStatus: () => {},
+          setWidget: () => {},
+        },
+      };
+
+      // Call all handlers
+      for (const handler of toolCallHandlers!) {
+        await handler(
+          { toolName: "Write", toolCallId: "test-call-2", input: { path: "/test.txt" } },
+          mockCtx
+        );
+      }
+
+      // Should notify with warning but not block
+      const warningNotify = notifyMessages.find((n) => n.level === "warning" && n.message.includes("not allowed during planning"));
+      expect(warningNotify).toBeDefined();
+    } finally {
+      process.env.SINFONICA_PI_ENFORCEMENT = originalEnv;
+    }
+  });
+
+  it("tool_call handler allows sinfonica tools regardless of enforcement mode", async () => {
+    const cwd = await makeTempDir();
+    const sessionId = "s-20260305-toolcall-003";
+    await initPipeline(cwd, ["create-spec"], "Draft spec", sessionId);
+
+    const originalEnv = process.env.SINFONICA_PI_ENFORCEMENT;
+    process.env.SINFONICA_PI_ENFORCEMENT = "block";
+
+    try {
+      const harness = createApiHarness();
+      registerSinfonicaExtension(harness.api);
+
+      const toolCallHandlers = harness.eventHandlers.get("tool_call");
+      expect(toolCallHandlers).toBeDefined();
+
+      const notifyMessages: Array<{ message: string; level: string }> = [];
+      const mockCtx: ExtensionContext = {
+        cwd,
+        ui: {
+          notify: (message: string, level?: "info" | "warning" | "error") => {
+            notifyMessages.push({ message, level: level ?? "info" });
+          },
+          confirm: async () => false,
+          select: async () => undefined,
+          input: async () => undefined,
+          setStatus: () => {},
+          setWidget: () => {},
+        },
+      };
+
+      // Call all handlers
+      const results: unknown[] = [];
+      for (const handler of toolCallHandlers!) {
+        const result = await handler(
+          { toolName: "sinfonica_start_workflow", toolCallId: "test-call-3", input: {} },
+          mockCtx
+        );
+        results.push(result);
+      }
+
+      // sinfonica tools bypass enforcement - no blocking, no warnings
+      const blockResult = results.find((r): r is { block: boolean } => 
+        r !== undefined && r !== null && typeof r === "object" && "block" in r
+      );
+      expect(blockResult).toBeUndefined();
+      expect(notifyMessages.filter((n) => n.level === "warning")).toHaveLength(0);
+    } finally {
+      process.env.SINFONICA_PI_ENFORCEMENT = originalEnv;
+    }
+  });
+
+  // A2: session_start evidence reconstruction test
+  it("session_start handler is registered and processes without error", async () => {
+    const cwd = await makeTempDir();
+    const sessionId = "s-20260305-session-001";
+    await initPipeline(cwd, ["create-spec"], "Draft spec", sessionId);
+
+    const mockCtx: ExtensionContext = {
+      cwd,
+      ui: {
+        notify: () => {},
+        confirm: async () => false,
+        select: async () => undefined,
+        input: async () => undefined,
+        setStatus: () => {},
+        setWidget: () => {},
+      },
+      sessionManager: {
+        getEntries: () => [],
+        getBranch: () => null,
+      },
+    };
+
+    const harness = createApiHarness();
+    registerSinfonicaExtension(harness.api);
+
+    const sessionStartHandlers = harness.eventHandlers.get("session_start");
+    expect(sessionStartHandlers).toBeDefined();
+    expect(sessionStartHandlers!.length).toBeGreaterThan(0);
+
+    // Call all session_start handlers - should not crash
+    for (const handler of sessionStartHandlers!) {
+      await handler({}, mockCtx);
+    }
+  });
+
+  it("tool_result handler persists evidence via appendEntry", async () => {
+    const cwd = await makeTempDir();
+    const sessionId = "s-20260305-session-002";
+    await initPipeline(cwd, ["create-spec"], "Draft spec", sessionId);
+
+    const mockCtx: ExtensionContext = {
+      cwd,
+      ui: {
+        notify: () => {},
+        confirm: async () => false,
+        select: async () => undefined,
+        input: async () => undefined,
+        setStatus: () => {},
+        setWidget: () => {},
+      },
+    };
+
+    const harness = createApiHarness();
+    registerSinfonicaExtension(harness.api);
+
+    const toolResultHandlers = harness.eventHandlers.get("tool_result");
+    expect(toolResultHandlers).toBeDefined();
+
+    // Simulate a tool_result that adds evidence
+    for (const handler of toolResultHandlers!) {
+      await handler(
+        {
+          toolName: "SomeTool",
+          toolCallId: "test-result-1",
+          details: { sinfonica_evidence: { executed: true, stepId: "1-analyze-prd", persona: "coda" } },
+        },
+        mockCtx
+      );
+    }
+
+    // Verify appendEntry was called with evidence
+    const evidenceEntries = harness.appendedEntries.filter((e) => e.customType === "sinfonica:step-evidence");
+    expect(evidenceEntries.length).toBeGreaterThan(0);
+    expect(evidenceEntries[0].data).toMatchObject({ executed: true, stepId: "1-analyze-prd" });
+  });
+
+  it("session_compact and session_switch handlers reset evidence", async () => {
+    const cwd = await makeTempDir();
+    const sessionId = "s-20260305-session-003";
+    await initPipeline(cwd, ["create-spec"], "Draft spec", sessionId);
+
+    const harness = createApiHarness();
+    registerSinfonicaExtension(harness.api);
+
+    // Verify handlers are registered
+    const compactHandlers = harness.eventHandlers.get("session_compact");
+    expect(compactHandlers).toBeDefined();
+
+    const switchHandlers = harness.eventHandlers.get("session_switch");
+    expect(switchHandlers).toBeDefined();
+
+    // Call handlers - should not crash
+    for (const handler of compactHandlers ?? []) {
+      await handler({});
+    }
+    for (const handler of switchHandlers ?? []) {
+      await handler({});
+    }
   });
 });

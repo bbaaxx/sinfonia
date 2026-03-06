@@ -1,4 +1,4 @@
-import { readdir } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import {
@@ -19,6 +19,32 @@ import { registerEnforcementBridge } from "./src/enforcement/index.ts";
 import { evaluateAdvanceRequest, evaluateToolCall, resolveCurrentPhase, type WorkflowStateSnapshot } from "./src/orchestration/policy.ts";
 import { extractEvidenceFromToolResult, type StepEvidence } from "./src/orchestration/evidence.ts";
 import { readWorkflowState } from "./src/workflow-state.ts";
+
+// Item #2: Config loading for enforcement mode
+type EnforcementMode = "warn" | "block" | "disabled";
+
+const readEnforcementConfig = async (cwd: string): Promise<EnforcementMode> => {
+  // Check environment variable first
+  const envValue = process.env.SINFONICA_PI_ENFORCEMENT?.toLowerCase();
+  if (envValue === "warn" || envValue === "block") {
+    return envValue;
+  }
+
+  // Try to read from config file
+  try {
+    const configPath = join(cwd, ".sinfonica", "config.json");
+    const raw = await readFile(configPath, "utf8");
+    const config = JSON.parse(raw) as Record<string, unknown>;
+    const configValue = config.pi_native_enforcement;
+    if (configValue === "warn" || configValue === "block") {
+      return configValue;
+    }
+  } catch {
+    // Config file doesn't exist or is invalid - use disabled
+  }
+
+  return "disabled";
+};
 
 type WorkflowType = "create-prd" | "create-spec" | "dev-story" | "code-review";
 type AdvanceDecision = "approve" | "request-revision";
@@ -404,7 +430,14 @@ export default function registerSinfonicaExtension(pi: ExtensionAPI): void {
     let currentStepSlug = `${active.currentStep}-unknown`;
     try {
       const state = await readWorkflowState(cwd, active.sessionId);
-      currentStepSlug = `${state.currentStep}-step`;
+      // Item #5: Use real slug from workflow state stepSlugs array
+      const slugIndex = active.currentStep - 1;
+      if (state.stepSlugs && state.stepSlugs[slugIndex]) {
+        currentStepSlug = state.stepSlugs[slugIndex];
+      } else {
+        // Fallback to step index format
+        currentStepSlug = `${active.currentStep}-step`;
+      }
     } catch {
       // Use fallback slug
     }
@@ -419,7 +452,7 @@ export default function registerSinfonicaExtension(pi: ExtensionAPI): void {
     };
   };
 
-  // Accumulate evidence from tool results
+  // Accumulate evidence from tool results (Item #3: also persist)
   pi.on("tool_result", (event) => {
     const details = event.details as Record<string, unknown> | undefined;
     if (details && typeof event.toolName === "string" && !event.toolName.startsWith("sinfonica_")) {
@@ -429,13 +462,73 @@ export default function registerSinfonicaExtension(pi: ExtensionAPI): void {
           ...currentStepEvidence,
           ...extracted,
         };
+        // Item #3: Persist evidence for session recovery
+        pi.appendEntry?.("sinfonica:step-evidence", currentStepEvidence);
       }
     }
   });
 
-  // Reset evidence on session start
-  pi.on("session_start", () => {
+  // Item #3: Reset/reconstruct evidence on session start
+  pi.on("session_start", async (_event, ctx) => {
+    // First, try to reconstruct from persisted entries
+    if (ctx?.sessionManager?.getEntries) {
+      try {
+        const entries = ctx.sessionManager.getEntries();
+        const evidenceEntries = entries.filter(
+          (entry) => (entry as { customType?: string }).customType === "sinfonica:step-evidence"
+        );
+        if (evidenceEntries.length > 0) {
+          const latest = evidenceEntries[evidenceEntries.length - 1] as Record<string, unknown>;
+          currentStepEvidence = latest.data as Partial<StepEvidence>;
+          return;
+        }
+      } catch {
+        // Ignore reconstruction errors, fall through to reset
+      }
+    }
+    // No persisted evidence or reconstruction failed - start fresh
     currentStepEvidence = null;
+  });
+
+  // Item #3: Reset evidence on session compact/switch
+  pi.on("session_compact", () => {
+    currentStepEvidence = null;
+  });
+
+  pi.on("session_switch", () => {
+    currentStepEvidence = null;
+  });
+
+  // Item #2: tool_call policy enforcement
+  pi.on("tool_call", async (event, ctx) => {
+    const toolName = event.toolName as string;
+    
+    // sinfonica tools bypass policy checks
+    if (toolName.startsWith("sinfonica_")) {
+      return;
+    }
+
+    const cwd = ctx?.cwd ?? process.cwd();
+    const activeState = await readActiveState(cwd);
+    if (!activeState) {
+      return; // No active workflow, allow all tools
+    }
+
+    const enforcementMode = await readEnforcementConfig(cwd);
+    if (enforcementMode === "disabled") {
+      return; // Enforcement disabled, allow all tools
+    }
+
+    const currentPhase = resolveCurrentPhase(activeState);
+    const policy = evaluateToolCall(toolName, event.input, currentPhase, activeState);
+
+    if (!policy.allowed) {
+      if (enforcementMode === "block") {
+        return { block: true, reason: policy.reason };
+      }
+      // warn mode: notify but allow
+      ctx?.ui?.notify?.(policy.reason ?? "Tool blocked by policy", "warning");
+    }
   });
 
   pi.registerTool<StartWorkflowParams>({

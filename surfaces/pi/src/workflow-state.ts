@@ -6,11 +6,13 @@ export type WorkflowState = {
   totalSteps: number;
   status: string;
   persona?: string | null;
+  stepSlugs: string[];
 };
 
 type StageEntry = {
   step: number;
   status: string;
+  slug: string;
 };
 
 const ACTIVE_STATUS_TOKENS = ["in-progress", "pending", "blocked", "active"];
@@ -55,9 +57,18 @@ const parseStages = (raw: string): StageEntry[] => {
       continue;
     }
 
-    const stageMatch = line.match(/^\s*(\d+)\.\s+/);
+    const stageMatch = line.match(/^\s*(\d+)\.\s+(.+)$/);
     if (stageMatch) {
-      current = { step: Number.parseInt(stageMatch[1], 10), status: "" };
+      const rawTitle = stageMatch[2].trim();
+      // Extract slug from title like "1. Architect Review (Amadeus)" -> "architect-review"
+      // or "1-gather-context" format from Steps table
+      const slug = rawTitle
+        .toLowerCase()
+        .replace(/\s*\([^)]*\)\s*/g, "") // Remove parenthetical parts like "(Amadeus)"
+        .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumeric with dashes
+        .replace(/^-+|-+$/g, "") // Trim leading/trailing dashes
+        .slice(0, 40); // Limit length
+      current = { step: Number.parseInt(stageMatch[1], 10), status: "", slug: slug || `step-${stageMatch[1]}` };
       stages.push(current);
       continue;
     }
@@ -93,6 +104,10 @@ export const readWorkflowState = async (cwd: string, sessionId: string): Promise
   const raw = await readFile(workflowPath, "utf8");
   const frontmatter = parseFrontmatter(raw);
 
+  // Parse stages to extract slugs
+  const stages = parseStages(raw);
+  const stepSlugs = stages.map((stage) => stage.slug);
+
   const fmStatus = frontmatter.workflow_status?.trim().toLowerCase();
   const fmCurrentStep = Number.parseInt(frontmatter.current_step_index ?? "", 10);
   const fmTotalSteps = Number.parseInt(frontmatter.total_steps ?? "", 10);
@@ -102,13 +117,13 @@ export const readWorkflowState = async (cwd: string, sessionId: string): Promise
       totalSteps: fmTotalSteps,
       status: fmStatus,
       persona: typeof frontmatter.persona === "string" ? frontmatter.persona.trim() : null,
+      stepSlugs,
     };
   }
 
   const statusMatch = raw.match(/-\s*Overall Status:\s*(.+)$/im);
   const status = statusMatch ? statusMatch[1].trim().toLowerCase() : "unknown";
 
-  const stages = parseStages(raw);
   const totalSteps = stages.length;
 
   const firstActive = stages.find((stage) => stage.status.length > 0 && (isActive(stage.status) || !isTerminal(stage.status)));
@@ -121,5 +136,6 @@ export const readWorkflowState = async (cwd: string, sessionId: string): Promise
     currentStep,
     totalSteps,
     status,
+    stepSlugs,
   };
 };
