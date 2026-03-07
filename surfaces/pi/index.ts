@@ -7,7 +7,7 @@ import {
   type AdapterOperation,
   type AdapterOperationPayloads,
 } from "./src/adapter-contract.ts";
-import { writeReturnEnvelope } from "./src/handoff-writer.ts";
+import { writeReturnEnvelope, type ReturnDecision } from "./src/handoff-writer.ts";
 import { readActiveWorkflowStatus, registerStatusWidget } from "./src/widget/status.ts";
 import { createSessionId } from "../../src/handoff/writer.js";
 import { processReturnEnvelope, resolvePersona } from "../../src/workflow/coordinator.js";
@@ -24,9 +24,13 @@ import {
   StartWorkflowParams,
   AdvanceStepParams,
   ListWorkflowsParams,
+  VALID_WORKFLOW_TYPES,
+  VALID_DECISIONS,
   type StartWorkflowParamsType,
   type AdvanceStepParamsType,
   type ListWorkflowsParamsType,
+  type ValidWorkflowType,
+  type ValidDecision,
 } from "./src/schemas.ts";
 
 // Item #2: Config loading for enforcement mode
@@ -58,7 +62,12 @@ const readEnforcementConfig = async (cwd: string): Promise<EnforcementMode> => {
 type CommandAction = "status" | "advance" | "list" | "abort" | "reload";
 
 type WorkflowType = StartWorkflowParamsType["workflowType"];
-type AdvanceDecision = AdvanceStepParamsType["decision"];
+
+const isValidDecision = (value: string): value is ReturnDecision => 
+  VALID_DECISIONS.includes(value as ReturnDecision);
+
+const isValidWorkflowType = (value: string): value is ValidWorkflowType =>
+  VALID_WORKFLOW_TYPES.includes(value as ValidWorkflowType);
 
 type ExecuteResult = {
   stdout: string;
@@ -363,7 +372,7 @@ const resolveSessionIdForAdvance = async (cwd: string): Promise<string | null> =
 
 const advanceWorkflowLocally = async (
   cwd: string,
-  decision: AdvanceDecision,
+  decision: ReturnDecision,
   feedback?: string
 ): Promise<string> => {
   const sessionId = await resolveSessionIdForAdvance(cwd);
@@ -562,6 +571,22 @@ export default function registerSinfonicaExtension(pi: ExtensionAPI): void {
     parameters: StartWorkflowParams,
     async execute(_toolCallId, params, signal, _onUpdate, ctx) {
       try {
+        // Validate workflow type
+        if (!isValidWorkflowType(params.workflowType)) {
+          return {
+            content: [{ type: "text", text: `Invalid workflow type "${params.workflowType}". Valid types are: ${VALID_WORKFLOW_TYPES.join(", ")}.` }],
+            details: {
+              ok: false,
+              adapter: ADAPTER_ID,
+              operation: "workflow.start" as const,
+              error: "invalid-workflow-type",
+              provided: params.workflowType,
+              validTypes: VALID_WORKFLOW_TYPES,
+            },
+            isError: true,
+          };
+        }
+
         const args = ["start", params.workflowType];
         if (params.context && params.context.trim().length > 0) {
           args.push("--context", params.context.trim());
@@ -626,10 +651,26 @@ export default function registerSinfonicaExtension(pi: ExtensionAPI): void {
   pi.registerTool<AdvanceStepParamsType>({
     name: "sinfonica_advance_step",
     label: "Advance Sinfonica Step",
-    description: "Advance the active Sinfonica workflow by recording a decision via CLI.",
+    description: "Advance the active Sinfonica workflow by recording a decision. Valid decisions: approve, request-revision.",
     parameters: AdvanceStepParams,
     async execute(_toolCallId, params, signal, _onUpdate, ctx) {
       try {
+        // Validate decision
+        if (!isValidDecision(params.decision)) {
+          return {
+            content: [{ type: "text", text: `Invalid decision "${params.decision}". Valid decisions are: ${VALID_DECISIONS.join(", ")}.` }],
+            details: {
+              ok: false,
+              adapter: ADAPTER_ID,
+              operation: "step.advance" as const,
+              error: "invalid-decision",
+              provided: params.decision,
+              validDecisions: VALID_DECISIONS,
+            },
+            isError: true,
+          };
+        }
+
         // Evidence-gated advance (WS3): check accumulated evidence before allowing
         const activeState = await readActiveState(ctx.cwd);
         if (activeState && params.decision === "approve") {
